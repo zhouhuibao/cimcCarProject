@@ -50,6 +50,7 @@ const footerRender = (_, defaultDom) => {
 
 const BasicLayout = props => {
   const { dispatch, children, settings } = props;
+  console.log(props);
   /**
    * constructor
    */
@@ -84,7 +85,11 @@ const BasicLayout = props => {
           return defaultDom;
         }
 
-        return <Link to={menuItemProps.path} replace>{defaultDom}</Link>;
+        return (
+          <Link to={menuItemProps.path} replace>
+            {defaultDom}
+          </Link>
+        );
       }}
       breadcrumbRender={(routers = []) => [
         {
@@ -104,7 +109,8 @@ const BasicLayout = props => {
           <span>{route.breadcrumbName}</span>
         );
       }}
-      footerRender={footerRender}
+      footerRender={false}
+      // footerRender={footerRender}
       menuDataRender={menuDataRender}
       formatMessage={formatMessage}
       rightContentRender={rightProps => <RightContent {...rightProps} />}

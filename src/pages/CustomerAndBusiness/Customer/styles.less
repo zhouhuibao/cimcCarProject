@@ -1,0 +1,49 @@
+.topWrapper {
+  .left {
+    float: left;
+    p {
+      float: left;
+      font-size: 18px;
+      line-height: 32px;
+      position: relative;
+      margin: 0;
+    }
+    p:after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 32px;
+      background-color: #d8dde8;
+      position: absolute;
+      right: -10px;
+      top: 0;
+    }
+    .selectType {
+      float: left;
+      margin-left: 20px;
+      line-height: 32px;
+      font-size: 18px;
+    }
+  }
+  .right {
+    float: right;
+    .search {
+      float: left;
+      margin-right: 40px;
+    }
+    .btnWrap {
+      float: left;
+      position: relative;
+    }
+    .btn:after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 32px;
+      background-color: #d8dde8;
+      position: absolute;
+      left: -20px;
+      top: 0;
+    }
+  }
+}

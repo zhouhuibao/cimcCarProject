@@ -69,3 +69,28 @@
   color: @text-color-secondary;
   font-size: @font-size-base;
 }
+
+// 登录的外层
+.LoginWrapper {
+  height: 100%;
+  display: flex;
+  .loginLeft {
+    flex: 1;
+  }
+
+  .loginRight {
+    width: 32.5%;
+    border-left: 1px solid #ccc;
+
+    .loginRightContent {
+      position: relative;
+      margin: 20% auto 0;
+      width: 400px;
+      box-sizing: border-box;
+      .loginTitle {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+    }
+  }
+}

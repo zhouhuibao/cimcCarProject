@@ -1,6 +1,8 @@
 export default {
   'menu.welcome': 'Welcome',
   'menu.testPage': 'testPage',
+  'menu.forgetPassword': 'Forget password',
+  'menu.recoverPassword': 'Recover password',
   'menu.more-blocks': 'More Blocks',
   'menu.home': 'Home',
   'menu.login': 'Login',

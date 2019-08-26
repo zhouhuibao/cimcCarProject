@@ -4,6 +4,8 @@ import { formatMessage } from 'umi-plugin-react/locale';
 import defaultSettings from '../config/defaultSettings';
 const { pwa } = defaultSettings; // if pwa is true
 
+console.log(112);
+
 if (pwa) {
   // Notify user if offline now
   window.addEventListener('sw.offline', () => {

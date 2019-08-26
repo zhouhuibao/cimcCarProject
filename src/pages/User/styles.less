@@ -1,0 +1,116 @@
+//登录页面
+
+@mainColor: #fc923f;
+
+.login {
+  .loginItem {
+    display: flex;
+    //   border-bottom: 1px solid #ccc;
+    //   margin-bottom: 20px;
+    .loginItemLabel {
+      width: 70px;
+      height: 36px;
+      padding: 4px 0;
+      text-align: left;
+      line-height: 32px;
+      border-bottom: 1px solid #ccc;
+      padding-left: 5px;
+    }
+    .loginItemValue {
+      flex: 1;
+      :global {
+        .ant-input {
+          outline: none;
+          border: 0;
+          border-bottom: 1px solid #ccc;
+          border-radius: 0;
+        }
+        // .ant-form-item{
+        //     margin: 0
+        // }
+
+        .ant-input:focus {
+          background-color: none !important;
+          box-shadow: none;
+        }
+      }
+    }
+    .dynamicpass {
+      display: flex;
+      :global {
+        .ant-form-item {
+          flex: 1;
+        }
+      }
+      span {
+        width: auto;
+        line-height: 40px;
+        cursor: pointer;
+        color: @mainColor;
+      }
+    }
+  }
+}
+
+.loginBtn {
+  :global {
+    .ant-btn,
+    .ant-btn:hover,
+    .ant-btn:focus {
+      cursor: pointer;
+      display: block;
+      width: 100%;
+      height: 40px;
+      text-align: center;
+      font-size: 16px;
+      line-height: 40px;
+      border-radius: 20px;
+      background-image: linear-gradient(270deg, #ffa90e, #ffaa8a);
+      color: #fff;
+      border: 0;
+      margin-top: 30px;
+    }
+  }
+}
+
+.forgetPassword {
+  .loginItem {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    display: flex;
+    margin-bottom: 20px;
+    :global {
+      .ant-input {
+        outline: none;
+        border: 0;
+        border-radius: 0;
+      }
+      .ant-form-item {
+        margin: 0;
+      }
+
+      .ant-input:focus {
+        background-color: none !important;
+        box-shadow: none;
+      }
+    }
+    .mobileNo {
+      flex: 1;
+    }
+    span {
+      width: auto;
+      line-height: 40px;
+      cursor: pointer;
+      padding: 0 20px;
+      color: @mainColor;
+    }
+  }
+
+  .backLogin {
+    color: @mainColor;
+    text-align: center;
+    margin-top: 40px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+}

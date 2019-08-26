@@ -1,6 +1,8 @@
 export default {
   'menu.welcome': '欢迎',
   'menu.testPage': '测试页面',
+  'menu.forgetPassword': '忘记密码',
+  'menu.recoverPassword': '找回密码',
   'menu.more-blocks': '更多区块',
   'menu.home': '首页',
   'menu.login': '登录',
