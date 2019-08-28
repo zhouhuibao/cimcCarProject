@@ -66,7 +66,8 @@ class TextPage extends Component {
           rules: [
             {
               required: true,
-              message: '请输入子工程',
+              message:
+                '请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程请输入子工程',
             },
           ],
         },
@@ -110,11 +111,7 @@ class TextPage extends Component {
         domType: 'text',
         id: 'supplierId',
         title: '施工单位',
-        domAttr: {
-          multipleSupplier: false,
-          tenderType: '0',
-          isAuthentication: true,
-        },
+        domAttr: {},
         fieldAttr: {},
         options: null,
       },
@@ -146,6 +143,16 @@ class TextPage extends Component {
         fieldAttr: {},
         options: null,
       },
+      {
+        domType: 'text',
+        id: 'constructionUserName',
+        title: '代表',
+        domAttr: {
+          placeholder: '请输入施工代表',
+        },
+        fieldAttr: {},
+        options: null,
+      },
     ],
   };
 
@@ -160,15 +167,29 @@ class TextPage extends Component {
     console.log(isUrl(path));
     console.log(this);
     const { dispatch } = this.props;
-    dispatch({
-      type: 'testModel/queryMyExecuteTask',
-      payload: {
-        parentCode: 'manage',
-      },
-      callBack: res => {
-        console.log(res);
-      },
-    });
+    // dispatch({
+    //   type: 'testModel/queryMyExecuteTask',
+    //   payload: {
+    //     parentCode: 'manage',
+    //   },
+    //   callBack: res => {
+    //     console.log(res);
+    //   },
+    // });
+
+    const { formItemData } = this.state;
+
+    const bigArr = [];
+    for (let i = 0; i < formItemData.length; i += 2) {
+      const arr = [];
+      for (let j = 0; j < 2; j += 1) {
+        if (formItemData[j + i] !== undefined) {
+          arr.push(formItemData[j + i]);
+        }
+      }
+      bigArr.push(arr);
+    }
+    console.log(bigArr);
   }
 
   showDrawer = () => {
@@ -201,7 +222,7 @@ class TextPage extends Component {
     } = this.props;
     const { formItemData } = this.state;
     return (
-      <PageHeaderWrapper>
+      <Fragment>
         {testList.map((item, i) => {
           return <p key={i}>{item}</p>;
         })}
@@ -331,7 +352,7 @@ class TextPage extends Component {
             <Button htmlType="submit">提交</Button>
           </Form>
         </div>
-      </PageHeaderWrapper>
+      </Fragment>
     );
   }
 }

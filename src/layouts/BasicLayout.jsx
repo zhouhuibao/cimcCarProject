@@ -51,6 +51,7 @@ const footerRender = (_, defaultDom) => {
 const BasicLayout = props => {
   const { dispatch, children, settings } = props;
   console.log(props);
+  console.log(children);
   /**
    * constructor
    */

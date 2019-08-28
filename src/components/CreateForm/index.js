@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Input, Select, DatePicker, Form, Row, Col } from 'antd';
 import styles from './style.less';
 
@@ -76,13 +76,50 @@ class TextPage extends Component {
 
   render() {
     const { formData } = this.props;
-
+    // 把传过来的一维数组转成二位数组
+    const bigArr = [];
+    for (let i = 0; i < formData.length; i += 2) {
+      const arr = [];
+      for (let j = 0; j < 2; j += 1) {
+        if (formData[j + i] !== undefined) {
+          arr.push(formData[j + i]);
+        }
+      }
+      bigArr.push(arr);
+    }
     return (
       <Row gutter={16} className={styles.formWrapper}>
-        {formData.map((item, i) => {
+        {bigArr.map((divItem, i) => {
+          return (
+            <div key={i} className="clearfix">
+              {divItem.map((item, j) => {
+                return (
+                  <Col className="gutter-row" span={12} key={j}>
+                    <p style={{ marginBottom: 5 }}>
+                      {item.required ? (
+                        <span
+                          style={{
+                            color: 'red',
+                          }}
+                        >
+                          *
+                        </span>
+                      ) : null}
+
+                      {item.title}
+                    </p>
+                    <FormItem>{this.setFormItemDom(item)}</FormItem>
+                  </Col>
+                );
+              })}
+            </div>
+          );
+        })}
+
+        {/* {formData.map((item, i) => {
           return (
             <Col className="gutter-row" span={12} key={i}>
-              <p>
+              <p style={{marginBottom:5}}>
                 {item.required ? (
                   <span
                     style={{
@@ -98,7 +135,7 @@ class TextPage extends Component {
               <FormItem>{this.setFormItemDom(item)}</FormItem>
             </Col>
           );
-        })}
+        })} */}
       </Row>
     );
   }

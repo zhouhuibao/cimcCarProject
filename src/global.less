@@ -1,5 +1,7 @@
 @import '~antd/es/style/themes/default.less';
 
+@black: #2a304d;
+
 html,
 body,
 #root {
@@ -13,6 +15,61 @@ body,
   margin: 0 !important;
   padding: 24px !important;
   background: #fff;
+}
+
+:global {
+  .formDrawer {
+    .ant-drawer-body {
+      padding-bottom: 60px;
+    }
+  }
+  .detailDrawer {
+    .ant-drawer-body {
+      padding: 0px;
+    }
+    .detailDrawer-header {
+      padding: 14px;
+      background: #f6f9fc;
+      .detailDrawer-header-left {
+        .icon {
+          float: left;
+          width: 32px;
+          height: 32px;
+          background: url('https://a9.fspage.com/FSR/frontend/html/crm-dist/assets/images/d-obj-icon-d76bcf6556.png?6.1%200')
+            no-repeat;
+          background-size: 100% 100%;
+          margin-top: 5px;
+          border-radius: 3px;
+        }
+        .name {
+          margin-left: 10px;
+          float: left;
+          p {
+            margin: 0;
+          }
+          p:first-child {
+            font-size: 12px;
+            color: #999;
+          }
+          p:last-child {
+            color: @black;
+          }
+        }
+        float: left;
+      }
+      .detailDrawer-header-right {
+        padding-top: 5px;
+        float: right;
+        .ant-btn {
+          margin-right: 10px;
+        }
+        .anticon-close {
+          cursor: pointer;
+          font-size: 16px;
+        }
+      }
+    }
+  }
 }
 
 .clearfix:after {
