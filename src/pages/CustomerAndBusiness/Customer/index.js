@@ -2,11 +2,12 @@ import React, { Component, Fragment } from 'react';
 import { Table, Input, Menu, Dropdown, Icon, Button, Form, Drawer, Row, Col } from 'antd';
 import FormItemDom from '@/components/CreateForm';
 import MoreBtn from '@/components/MoreBtn';
+import Information from '@/components/Information';
+import Blockquote from '@/components/Blockquote';
+import InfoDetail from '@/components/InfoDetail';
+
 // import AddTest from './Addtest';
 import styles from './styles.less';
-
-const imgPath =
-  'https://a9.fspage.com/FSR/frontend/html/base-dist/assets/images/employee_default_120_120-dc73603d24.png';
 
 const { Search } = Input;
 
@@ -20,6 +21,26 @@ class CustomerList extends Component {
   state = {
     visible: false,
     detailVisible: false,
+    BlockquoteData: [
+      {
+        title: '新建',
+        click: () => {
+          console.log('新建');
+        },
+      },
+      {
+        title: '修改',
+        click: () => {
+          console.log('修改');
+        },
+      },
+      {
+        title: '删除',
+        click: () => {
+          console.log('删除');
+        },
+      },
+    ],
     moreMenu: [
       {
         key: 'copy',
@@ -32,6 +53,32 @@ class CustomerList extends Component {
       {
         key: 'copy2',
         value: '复制2',
+      },
+    ],
+    infoData: [
+      {
+        title: '客户编号',
+        value: '2018594654',
+      },
+      {
+        title: '客户级别',
+        value: '重要客户',
+      },
+      {
+        title: '成交状态',
+        value: '已成交',
+      },
+      {
+        title: '负责人',
+        value: '张先生',
+      },
+      {
+        title: '最后跟进时间',
+        value: '2019-08-22 09:43',
+      },
+      {
+        title: '所属公海（名称）',
+        value: '---',
       },
     ],
     columns: [
@@ -303,7 +350,16 @@ class CustomerList extends Component {
         name: record.name,
       }),
     };
-    const { visible, formItemData, columns, tableData, detailVisible, moreMenu } = this.state;
+    const {
+      visible,
+      formItemData,
+      columns,
+      tableData,
+      detailVisible,
+      moreMenu,
+      infoData,
+      BlockquoteData,
+    } = this.state;
 
     return (
       <Fragment>
@@ -438,34 +494,39 @@ class CustomerList extends Component {
           closable={false}
           className="detailDrawer"
         >
-          <div className="detailDrawer-header clearfix">
-            <div className="detailDrawer-header-left">
-              <div className="clearfix">
-                <span className="icon" />
-                <div className="name">
-                  <p>报价单详情</p>
-                  <p>婵</p>
+          <div className="detailDrawer-header">
+            <div className="clearfix">
+              <div className="detailDrawer-header-left">
+                <div className="clearfix">
+                  <span className="icon" />
+                  <div className="name">
+                    <p>报价单详情</p>
+                    <p>婵</p>
+                  </div>
                 </div>
               </div>
+              <div className="detailDrawer-header-right">
+                <Button type="primary">编辑</Button>
+                <Button type="primary">作废</Button>
+                <Button type="primary">锁定</Button>
+                <MoreBtn
+                  menu={moreMenu}
+                  handleMenuClick={e => {
+                    this.handleMenuClick(e);
+                  }}
+                />
+                <Icon
+                  type="close"
+                  onClick={() => {
+                    this.closeDetail();
+                  }}
+                />
+              </div>
             </div>
-            <div className="detailDrawer-header-right">
-              <Button type="primary">编辑</Button>
-              <Button type="primary">作废</Button>
-              <Button type="primary">锁定</Button>
-              <MoreBtn
-                menu={moreMenu}
-                handleMenuClick={e => {
-                  this.handleMenuClick(e);
-                }}
-              />
-              <Icon
-                type="close"
-                onClick={() => {
-                  this.closeDetail();
-                }}
-              />
-            </div>
+            <Information infoList={infoData} />
           </div>
+          <Blockquote title="详细信息" btnData={BlockquoteData} />
+          <InfoDetail title="基本信息" btnData={BlockquoteData} />
         </Drawer>
       </Fragment>
     );

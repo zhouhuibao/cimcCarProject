@@ -25,6 +25,17 @@ const rules = type => {
   return rule;
 };
 
+// 生成10位随机数,可用于作为遍历节点时候的key
+const MathRandom = () => {
+  let str = '';
+  for (let i = 0; i < 10; i += 1) {
+    str += parseInt(Math.random() * 10);
+  }
+  console.log(str);
+
+  return str;
+};
+
 const isAntDesignPro = () => {
   if (ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION === 'site') {
     return true;
@@ -43,4 +54,4 @@ const isAntDesignProOrDev = () => {
   return isAntDesignPro();
 };
 
-export { isAntDesignProOrDev, isAntDesignPro, isUrl, rules, amapKay };
+export { isAntDesignProOrDev, isAntDesignPro, isUrl, rules, amapKay, MathRandom };

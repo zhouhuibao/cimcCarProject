@@ -1,0 +1,42 @@
+.blockquote {
+  padding-left: 16px;
+  height: 52px;
+  line-height: 52px;
+  .blockquoteLeft {
+    float: left;
+    color: #2a304d;
+    font-size: 14px;
+    position: relative;
+    padding-left: 15px;
+    span {
+      display: block;
+      height: 16px;
+      width: 3px;
+      background: #12d4d7;
+      position: absolute;
+      top: 18px;
+      left: 0;
+    }
+  }
+  .blockquoteRight {
+    float: right;
+    .blockquoteRightItem {
+      position: relative;
+      float: left;
+      em {
+        position: absolute;
+        right: 0;
+        top: 19px;
+        width: 1px;
+        height: 15px;
+        display: block;
+        background: #ccc;
+      }
+      a {
+        padding: 0 12px;
+        color: #3487e2;
+        font-size: 14px;
+      }
+    }
+  }
+}
