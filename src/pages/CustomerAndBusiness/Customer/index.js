@@ -5,6 +5,8 @@ import MoreBtn from '@/components/MoreBtn';
 import Information from '@/components/Information';
 import Blockquote from '@/components/Blockquote';
 import InfoDetail from '@/components/InfoDetail';
+import AmapComponent from '@/components/AmapComponent';
+import { dataType } from '@/utils/utils';
 
 // import AddTest from './Addtest';
 import styles from './styles.less';
@@ -21,6 +23,44 @@ class CustomerList extends Component {
   state = {
     visible: false,
     detailVisible: false,
+    amapVisible: false,
+    amapPosition: [
+      {
+        position: {
+          latitude: 34.81606494187118,
+          longitude: 110.57018419466945,
+        },
+      },
+    ],
+    infoList: [
+      {
+        label: '客户名称',
+        value: '张坤(个体)',
+      },
+      {
+        label: '客户名称',
+        value: '张坤(个体)',
+      },
+      {
+        label: '客户名称',
+        value: '张坤(个体)',
+      },
+      {
+        label: '客户名称',
+        value: '张坤(个体)',
+        link: true,
+        click: () => {
+          console.log(this);
+          this.setState({
+            amapVisible: true,
+          });
+        },
+      },
+      {
+        label: '客户名称',
+        value: '张坤(个体)',
+      },
+    ],
     BlockquoteData: [
       {
         title: '新建',
@@ -259,6 +299,13 @@ class CustomerList extends Component {
 
   componentDidMount() {
     console.log(this);
+    console.log(dataType('123'));
+    console.log(dataType(true));
+    console.log(dataType({}));
+    console.log(dataType(function() {}));
+    console.log(dataType(null));
+    console.log(dataType(undefined));
+    console.log(dataType([]));
 
     const dataArr = [];
     for (let i = 0; i < 20; i += 1) {
@@ -327,6 +374,13 @@ class CustomerList extends Component {
     console.log(e);
   };
 
+  // 关闭地图
+  closeAmap = () => {
+    this.setState({
+      amapVisible: false,
+    });
+  };
+
   render() {
     const menu = (
       <Menu>
@@ -356,9 +410,12 @@ class CustomerList extends Component {
       columns,
       tableData,
       detailVisible,
+      amapPosition,
+      amapVisible,
       moreMenu,
       infoData,
       BlockquoteData,
+      infoList,
     } = this.state;
 
     return (
@@ -526,7 +583,15 @@ class CustomerList extends Component {
             <Information infoList={infoData} />
           </div>
           <Blockquote title="详细信息" btnData={BlockquoteData} />
-          <InfoDetail title="基本信息" btnData={BlockquoteData} />
+          <InfoDetail title="基本信息" list={infoList} />
+          <InfoDetail title="基本信息2" list={infoList} />
+          <AmapComponent
+            visible={amapVisible}
+            closeAmap={() => {
+              this.closeAmap();
+            }}
+            position={amapPosition}
+          />
         </Drawer>
       </Fragment>
     );

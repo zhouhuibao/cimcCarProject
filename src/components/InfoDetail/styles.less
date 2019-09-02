@@ -4,23 +4,28 @@
   padding-left: 16px;
   cursor: pointer;
 }
-.demo0 {
-  border-radius: 4px;
-  background-color: rgb(240, 240, 232);
-  position: relative;
-  margin: 5px 3px 10px;
-  width: 450px;
-  height: 50px;
-}
-.demo0Block {
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  border-radius: 4px;
-  background-color: rgb(130, 181, 198);
-}
+
 .infoWrap {
-  background: red;
   overflow: hidden;
-  transition: height 0.5s;
+  transition: 0.3s;
+  padding: 0 24px;
+  .detailItemWrap {
+    font-size: 12px;
+    display: flex;
+    border-bottom: 1px solid #f2f2f2;
+    padding: 15px 0 7px 0;
+    .label {
+      width: 92px;
+      color: #92a3b7;
+    }
+    .value {
+      color: #444;
+      flex: 1;
+    }
+  }
+}
+
+.iconDown {
+  transform: rotate(-90deg);
+  transition: 0.3s;
 }

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Input, Select, DatePicker, Form, Row, Col } from 'antd';
+import { MathRandom } from '@/utils/utils';
 import styles from './style.less';
 
 const { TextArea } = Input;
@@ -89,12 +90,12 @@ class TextPage extends Component {
     }
     return (
       <Row gutter={16} className={styles.formWrapper}>
-        {bigArr.map((divItem, i) => {
+        {bigArr.map(divItem => {
           return (
-            <div key={i} className="clearfix">
-              {divItem.map((item, j) => {
+            <div key={MathRandom()} className="clearfix">
+              {divItem.map(item => {
                 return (
-                  <Col className="gutter-row" span={12} key={j}>
+                  <Col className="gutter-row" span={12} key={MathRandom()}>
                     <p style={{ marginBottom: 5 }}>
                       {item.required ? (
                         <span
@@ -115,27 +116,6 @@ class TextPage extends Component {
             </div>
           );
         })}
-
-        {/* {formData.map((item, i) => {
-          return (
-            <Col className="gutter-row" span={12} key={i}>
-              <p style={{marginBottom:5}}>
-                {item.required ? (
-                  <span
-                    style={{
-                      color: 'red',
-                    }}
-                  >
-                    *
-                  </span>
-                ) : null}
-
-                {item.title}
-              </p>
-              <FormItem>{this.setFormItemDom(item)}</FormItem>
-            </Col>
-          );
-        })} */}
       </Row>
     );
   }

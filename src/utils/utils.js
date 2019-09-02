@@ -3,7 +3,7 @@ const reg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(?::\d+)?|(
 
 const isUrl = path => reg.test(path);
 
-const amapKay = '7456de5e90a1be2a58600fa5c714d63b';
+const amapKey = '7456de5e90a1be2a58600fa5c714d63b';
 
 const rules = type => {
   let rule = '';
@@ -25,14 +25,20 @@ const rules = type => {
   return rule;
 };
 
+// 判断数据类型
+const dataType = data => {
+  return Object.prototype.toString
+    .call(data)
+    .split(' ')[1]
+    .split(']')[0];
+};
+
 // 生成10位随机数,可用于作为遍历节点时候的key
 const MathRandom = () => {
   let str = '';
   for (let i = 0; i < 10; i += 1) {
     str += parseInt(Math.random() * 10);
   }
-  console.log(str);
-
   return str;
 };
 
@@ -54,4 +60,4 @@ const isAntDesignProOrDev = () => {
   return isAntDesignPro();
 };
 
-export { isAntDesignProOrDev, isAntDesignPro, isUrl, rules, amapKay, MathRandom };
+export { isAntDesignProOrDev, isAntDesignPro, isUrl, rules, amapKey, MathRandom, dataType };
