@@ -1,4 +1,17 @@
 .formWrapper {
+  .itemWrap {
+    display: flex;
+    .itemLabel {
+      width: 80px;
+      text-align: right;
+      padding-top: 4px;
+      line-height: 32px;
+      padding-right: 12px;
+    }
+    .itemContent {
+      flex: 1;
+    }
+  }
   :global {
     .ant-btn,
     .ant-btn:hover,
@@ -7,6 +20,7 @@
     }
     .ant-form-item {
       padding-bottom: 5px;
+      margin-bottom: 15px;
     }
   }
 }

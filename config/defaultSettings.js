@@ -15,7 +15,7 @@ export default {
   // iconfontUrl: '',
 
   navTheme: 'light',
-  primaryColor: '#2F54EB',
+  primaryColor: '#40a9ff',
   layout: 'sidemenu',
   contentWidth: 'Fluid',
   fixedHeader: false,

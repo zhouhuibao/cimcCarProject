@@ -1,0 +1,27 @@
+@e8e8e8: #e8e8e8;
+
+.CardWrap {
+  margin-bottom: 20px;
+  border: 1px solid @e8e8e8;
+  .CardHeaderLeft {
+    float: left;
+    font-size: 14px;
+    color: #000;
+  }
+  .CardHeaderRight {
+    float: right;
+    .down {
+      transform: rotate(180deg);
+    }
+    .up {
+      transform: rotate(0);
+    }
+  }
+  .CardContentDown {
+    border-top: 1px solid @e8e8e8;
+  }
+  .CardContentUp {
+    border: none;
+    overflow: hidden;
+  }
+}

@@ -3,6 +3,7 @@ import { Layout, Menu, Icon, Dropdown } from 'antd';
 import { connect } from 'dva';
 // import Link from 'umi/link';
 import { router, Link } from 'umi';
+import { dataType } from '@/utils/utils';
 import styles from './UserLayout.less';
 
 const { Sider } = Layout;
@@ -23,9 +24,80 @@ class BasicLayout extends Component {
 
   componentDidMount() {
     console.log(this);
+    const {
+      route: { routes },
+    } = this.props;
+    console.log(routes);
   }
 
+  // 创建子节点
+  createSubMenu = item => {
+    if (item.name) {
+      if (item.routes) {
+        return (
+          <SubMenu
+            key={item.path}
+            title={
+              <span>
+                <Icon type={item.icon} />
+                <span>{item.name}</span>
+              </span>
+            }
+          >
+            {item.routes.map(menuitem => {
+              return this.createMenuItem(menuitem);
+            })}
+          </SubMenu>
+        );
+      }
+      return (
+        <Menu.Item key={item.path}>
+          <Link to={item.path ? item.path : '/'} replace>
+            <Icon type={item.icon} />
+            <span>{item.name}</span>
+          </Link>
+        </Menu.Item>
+      );
+    }
+    return null;
+  };
+
+  // 判断子节点中是否有子节点
+  isChilder = () => {};
+
+  createMenuItem = item => {
+    if (item.name) {
+      if (item.routes) {
+        return (
+          <SubMenu
+            key={item.path}
+            title={
+              <span>
+                <Icon type={item.icon} />
+                <span>{item.name}</span>
+              </span>
+            }
+          >
+            {item.routes.map(menuitem => {
+              return this.createSubMenu(menuitem);
+            })}
+          </SubMenu>
+        );
+      }
+      return (
+        <Menu.Item key={item.path}>
+          <Link to={item.path ? item.path : '/'} replace>
+            <Icon type={item.icon} />
+            <span>{item.name}</span>
+          </Link>
+        </Menu.Item>
+      );
+    }
+    return null;
+  };
+
   onOpenChange = openKeyss => {
+    console.log(openKeyss);
     const { rootSubmenuKeys, openKeys } = this.state;
     const latestOpenKey = openKeyss.find(key => openKeys.indexOf(key) === -1);
     if (rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
@@ -44,46 +116,6 @@ class BasicLayout extends Component {
     this.setState({
       collapsed: !collapsed,
     });
-  };
-
-  //
-
-  showMenu = item => {
-    if (item.name) {
-      if (item.routes) {
-        return (
-          <SubMenu
-            key={item.path}
-            title={
-              <span>
-                <Icon type={item.icon} />
-                <span>{item.name}</span>
-              </span>
-            }
-          >
-            {item.routes.map(menuitem => {
-              return menuitem.name ? (
-                <Menu.Item key={menuitem.path}>
-                  <Link to={menuitem.path ? menuitem.path : '/'} replace>
-                    {menuitem.name}
-                  </Link>
-                </Menu.Item>
-              ) : null;
-            })}
-          </SubMenu>
-        );
-      }
-      return (
-        <Menu.Item key={item.path}>
-          <Link to={item.path ? item.path : '/'} replace>
-            <Icon type={item.icon} />
-            <span>{item.name}</span>
-          </Link>
-        </Menu.Item>
-      );
-    }
-
-    return null;
   };
 
   loginOut = () => {
@@ -127,14 +159,14 @@ class BasicLayout extends Component {
             </div>
             <Menu
               mode="inline"
-              //   openKeys={pathname}
-              //   openKeys={[pathname]}
+              // openKeys={dataType(pathname) === 'Array' ? pathname[pathname.length-1] : pathname }
+              // openKeys={[pathname]}
               onOpenChange={this.onOpenChange}
               style={{ borderRight: 0, width: collapsed ? '79px' : '100%' }}
               selectedKeys={[pathname]}
             >
               {routes.map(item => {
-                return this.showMenu(item);
+                return this.createSubMenu(item);
               })}
             </Menu>
           </div>

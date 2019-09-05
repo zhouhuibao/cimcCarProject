@@ -73,6 +73,8 @@ class TextPage extends Component {
       default:
         break;
     }
+
+    return null;
   };
 
   render() {
@@ -90,26 +92,30 @@ class TextPage extends Component {
     }
     return (
       <Row gutter={16} className={styles.formWrapper}>
-        {bigArr.map(divItem => {
+        {bigArr.map((divItem, i) => {
           return (
-            <div key={MathRandom()} className="clearfix">
-              {divItem.map(item => {
+            <div key={i} className="clearfix">
+              {divItem.map((item, j) => {
                 return (
-                  <Col className="gutter-row" span={12} key={MathRandom()}>
-                    <p style={{ marginBottom: 5 }}>
-                      {item.required ? (
-                        <span
-                          style={{
-                            color: 'red',
-                          }}
-                        >
-                          *
-                        </span>
-                      ) : null}
+                  <Col className="gutter-row" span={12} key={j}>
+                    <div className={styles.itemWrap}>
+                      <p className={styles.itemLabel}>
+                        {item.required ? (
+                          <span
+                            style={{
+                              color: 'red',
+                            }}
+                          >
+                            *
+                          </span>
+                        ) : null}
 
-                      {item.title}
-                    </p>
-                    <FormItem>{this.setFormItemDom(item)}</FormItem>
+                        {item.title}
+                      </p>
+                      <div className={styles.itemContent}>
+                        <FormItem>{this.setFormItemDom(item)}</FormItem>
+                      </div>
+                    </div>
                   </Col>
                 );
               })}

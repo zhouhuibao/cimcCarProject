@@ -37,7 +37,8 @@ const dataType = data => {
 const MathRandom = () => {
   let str = '';
   for (let i = 0; i < 10; i += 1) {
-    str += parseInt(Math.random() * 10);
+    const mathRandom = Math.random() * 10;
+    str += parseInt(mathRandom);
   }
   return str;
 };

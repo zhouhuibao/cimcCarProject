@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import { Drawer, List, Avatar, Divider, Col, Row, Form, Button } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import FormItemDom from '@/components/CreateForm';
+import UploadImg from '@/components/UploadImg';
 import { isUrl } from '../../utils/utils';
 
 const pStyle = {
@@ -223,6 +224,8 @@ class TextPage extends Component {
     const { formItemData } = this.state;
     return (
       <Fragment>
+        <UploadImg />
+
         {testList.map((item, i) => {
           return <p key={i}>{item}</p>;
         })}
