@@ -5,6 +5,10 @@ import { connect } from 'dva';
 import { router, Link } from 'umi';
 import { dataType } from '@/utils/utils';
 import styles from './UserLayout.less';
+import logoMaxImg from '@/assets/logo-max.png'
+import logoMinImg from '@/assets/logo-min.png'
+
+console.log(logoMinImg)
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -155,7 +159,8 @@ class BasicLayout extends Component {
         >
           <div className={styles.menuWrap}>
             <div className={styles.logoTitle}>
-              <span>{collapsed ? 'cimc' : ' 挂车管家'}</span>
+              <img src={collapsed? logoMinImg : logoMaxImg} alt='logo' style={{width:collapsed? 'auto': 130}} />
+              {/* <span>{collapsed ? 'cimc' : ' 挂车管家'}</span> */}
             </div>
             <Menu
               mode="inline"

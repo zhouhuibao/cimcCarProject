@@ -43,6 +43,19 @@ const MathRandom = () => {
   return str;
 };
 
+// 判断是否为空
+const isEmpty = (value) => {
+  if(dataType(value) === 'String'){
+    return value.replace(/^\s\s*/, '').replace(/\s\s*$/, '') !== '';
+  }
+  if(dataType(value) === 'Undefined' || dataType(value) === 'Null'){
+    return false
+  }
+	return true 
+}
+
+
+
 const isAntDesignPro = () => {
   if (ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION === 'site') {
     return true;
@@ -61,4 +74,4 @@ const isAntDesignProOrDev = () => {
   return isAntDesignPro();
 };
 
-export { isAntDesignProOrDev, isAntDesignPro, isUrl, rules, amapKey, MathRandom, dataType };
+export { isAntDesignProOrDev, isAntDesignPro, isUrl, rules, amapKey, isEmpty, MathRandom, dataType };

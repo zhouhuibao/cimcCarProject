@@ -65,10 +65,8 @@ if (isAntDesignProPreview) {
  
 export default {
   plugins,
-  // base: '/cimc' ,   //定义路由的基本路径
-  // publicPath: '/cimc/' ,  //定义资源的基本路径
   base: '' ,   //定义路由的基本路径
-  publicPath: ' ' ,  //定义资源的基本路径
+  publicPath: './' ,  //定义资源的基本路径
   block: {
     defaultGitUrl: 'https://github.com/ant-design/pro-blocks',
   },
