@@ -7,7 +7,7 @@ import UploadImg from '@/components/UploadImg';
 import Blockquote from '@/components/Blockquote'
 import 'braft-editor/dist/index.css';
 import styles from './styles.less';
-import {MathRandom,isEmpty} from '@/utils/utils';
+import {MathRandom} from '@/utils/utils';
 
 function getValuesByArray(arr1,arr2){  
     const arr = [];  
@@ -76,12 +76,7 @@ class AddGoods extends Component {
               message: '商品标题不能为空',
             },
           ],
-        },
-        optionsObj: {
-          key: 'name',
-          value: 'id',
-        },
-        options: [],
+        }
       },
       {
         domType: 'text',
@@ -89,12 +84,7 @@ class AddGoods extends Component {
         title: '副标题',
         required: true,
         domAttr: {},
-        fieldAttr: {},
-        optionsObj: {
-          key: 'name',
-          value: 'id',
-        },
-        options: [],
+        fieldAttr: {}
       },
       {
         domType: 'select',
@@ -165,11 +155,6 @@ class AddGoods extends Component {
         required: true,
         domAttr: {},
         fieldAttr: {},
-        optionsObj: {
-          key: 'name',
-          value: 'id',
-        },
-        options: [],
       },
       {
         domType: 'text',
@@ -177,12 +162,7 @@ class AddGoods extends Component {
         title: '排序编号',
         required: true,
         domAttr: {},
-        fieldAttr: {},
-        optionsObj: {
-          key: 'name',
-          value: 'id',
-        },
-        options: [],
+        fieldAttr: {}
       },
       {
         domType: 'select',
@@ -617,7 +597,7 @@ class AddGoods extends Component {
 
   }
 
-  changeTable=(e,value)=>{
+  changeTable=(e)=>{
     console.log(e)
   }
 

@@ -3,12 +3,42 @@ import { Layout, Menu, Icon, Dropdown } from 'antd';
 import { connect } from 'dva';
 // import Link from 'umi/link';
 import { router, Link } from 'umi';
-import { dataType } from '@/utils/utils';
+import {isEmpty} from '@/utils/utils'
 import styles from './UserLayout.less';
 import logoMaxImg from '@/assets/logo-max.png'
 import logoMinImg from '@/assets/logo-min.png'
 
 console.log(logoMinImg)
+const rootSubmenuKeysArr=[];
+const newArr = [];
+function fun(arr){
+  for(let i=0;i<arr.length;i+=1){
+      if(Array.isArray(arr[i].routes)){
+        newArr.push(arr[i]);
+
+        fun(arr[i].routes);
+
+      }
+      // else{
+      //     newArr.push(arr[i]);
+      // }
+  }
+}
+
+function copyArr(obj) {
+  const out = []
+  for (let i=0; i < obj.length; i+=1) {
+    // console.log(obj[i].path)
+    if (obj[i].routes instanceof Array) {
+      
+        out.push(obj[i].path)
+        out[i] = copyArr(obj[i].routes);
+    } else if(isEmpty(obj[i].path)){
+        out[i] = obj[i].path;
+    }
+  }
+  return out;
+}
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -22,17 +52,50 @@ const imgPath =
 class BasicLayout extends Component {
   state = {
     collapsed: false,
-    rootSubmenuKeys: ['welcome', 'sub2', 'sub4'],
-    openKeys: ['welcome'],
+    rootSubmenuKeys: [],
+    openKeys: ['/goods'],
   };
 
   componentDidMount() {
-    console.log(this);
     const {
       route: { routes },
     } = this.props;
-    console.log(routes);
+    fun(routes)
+
+    const keysArr =[]
+    newArr.forEach(item=>{
+      if(isEmpty(item.path)){
+        keysArr.push(item.path)
+      }
+    })
+  
+    // this.setState({
+    //   rootSubmenuKeys:keysArr
+    // })
+
+    // this.setRootSubmenuKeys(routes)
   }
+
+  setRootSubmenuKeys=(routes)=>{
+    // const {
+    //   route: { routes },
+    // } = this.props;
+    const arrKey = [];
+    routes.forEach(item=>{
+      if(isEmpty(item.path)){
+        arrKey.push(item.path);
+        // if(isEmpty(routes)){
+
+        // }
+      }
+    })
+  }
+
+
+
+
+
+
 
   // 创建子节点
   createSubMenu = item => {
@@ -100,12 +163,48 @@ class BasicLayout extends Component {
     return null;
   };
 
-  onOpenChange = openKeyss => {
-    console.log(openKeyss);
-    const { rootSubmenuKeys, openKeys } = this.state;
-    const latestOpenKey = openKeyss.find(key => openKeys.indexOf(key) === -1);
-    if (rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
-      this.setState({ openKeys: openKeyss });
+  filterkeys=(keys)=>{
+    const arr = [];
+    rootSubmenuKeysArr.forEach(item=>{
+        arr.push(JSON.stringify(item))
+    })
+    console.log(arr)
+    console.log(keys)
+    
+    // console.log(arr.indexOf(keys))
+
+    arr.forEach(item=>{
+      console.log(item.indexOf(JSON.stringify(keys)))
+    })
+
+
+  }
+
+  // onOpenChange = openKeyss => {
+  //   console.log(openKeyss);
+  //   const { rootSubmenuKeys, openKeys } = this.state;
+  //   rootSubmenuKeysArr.push(openKeyss);
+  //   console.log(rootSubmenuKeysArr)
+  //   const latestOpenKey = openKeyss.find(key => openKeys.indexOf(key) === -1);
+
+  //     // console.log(latestOpenKey)
+  //     if (rootSubmenuKeysArr.indexOf(latestOpenKey) === -1) {
+  //       this.setState({ openKeys: openKeyss });
+  //     } else {
+  //       this.setState({
+  //         openKeys: latestOpenKey ? [latestOpenKey] : [],
+  //       });
+  //     }
+  // };
+
+  onOpenChange = openKeys => {
+    console.log(openKeys)
+    const latestOpenKey = openKeys.find(key => this.state.openKeys.indexOf(key) === -1);
+    console.log(latestOpenKey)
+    rootSubmenuKeysArr.push(openKeys)
+    
+    if (rootSubmenuKeysArr.indexOf(latestOpenKey) === -1) {
+      this.setState({ openKeys });
     } else {
       this.setState({
         openKeys: latestOpenKey ? [latestOpenKey] : [],
@@ -141,12 +240,13 @@ class BasicLayout extends Component {
       </Menu>
     );
     const { children } = this.props;
-    const { collapsed } = this.state;
+    const { collapsed,openKeys } = this.state;
     const {
       route: { routes },
       location: { pathname },
     } = this.props;
     console.log(pathname);
+    console.log(openKeys);
     return (
       <div className={styles.basicLayout}>
         <Sider
@@ -165,7 +265,7 @@ class BasicLayout extends Component {
             <Menu
               mode="inline"
               // openKeys={dataType(pathname) === 'Array' ? pathname[pathname.length-1] : pathname }
-              // openKeys={[pathname]}
+              openKeys={openKeys}
               onOpenChange={this.onOpenChange}
               style={{ borderRight: 0, width: collapsed ? '79px' : '100%' }}
               selectedKeys={[pathname]}

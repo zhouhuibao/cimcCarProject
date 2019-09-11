@@ -3,7 +3,6 @@ import { Button, Icon, Tabs, Table } from 'antd';
 import SearchComponent from '@/components/SearchComponent';
 import AddGoods from './AddGoods';
 import styles from './styles.less';
-import {isEmpty} from '@/utils/utils'
 
 const ButtonGroup = Button.Group;
 const { TabPane } = Tabs;

@@ -1,5 +1,9 @@
 @import '~antd/es/style/themes/default.less';
 
+@menuHeight:30px;
+
+
+
 .container {
   display: flex;
   flex-direction: column;
@@ -116,6 +120,20 @@
     height: 100%;
     color: #000;
   }
+
+  :global {
+    .ant-menu-item{
+      height: 30px !important;  
+      line-height: @menuHeight !important;
+
+    }
+    
+    .ant-menu-submenu-title{
+      height: @menuHeight !important;
+      line-height: @menuHeight !important;
+    }
+  }
+
   .logoTitle {
     height: 64px;
     line-height: 64px;

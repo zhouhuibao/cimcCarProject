@@ -29,18 +29,18 @@ export default [
     Routes: ['src/pages/Authorized'],
     authority: ['admin', 'user'],
     routes: [
-      {
-        path: '/',
-        name: 'welcome',
-        icon: 'smile',
-        component: './Welcome',
-      },
-      {
-        path: '/test',
-        name: 'testPage',
-        icon: 'smile',
-        component: './TestPage',
-      },
+      // {
+      //   path: '/',
+      //   name: 'welcome',
+      //   icon: 'smile',
+      //   component: './Welcome',
+      // },
+      // {
+      //   path: '/test',
+      //   name: 'testPage',
+      //   icon: 'smile',
+      //   component: './TestPage',
+      // },
       {
         path: '/goods',
         name: '商品',
@@ -112,33 +112,149 @@ export default [
           },
         ],
       },
+
       {
-        name: '客户及商机管理',
+        path: '/deal',
+        name: '交易',
         icon: 'smile',
-        path: '/customer-business',
         routes: [
           {
-            path: '/customer-business/customer',
+            path: '/deal/physical-order',
             icon: 'smile',
-            name: '客户',
-            component: './CustomerAndBusiness/Customer',
-          },
-          {
-            path: '/customer-business/customers',
-            icon: 'smile',
-            name: '商机',
-            component: './CustomerAndBusiness/Customer',
+            name: '实物订单',
             routes: [
               {
-                path: '/test',
-                icon: 'smile',
-                name: '客户',
-                component: './TestPage',
+                path: '/deal/physical-order/physical-order-content',
+                name: '实物订单',
+                component: './Deal/PhysicalOrder/PhysicalOrderContent',
               },
+              {
+                path: '/deal/physical-order/after-sales-list',
+                name: '售后列表',
+                component: './Deal/PhysicalOrder/AfterSalesList',
+              },
+              {
+                path: '/deal/physical-order/freight-template',
+                name: '运费模板',
+                component: './Deal/PhysicalOrder/FreightTemplate',
+              }
             ],
           },
+          {
+            path: '/deal/server-order',
+            icon: 'smile',
+            name: '服务订单',
+            routes: [
+              {
+                path: '/deal/server-order/server-order-content',
+                name: '服务订单',
+                component: './Deal/ServerOrder/ServerOrderContent',
+              },
+              {
+                path: '/deal/server-order/service-verification-ist',
+                name: '服务核销单',
+                component: './Deal/ServerOrder/ServiceVerificationList',
+              }
+            ],
+          },
+          {
+            path: '/deal/appointment',
+            icon: 'smile',
+            name: '预约',
+            routes: [
+              {
+                path: '/deal/appointment/appointment-management',
+                name: '预约管理',
+                component: './Deal/Appointment/AppointmentManagement',
+              },
+              {
+                path: '/deal/appointment/appointment-setting',
+                name: '预约设置',
+                component: './Deal/Appointment/AppointmentSetting',
+              },
+              {
+                path: '/deal/appointment/appointment-form',
+                name: '预约单',
+                component: './Deal/Appointment/AppointmentForm',
+              }
+            ],
+          },
+          {
+            path: '/deal/trading-order',
+            name: '交易单',
+            component: './Deal/TradingOrder',
+          }
         ],
       },
+
+      {
+        name: '店铺',
+        icon: 'smile',
+        path: '/shop',
+        routes: [
+          {
+            path: '/shop/shop-management',
+            icon: 'smile',
+            name: '店铺管理',
+            routes:[
+              {
+                path: '/shop/shop-management/shop-list',
+                name: '店铺列表',
+                component: './shop/ShopManagement/ShopList',
+              },
+              {
+                path: '/shop/shop-management/shop-product-config',
+                name: '店铺商品配置',
+                component: './shop/ShopManagement/ShopProductConfig',
+              },
+              {
+                path: '/shop/shop-management/shop-guide',
+                name: '店铺导购员',
+                component: './shop/ShopManagement/ShopGuide',
+              },
+              {
+                path: '/shop/shop-management/shop-order',
+                name: '店铺订单',
+                component: './shop/ShopManagement/ShopOrder',
+              }
+              
+            ]
+          },
+          {
+            path: '/shop/physical-store',
+            name: '实体门店',
+            component: './shop/PhysicalStore',
+          }
+        ]
+      },
+
+      // {
+      //   name: '客户及商机管理',
+      //   icon: 'smile',
+      //   path: '/customer-business',
+      //   routes: [
+      //     {
+      //       path: '/customer-business/customer',
+      //       icon: 'smile',
+      //       name: '客户',
+      //       component: './CustomerAndBusiness/Customer',
+      //     },
+      //     {
+      //       path: '/customer-business/customers',
+      //       icon: 'smile',
+      //       name: '商机',
+      //       component: './CustomerAndBusiness/Customer',
+      //       routes: [
+      //         {
+      //           path: '/test',
+      //           icon: 'smile',
+      //           name: '客户',
+      //           component: './TestPage',
+      //         },
+      //       ],
+      //     },
+      //   ],
+      // },
       {
         component: './404',
       },

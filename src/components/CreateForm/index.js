@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Input, Select, DatePicker, Form, Row, Col } from 'antd';
-import { MathRandom } from '@/utils/utils';
+import { Input, Select, DatePicker, Form, Row, Col,Radio } from 'antd';
+import UploadImg from '@/components/UploadImg';
 import styles from './style.less';
 
 const { TextArea } = Input;
@@ -29,11 +29,16 @@ class TextPage extends Component {
     } = this.props;
     switch (props.domType) {
       case 'text':
-        return getFieldDecorator(props.id, { ...props.fieldAttr })(<Input {...domAttrObj} />);
+        return getFieldDecorator(props.id, {initialValue: props.defaultValue, ...props.fieldAttr })(<Input {...domAttrObj} />);
       case 'TextArea':
         return getFieldDecorator(props.id, { ...props.fieldAttr })(
           <TextArea autosize={{ minRows: 4, maxRows: 8 }} {...domAttrObj} />,
         );
+      case 'Radio':
+        return getFieldDecorator(props.id, {initialValue: props.defaultValue, ...props.fieldAttr })(
+          <Radio.Group options={props.options} {...domAttrObj} />
+        );
+
       case 'select': {
         let propsObj = {};
         if (!this.isObject(props.optionsObj)) {
@@ -69,7 +74,9 @@ class TextPage extends Component {
         return getFieldDecorator(props.id, { ...props.fieldAttr })(<MonthPicker {...domAttrObj} />);
       case 'WeekPicker':
         return getFieldDecorator(props.id, { ...props.fieldAttr })(<WeekPicker {...domAttrObj} />);
-
+      case 'upload':
+        return getFieldDecorator(props.id, { ...props.fieldAttr })(<UploadImg {...domAttrObj} />);
+  
       default:
         break;
     }
@@ -77,8 +84,12 @@ class TextPage extends Component {
     return null;
   };
 
+
+  
+
   render() {
     const { formData } = this.props;
+
     // 把传过来的一维数组转成二位数组
     const bigArr = [];
     for (let i = 0; i < formData.length; i += 2) {
@@ -90,6 +101,7 @@ class TextPage extends Component {
       }
       bigArr.push(arr);
     }
+    
     return (
       <Row gutter={16} className={styles.formWrapper}>
         {bigArr.map((divItem, i) => {
@@ -97,7 +109,7 @@ class TextPage extends Component {
             <div key={i} className="clearfix">
               {divItem.map((item, j) => {
                 return (
-                  <Col className="gutter-row" span={12} key={j}>
+                  <Col className="gutter-row" span={item.domType === 'upload' || item.domType==='TextArea' ||  item.domType==='Radio' ? 24 : 12} key={j}>
                     <div className={styles.itemWrap}>
                       <p className={styles.itemLabel}>
                         {item.required ? (
