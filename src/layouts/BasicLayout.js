@@ -1,40 +1,39 @@
 import React, { Component } from 'react';
-import { Layout, Menu, Icon, Dropdown } from 'antd';
+import { Layout, Menu, Icon, Dropdown, ConfigProvider } from 'antd';
 import { connect } from 'dva';
 // import Link from 'umi/link';
+import zhCN from 'antd/es/locale-provider/zh_CN';
 import { router, Link } from 'umi';
-import {isEmpty} from '@/utils/utils'
+import { isEmpty } from '@/utils/utils';
 import styles from './UserLayout.less';
-import logoMaxImg from '@/assets/logo-max.png'
-import logoMinImg from '@/assets/logo-min.png'
+import logoMaxImg from '@/assets/logo-max.png';
+import logoMinImg from '@/assets/logo-min.png';
 
-console.log(logoMinImg)
-const rootSubmenuKeysArr=[];
+console.log(logoMinImg);
+const rootSubmenuKeysArr = [];
 const newArr = [];
-function fun(arr){
-  for(let i=0;i<arr.length;i+=1){
-      if(Array.isArray(arr[i].routes)){
-        newArr.push(arr[i]);
+function fun(arr) {
+  for (let i = 0; i < arr.length; i += 1) {
+    if (Array.isArray(arr[i].routes)) {
+      newArr.push(arr[i]);
 
-        fun(arr[i].routes);
-
-      }
-      // else{
-      //     newArr.push(arr[i]);
-      // }
+      fun(arr[i].routes);
+    }
+    // else{
+    //     newArr.push(arr[i]);
+    // }
   }
 }
 
 function copyArr(obj) {
-  const out = []
-  for (let i=0; i < obj.length; i+=1) {
+  const out = [];
+  for (let i = 0; i < obj.length; i += 1) {
     // console.log(obj[i].path)
     if (obj[i].routes instanceof Array) {
-      
-        out.push(obj[i].path)
-        out[i] = copyArr(obj[i].routes);
-    } else if(isEmpty(obj[i].path)){
-        out[i] = obj[i].path;
+      out.push(obj[i].path);
+      out[i] = copyArr(obj[i].routes);
+    } else if (isEmpty(obj[i].path)) {
+      out[i] = obj[i].path;
     }
   }
   return out;
@@ -60,15 +59,15 @@ class BasicLayout extends Component {
     const {
       route: { routes },
     } = this.props;
-    fun(routes)
+    fun(routes);
 
-    const keysArr =[]
-    newArr.forEach(item=>{
-      if(isEmpty(item.path)){
-        keysArr.push(item.path)
+    const keysArr = [];
+    newArr.forEach(item => {
+      if (isEmpty(item.path)) {
+        keysArr.push(item.path);
       }
-    })
-  
+    });
+
     // this.setState({
     //   rootSubmenuKeys:keysArr
     // })
@@ -76,26 +75,20 @@ class BasicLayout extends Component {
     // this.setRootSubmenuKeys(routes)
   }
 
-  setRootSubmenuKeys=(routes)=>{
+  setRootSubmenuKeys = routes => {
     // const {
     //   route: { routes },
     // } = this.props;
     const arrKey = [];
-    routes.forEach(item=>{
-      if(isEmpty(item.path)){
+    routes.forEach(item => {
+      if (isEmpty(item.path)) {
         arrKey.push(item.path);
         // if(isEmpty(routes)){
 
         // }
       }
-    })
-  }
-
-
-
-
-
-
+    });
+  };
 
   // 创建子节点
   createSubMenu = item => {
@@ -163,22 +156,20 @@ class BasicLayout extends Component {
     return null;
   };
 
-  filterkeys=(keys)=>{
+  filterkeys = keys => {
     const arr = [];
-    rootSubmenuKeysArr.forEach(item=>{
-        arr.push(JSON.stringify(item))
-    })
-    console.log(arr)
-    console.log(keys)
-    
+    rootSubmenuKeysArr.forEach(item => {
+      arr.push(JSON.stringify(item));
+    });
+    console.log(arr);
+    console.log(keys);
+
     // console.log(arr.indexOf(keys))
 
-    arr.forEach(item=>{
-      console.log(item.indexOf(JSON.stringify(keys)))
-    })
-
-
-  }
+    arr.forEach(item => {
+      console.log(item.indexOf(JSON.stringify(keys)));
+    });
+  };
 
   // onOpenChange = openKeyss => {
   //   console.log(openKeyss);
@@ -198,11 +189,11 @@ class BasicLayout extends Component {
   // };
 
   onOpenChange = openKeys => {
-    console.log(openKeys)
+    console.log(openKeys);
     const latestOpenKey = openKeys.find(key => this.state.openKeys.indexOf(key) === -1);
-    console.log(latestOpenKey)
-    rootSubmenuKeysArr.push(openKeys)
-    
+    console.log(latestOpenKey);
+    rootSubmenuKeysArr.push(openKeys);
+
     if (rootSubmenuKeysArr.indexOf(latestOpenKey) === -1) {
       this.setState({ openKeys });
     } else {
@@ -240,7 +231,7 @@ class BasicLayout extends Component {
       </Menu>
     );
     const { children } = this.props;
-    const { collapsed,openKeys } = this.state;
+    const { collapsed, openKeys } = this.state;
     const {
       route: { routes },
       location: { pathname },
@@ -259,7 +250,11 @@ class BasicLayout extends Component {
         >
           <div className={styles.menuWrap}>
             <div className={styles.logoTitle}>
-              <img src={collapsed? logoMinImg : logoMaxImg} alt='logo' style={{width:collapsed? 'auto': 130}} />
+              <img
+                src={collapsed ? logoMinImg : logoMaxImg}
+                alt="logo"
+                style={{ width: collapsed ? 'auto' : 130 }}
+              />
               {/* <span>{collapsed ? 'cimc' : ' 挂车管家'}</span> */}
             </div>
             <Menu
@@ -311,7 +306,7 @@ class BasicLayout extends Component {
                             return <p key={item}>{item}</p>
                         })
                     } */}
-            {children}
+            <ConfigProvider locale={zhCN}>{children}</ConfigProvider>
           </div>
         </div>
       </div>

@@ -1,16 +1,15 @@
-.goodsBrand{
-    .goodsBrandHeader{
-        margin-bottom: 20px;
-        display: flex;
-        .addBtn{
-            margin-right: 40px;
-        }
-        .search{
-            flex: 1;
-        }
+.goodsBrand {
+  .goodsBrandHeader {
+    margin-bottom: 20px;
+    display: flex;
+    .addBtn {
+      margin-right: 40px;
     }
+    .search {
+      flex: 1;
+    }
+  }
 }
-
 
 // .Addspecifications{
 //     .typeText{
@@ -18,119 +17,108 @@
 //     }
 // }
 
-.AddGoodsData{
-    .formItem{
-        display: flex;
-        .label{
-            width: auto;
-            line-height: 40px;
-            padding-right: 10px;
-            .radio{
-                flex:1;
-            }
-        }
+.AddGoodsData {
+  .formItem {
+    display: flex;
+    .label {
+      width: auto;
+      line-height: 40px;
+      padding-right: 10px;
+      .radio {
+        flex: 1;
+      }
     }
+  }
 
-    .dataItem{
-        display: flex;
-        margin: 10px 0;
-        .crmera{
-            width: 40px;
-            height: 40px;
-            text-align: center;
-            line-height: 40px;
-            border:1px dashed #c0ccda;
-            border-radius: 6px;
-            margin-right: 10px;
-            cursor: pointer;
-            font-size: 18px;
-        }
-        .dataInput{
-            flex: 1;
-        }
-        .dataIcon{
-            width: auto;
-            line-height: 36px;
-            margin-left:10px; 
-            font-size: 20px
-        }
-        :global{
-            .ant-form-item{
-                margin-bottom: 0;
-            }
-        }
+  .dataItem {
+    display: flex;
+    margin: 10px 0;
+    .crmera {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      line-height: 40px;
+      border: 1px dashed #c0ccda;
+      border-radius: 6px;
+      margin-right: 10px;
+      cursor: pointer;
+      font-size: 18px;
     }
-
+    .dataInput {
+      flex: 1;
+    }
+    .dataIcon {
+      width: auto;
+      line-height: 36px;
+      margin-left: 10px;
+      font-size: 20px;
+    }
+    :global {
+      .ant-form-item {
+        margin-bottom: 0;
+      }
+    }
+  }
 }
 
-.treeWrap{
-    :global{
-        .ant-tree-treenode-switcher-close{
-            display: flex;
-            .ant-tree-node-content-wrapper{
-                flex: 1;
-            }
-        };
-        .ant-tree-treenode-switcher-open{
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            .ant-tree-node-content-wrapper{
-                flex: 1;
-            }
-            >ul{
-                flex-basis: 100%;
-            }
-        }
+.treeWrap {
+  :global {
+    .ant-tree-treenode-switcher-close {
+      display: flex;
+      .ant-tree-node-content-wrapper {
+        flex: 1;
+      }
     }
+    .ant-tree-treenode-switcher-open {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      .ant-tree-node-content-wrapper {
+        flex: 1;
+      }
+      > ul {
+        flex-basis: 100%;
+      }
+    }
+  }
 
+  .GoodsMainWrap {
+    display: flex;
 
-    .GoodsMainWrap{
+    .treeName {
+      flex: 1;
+    }
+    .treeSort {
+      width: 150px;
+    }
+    .treeTime {
+      width: 200px;
+    }
+    .treeEdit {
+      width: 220px;
+      .btnItem {
         display: flex;
-    
-        .treeName{
-            flex: 1;
+        text-align: right;
+        a {
+          flex: 1;
         }
-        .treeSort{
-            width:150px;
-        }
-        .treeTime{
-            width:200px;
-        }
-        .treeEdit{
-            width: 220px;
-            .btnItem{
-                 display: flex;
-                text-align: right;
-                a{
-                    flex: 1;
-                }
-            }
-        }
-        
-    
-    
-    
-    
-        // .treeName{
-        //     width: 600px;
-        //     float: left;
-        // }
-        // .treeSort{
-        //     width:100px;
-        //     float: left;
-        // }
-        // .treeTime{
-        //     width:200px;
-        //     float: left;
-        // }
-        // .treeEdit{
-        //     float: left;
-        //     width: 200px;
-        //     .btnItem{
-        //         text-align: right
-        //     }
-        // }
+      }
     }
+  }
 }
 
+// 商品标签页面
+.AddTag {
+  .tagFormItem {
+    display: flex;
+    .label {
+      width: 100px;
+      text-align: right;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+    .content {
+      flex: 1;
+    }
+  }
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "tag_id": "32",
+    "company_id": "21",
+    "tag_name": "666",
+    "tag_color": "rgba(119, 23, 37, 1)",
+    "font_color": "rgba(85, 188, 59, 1)",
+    "description": "555",
+    "tag_icon": null,
+    "created": 1568192415,
+    "updated": 1568192415
+  },
+  {
+    "tag_id": "31",
+    "company_id": "21",
+    "tag_name": "特价",
+    "tag_color": "#ff1939",
+    "font_color": "rgba(22, 82, 211, 1)",
+    "description": "全场特价",
+    "tag_icon": null,
+    "created": 1568086398,
+    "updated": 1568086398
+  },
+  {
+    "tag_id": "21",
+    "company_id": "21",
+    "tag_name": "新品",
+    "tag_color": "rgba(30, 144, 255, 1)",
+    "font_color": "rgba(255, 215, 0, 1)",
+    "description": "最近刚上新的商品",
+    "tag_icon": null,
+    "created": 1563168032,
+    "updated": 1563168032
+  },
+  {
+    "tag_id": "20",
+    "company_id": "21",
+    "tag_name": "热销",
+    "tag_color": "rgba(0, 206, 209, 1)",
+    "font_color": "rgba(199, 21, 133, 1)",
+    "description": "销量7天比较好的商品",
+    "tag_icon": null,
+    "created": 1563167986,
+    "updated": 1564025471
+  },
+  {
+    "tag_id": "6",
+    "company_id": "21",
+    "tag_name": "翡翠",
+    "tag_color": "rgba(0, 206, 209, 1)",
+    "font_color": "rgba(199, 21, 133, 1)",
+    "description": "测试",
+    "tag_icon": null,
+    "created": 1561706241,
+    "updated": 1563526415
+  }
+]
