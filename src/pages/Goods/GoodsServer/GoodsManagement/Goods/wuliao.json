@@ -1,0 +1,132 @@
+[
+  {
+    "labelId": "100",
+    "labelName": "测试",
+    "serviceType": "timescard",
+    "companyId": "21",
+    "created": 1568601180,
+    "updated": 1568601180,
+    "labelDesc": "1222",
+    "labelPrice": 1223
+  },
+  {
+    "labelId": "99",
+    "labelName": "商务妆容",
+    "serviceType": "timescard",
+    "companyId": "21",
+    "created": 1568192962,
+    "updated": 1568192962,
+    "labelDesc": "单次服务 每次30分钟",
+    "labelPrice": 9800
+  },
+  {
+    "labelId": "98",
+    "labelName": "提货券",
+    "serviceType": "timescard",
+    "companyId": "21",
+    "created": 1568098031,
+    "updated": 1568098031,
+    "labelDesc": "提货券",
+    "labelPrice": 50000
+  },
+  {
+    "labelId": "97",
+    "labelName": "医疗咨询：骨科",
+    "serviceType": "timescard",
+    "companyId": "21",
+    "created": 1567754275,
+    "updated": 1567754275,
+    "labelDesc": "骨科疾病咨询解答",
+    "labelPrice": 10000
+  },
+  {
+    "labelId": "95",
+    "labelName": "按摩",
+    "serviceType": "timescard",
+    "companyId": "21",
+    "created": 1566884528,
+    "updated": 1567667903,
+    "labelDesc": "",
+    "labelPrice": 29900
+  },
+  {
+    "labelId": "93",
+    "labelName": "门票",
+    "serviceType": "timescard",
+    "companyId": "21",
+    "created": 1566291620,
+    "updated": 1566291620,
+    "labelDesc": "",
+    "labelPrice": 11100
+  },
+  {
+    "labelId": "89",
+    "labelName": "脸部深层清洁套餐",
+    "serviceType": "timescard",
+    "companyId": "21",
+    "created": 1563869341,
+    "updated": 1563869341,
+    "labelDesc": "脸部深层清洁1次",
+    "labelPrice": 0
+  },
+  {
+    "labelId": "88",
+    "labelName": "精油护理体验",
+    "serviceType": "timescard",
+    "companyId": "21",
+    "created": 1563869328,
+    "updated": 1566365540,
+    "labelDesc": "精油护理体验：包含手臂，腿部精油按摩放松",
+    "labelPrice": 20000
+  },
+  {
+    "labelId": "86",
+    "labelName": "300优惠劵",
+    "serviceType": "timescard",
+    "companyId": "21",
+    "created": 1562314562,
+    "updated": 1562314562,
+    "labelDesc": "",
+    "labelPrice": 30000
+  },
+  {
+    "labelId": "85",
+    "labelName": "精油按摩",
+    "serviceType": "timescard",
+    "companyId": "21",
+    "created": 1562146644,
+    "updated": 1563872354,
+    "labelDesc": "为期一小时的精油按摩体验",
+    "labelPrice": 10000
+  },
+  {
+    "labelId": "83",
+    "labelName": "测试免费",
+    "serviceType": "timescard",
+    "companyId": "21",
+    "created": 1561002739,
+    "updated": 1563863565,
+    "labelDesc": "11111",
+    "labelPrice": 0
+  },
+  {
+    "labelId": "80",
+    "labelName": "尤克里里",
+    "serviceType": "timescard",
+    "companyId": "21",
+    "created": 1559279751,
+    "updated": 1559279751,
+    "labelDesc": "",
+    "labelPrice": 2
+  },
+  {
+    "labelId": "79",
+    "labelName": "机器人工坊《少儿编程体验课2次》",
+    "serviceType": "timescard",
+    "companyId": "21",
+    "created": 1559278931,
+    "updated": 1563863572,
+    "labelDesc": "",
+    "labelPrice": 1
+  }
+]

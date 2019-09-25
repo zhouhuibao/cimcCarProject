@@ -1,67 +1,92 @@
+import { message } from 'antd';
+import {
+  queryGoodsBrand,
+  addGoodsBrand,
+  updateGoodsBrand,
+  deleteGoodsBrand,
+} from '@/services/goods';
+
 export default {
-    namespace: 'brandModel',
-    state: {
-        type:'123',
-        formItemData:[
-            {
-                domType: 'text',
-                id: 'name',
-                title: '品牌名',
-                required: true,
-                domAttr: {},
-                defaultValue:null,
-                fieldAttr: {
-                  rules: [
-                    {
-                      message:'请输入品牌名',
-                      required: true,
-                    },
-                  ],
-                }
-            },
-            {
-                domType: 'upload',
-                id: 'attach',
-                title: '品牌logo',
-                defaultValue:null,
-                // required: true,
-                domAttr: {},
-                fieldAttr: {
-                //   rules: [
-                //     {
-                //       required: true,
-                //     },
-                //   ],
-                }
-            },
-        ]
-    },
-    effects: {
+  namespace: 'brandModel',
+  state: {
+    GoodsBrandList: [],
+    addStatus: false,
+    delStatus: false,
+    editStatus: false,
+  },
+  effects: {
+    *queryGoodsBrand({ payload }, { call, put }) {
+      const response = yield call(queryGoodsBrand, payload);
 
+      if (response.success) {
+        yield put({
+          type: 'GoodsBrandList',
+          payload: response.data,
+        });
+      } else {
+        message.warning(response.message);
+      }
     },
-    reducers: {
-        addBrand(state, {payload}) {
-            const {formItemData} = state;
-            formItemData.forEach(item=>{
-                // console.log(item.id)
-                item.defaultValue = null
-            })
-
-            return {
-              ...state,
-              formItemData,
-            };
-        },
-        editBrand(state, {payload}) {
-            console.log(payload)
-            const {formItemData} = state;
-            formItemData.forEach(item=>{
-                item.defaultValue = payload[item.id]
-            })
-            return {
-              ...state,
-              formItemData,
-            };
-        },
+    *addGoodsBrand({ payload }, { call, put }) {
+      const response = yield call(addGoodsBrand, payload);
+      if (response.success) {
+        message.success('新增品牌成功');
+        yield put({
+          type: 'add_GoodsBrand',
+          payload: response.success,
+        });
+      } else {
+        message.warning(response.message);
+      }
     },
+    *updateGoodsBrand({ payload }, { call, put }) {
+      const response = yield call(updateGoodsBrand, payload);
+      if (response.success) {
+        message.success('品牌更新成功');
+        yield put({
+          type: 'edit_GoodsBrand',
+          payload: response.success,
+        });
+      } else {
+        message.warning(response.message);
+      }
+    },
+    *deleteGoodsBrand({ payload }, { call, put }) {
+      const response = yield call(deleteGoodsBrand, payload);
+      if (response.success) {
+        yield put({
+          type: 'del_GoodsBrand',
+          payload: response.success,
+        });
+      } else {
+        message.warning(response.message);
+      }
+    },
+  },
+  reducers: {
+    GoodsBrandList(state, { payload }) {
+      return {
+        ...state,
+        GoodsBrandList: payload,
+      };
+    },
+    add_GoodsBrand(state, { payload }) {
+      return {
+        ...state,
+        addStatus: payload,
+      };
+    },
+    edit_GoodsBrand(state, { payload }) {
+      return {
+        ...state,
+        editStatus: payload,
+      };
+    },
+    del_GoodsBrand(state, { payload }) {
+      return {
+        ...state,
+        delStatus: payload,
+      };
+    },
+  },
 };

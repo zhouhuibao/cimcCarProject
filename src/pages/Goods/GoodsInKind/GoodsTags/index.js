@@ -1,27 +1,38 @@
 import React, { Component } from 'react';
-import { Button, Table, Input, Icon, Popconfirm, Tag } from 'antd';
+import { Button, Table, Input, Icon, Popconfirm, Tag, message } from 'antd';
+import { connect } from 'dva';
 import AddTag from './AddTag';
-import dataJSON from './tag.json';
+// import zhifubao from '@/assets/svg/zhifubao.svg'
 import styles from '../../goodsStyles.less';
 
 const { Search } = Input;
+
+@connect(({ tagModel, loading }) => ({
+  tagModel,
+  listLoading: loading.effects['tagModel/queryeGoodsLabel'],
+  addLoading: loading.effects['tagModel/addGoodsLabel'],
+  editLoading: loading.effects['tagModel/updateGoodsLabel'],
+}))
 class GoodsTags extends Component {
+  constructor(props) {
+    super(props);
+    this.tagRef = React.createRef();
+  }
+
   state = {
     visible: false,
-    addTitle: '',
+    isEdit: false,
     editData: {},
-    color: '#ccc',
     columns: [
       {
-        title: 'ID',
-        dataIndex: 'tag_id',
-      },
-      {
         title: '标签名称',
-        dataIndex: 'tag_name',
+        dataIndex: 'labelName',
         render: (text, record) => {
           return (
-            <Tag color={record.font_color} style={{ background: record.tag_color }}>
+            <Tag
+              color={record.labelFont}
+              style={{ background: record.labelColor, color: record.labelFont }}
+            >
               {text}
             </Tag>
           );
@@ -29,7 +40,12 @@ class GoodsTags extends Component {
       },
       {
         title: '标签描述',
-        dataIndex: 'description',
+        dataIndex: 'remark',
+      },
+      {
+        title: '添加时间',
+        dataIndex: 'addTime',
+        width: 170,
       },
       {
         title: '操作',
@@ -40,12 +56,18 @@ class GoodsTags extends Component {
         render: (text, record) => {
           return (
             <div>
-              <Icon type="edit" style={{ cursor: 'pointer' }} />
+              <Icon
+                type="edit"
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  this.clickEdit(record);
+                }}
+              />
               &ensp;
               <Popconfirm
                 title="确定删除该标签?"
-                onConfirm={e => {
-                  this.deleteTableDate(e, record);
+                onConfirm={() => {
+                  this.deleteTableDate(record);
                 }}
                 okText="确定"
                 cancelText="取消"
@@ -57,7 +79,47 @@ class GoodsTags extends Component {
         },
       },
     ],
-    dataSource: dataJSON,
+    dataSource: [],
+  };
+
+  componentDidMount() {
+    this.getTagList();
+  }
+
+  deleteTableDate = record => {
+    const { dispatch } = this.props;
+    console.log(record);
+    dispatch({
+      type: 'tagModel/deleteGoodsLabel',
+      payload: { id: record.id },
+      callBack: res => {
+        if (res.success) {
+          message.success('删除成功');
+          this.getTagList();
+        } else {
+          message.error(res.message);
+        }
+      },
+    });
+  };
+
+  // 获取标签列表
+  getTagList = obj => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'tagModel/queryeGoodsLabel',
+      payload: obj,
+      callBack: res => {
+        console.log(res);
+        if (res.success) {
+          this.setState({
+            dataSource: res.data || [],
+          });
+        } else {
+          message.error(res.message);
+        }
+      },
+    });
   };
 
   changeHandler = color => {
@@ -66,8 +128,16 @@ class GoodsTags extends Component {
 
   addGoodsTag = () => {
     this.setState({
-      addTitle: '新增标签',
+      isEdit: false,
       visible: true,
+    });
+  };
+
+  clickEdit = record => {
+    this.setState({
+      isEdit: true,
+      visible: true,
+      editData: record,
     });
   };
 
@@ -77,9 +147,71 @@ class GoodsTags extends Component {
     });
   };
 
-  render() {
-    const { color, columns, dataSource, editData, visible, addTitle } = this.state;
+  // 提交添加
+  submitAdd = obj => {
+    console.log(obj);
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'tagModel/addGoodsLabel',
+      payload: obj,
+      callBack: res => {
+        console.log(res);
+        if (res.success) {
+          message.success('添加标签成功');
+          this.getTagList();
+          this.setState({
+            visible: false,
+          });
+        } else {
+          message.error(res.message);
+        }
+      },
+    });
+  };
 
+  // 提交修改
+  submitEdit = obj => {
+    const { editData } = this.state;
+    obj.id = editData.id;
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'tagModel/updateGoodsLabel',
+      payload: obj,
+      callBack: res => {
+        if (res.success) {
+          message.success('修改标签成功');
+          this.getTagList();
+          this.setState({
+            visible: false,
+          });
+        } else {
+          message.error(res.message);
+        }
+      },
+    });
+  };
+
+  onOk = e => {
+    const { validateFields } = this.tagRef.current;
+    validateFields((err, values) => {
+      if (!err) {
+        const obj = {
+          ...values,
+          ...e,
+        };
+        const { isEdit } = this.state;
+        if (isEdit) {
+          this.submitEdit(obj);
+        } else {
+          this.submitAdd(obj);
+        }
+      }
+    });
+  };
+
+  render() {
+    const { columns, dataSource, editData, visible, isEdit } = this.state;
+    const { addLoading, editLoading, listLoading } = this.props;
     return (
       <div className={styles.goodsBrand}>
         <div className={styles.goodsBrandHeader}>
@@ -97,19 +229,33 @@ class GoodsTags extends Component {
           <div className={styles.search}>
             <Search
               placeholder="请输入标签名称"
-              onSearch={value => console.log(value)}
+              onSearch={value => this.getTagList({ labelName: value })}
               enterButton
             />
           </div>
         </div>
-        <Table columns={columns} dataSource={dataSource} rowKey={record => record.tag_id} />
+        {/* <img src={zhifubao} alt="" />
+        <Icon component={zhifubao} />
+        <svg xmlns={zhifubao} version="1.1" height="190" /> */}
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          rowKey={record => record.id}
+          loading={listLoading}
+        />
 
         <AddTag
           visible={visible}
-          title={addTitle}
-          editData={editData}
+          isEdit={isEdit}
+          initValue={editData}
+          addLoading={addLoading}
+          editLoading={editLoading}
+          ref={this.tagRef}
           onClose={() => {
             this.closeAdd();
+          }}
+          onOk={e => {
+            this.onOk(e);
           }}
         />
       </div>

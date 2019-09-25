@@ -49,7 +49,7 @@ export default [
           {
             path: '/goods/goods-kind',
             icon: 'smile',
-            name: '实物类商品',
+            name: '配件',
             routes: [
               {
                 path: '/goods/goods-kind/goods-management',
@@ -91,17 +91,25 @@ export default [
                 name: '商品标签',
                 component: './Goods/GoodsInKind/GoodsTags',
               },
+              {
+                path: '/goods/goods-kind/goods-management/add-goods',
+                component: './Goods/GoodsInKind/GoodsManagement/AddGoods',
+              },
             ],
           },
           {
             path: '/goods/goods-server',
             icon: 'smile',
-            name: '服务类商品',
+            name: '服务',
             routes: [
               {
                 path: '/goods/goods-server/goods-management',
                 name: '商品管理',
                 component: './Goods/GoodsServer/GoodsManagement',
+              },
+              {
+                path: '/goods/goods-server/goods-management/add-goods',
+                component: './Goods/GoodsServer/GoodsManagement/Goods/AddGoods',
               },
             ],
           },
@@ -121,11 +129,11 @@ export default [
           {
             path: '/deal/physical-order',
             icon: 'smile',
-            name: '实物订单',
+            name: '配件订单',
             routes: [
               {
                 path: '/deal/physical-order/physical-order-content',
-                name: '实物订单',
+                name: '配件订单',
                 component: './Deal/PhysicalOrder/PhysicalOrderContent',
               },
               {
@@ -137,7 +145,11 @@ export default [
                 path: '/deal/physical-order/freight-template',
                 name: '运费模板',
                 component: './Deal/PhysicalOrder/FreightTemplate',
-              }
+              },
+              {
+                path: '/deal/physical-order/freight-template/add-freight-template',
+                component: './Deal/PhysicalOrder/FreightTemplate/AddFrughtTemplate',
+              },
             ],
           },
           {
@@ -154,7 +166,7 @@ export default [
                 path: '/deal/server-order/service-verification-ist',
                 name: '服务核销单',
                 component: './Deal/ServerOrder/ServiceVerificationList',
-              }
+              },
             ],
           },
           {
@@ -176,56 +188,103 @@ export default [
                 path: '/deal/appointment/appointment-form',
                 name: '预约单',
                 component: './Deal/Appointment/AppointmentForm',
-              }
+              },
             ],
           },
           {
             path: '/deal/trading-order',
             name: '交易单',
             component: './Deal/TradingOrder',
-          }
+          },
+          {
+            path: '/deal/car-order',
+            name: '整车订单',
+            component: './Deal/CarOrder',
+          },
         ],
       },
 
       {
-        name: '店铺',
+        name: '代理商',
+        icon: 'smile',
+        path: '/agent',
+        routes: [
+          {
+            path: '/agent/agent-list',
+            name: '代理商列表',
+            component: './Agent/AgentList',
+          },
+          {
+            path: '/agent/agency-brand-region',
+            name: '代理品牌及区域',
+            component: './Agent/AgencyBrandRegion',
+          },
+          {
+            path: '/agent/product-config',
+            name: '商品配置',
+            component: './Agent/ProductConfig',
+          },
+          {
+            path: '/agent/agency-order',
+            name: '我的订单',
+            component: './Agent/AgencyOrder',
+          },
+          // {
+          //   path: '/agent/agent-list/add-wxshop',
+          //   component: './Agent/AgentList/Addwxshop',
+          // }
+        ],
+      },
+      {
+        name: '服务站',
+        icon: 'smile',
+        path: '/service',
+        routes: [
+          {
+            path: '/service/service-list',
+            name: '服务站列表',
+            component: './Service/ServiceList',
+          },
+          {
+            path: '/service/service-catalog',
+            name: '服务目录',
+            component: './Service/ServiceCatalog',
+          },
+          {
+            path: '/service/order',
+            name: '我的订单',
+            component: './Service/Order',
+          },
+        ],
+      },
+      {
+        name: '实体门店',
         icon: 'smile',
         path: '/shop',
         routes: [
           {
-            path: '/shop/shop-management',
-            icon: 'smile',
-            name: '店铺管理',
-            routes:[
-              {
-                path: '/shop/shop-management/shop-list',
-                name: '店铺列表',
-                component: './shop/ShopManagement/ShopList',
-              },
-              {
-                path: '/shop/shop-management/shop-product-config',
-                name: '店铺商品配置',
-                component: './shop/ShopManagement/ShopProductConfig',
-              },
-              {
-                path: '/shop/shop-management/shop-guide',
-                name: '店铺导购员',
-                component: './shop/ShopManagement/ShopGuide',
-              },
-              {
-                path: '/shop/shop-management/shop-order',
-                name: '店铺订单',
-                component: './shop/ShopManagement/ShopOrder',
-              }
-              
-            ]
+            path: '/shop/shop-list',
+            name: '门店列表',
+            component: './Shop/ShopList',
+          },
+        ],
+      },
+      {
+        name: '系统管理',
+        icon: 'smile',
+        path: '/sys',
+        routes: [
+          {
+            path: '/sys/enmu',
+            name: '枚举信息',
+            component: './Sys/Enmu',
           },
           {
-            path: '/shop/physical-store',
-            name: '实体门店',
-            component: './shop/PhysicalStore',
-          }
-        ]
+            path: '/sys/division',
+            name: '行政区划',
+            component: './Sys/Division',
+          },
+        ],
       },
 
       // {

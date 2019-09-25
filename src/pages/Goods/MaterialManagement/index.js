@@ -3,9 +3,9 @@ import { Tabs } from 'antd';
 import { router } from 'umi';
 import GraphicMessage from './GraphicMessage';
 import { isEmpty } from '@/utils/utils';
-import Video from './Video';
 import WeChatPic from './WeChatPic';
 import LocalPic from './LocalPic';
+import VideoComponent from './VideoComponent';
 
 const { TabPane } = Tabs;
 
@@ -51,7 +51,7 @@ class MaterialManagement extends Component {
           <LocalPic />
         </TabPane>
         <TabPane tab="视频" key="3">
-          <Video />
+          <VideoComponent />
         </TabPane>
       </Tabs>
     );

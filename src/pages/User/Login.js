@@ -71,12 +71,14 @@ class Login extends Component {
       <Form onSubmit={this.handleSubmit}>
         <div className={styles.login}>
           <div className={styles.loginItem}>
-            <div className={styles.loginItemLabel}>账号</div>
+            <div className={styles.loginItemLabel}>{isDynamicpassword ? '手机号' : '账号'}</div>
             <div className={styles.loginItemValue}>
               <FormItem>
                 {getFieldDecorator('username', {
-                  rules: [{ required: true, message: ' 请输入账号' }],
-                })(<Input placeholder="请输入账号" />)}
+                  rules: [
+                    { required: true, message: `请输入${isDynamicpassword ? '手机号' : '账号'}` },
+                  ],
+                })(<Input placeholder={`请输入${isDynamicpassword ? '手机号' : '账号'}`} />)}
               </FormItem>
             </div>
           </div>

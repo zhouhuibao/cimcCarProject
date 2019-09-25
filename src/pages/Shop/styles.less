@@ -1,0 +1,33 @@
+.SearchAddress {
+  position: relative;
+  .addressInput {
+    width: 200px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    z-index: 9999999999999999;
+    .addressListWrap {
+      margin-top: 10px;
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      background: #ffff;
+      .addressItem {
+        font-size: 12px;
+        color: #000;
+        padding: 10px;
+        // border-bottom:1px solid #ccc;
+        cursor: pointer;
+        &:hover {
+          background: rgb(230, 247, 255);
+        }
+        // &:last-child{
+        //     border:0
+        // }
+      }
+      .active {
+        background: rgb(230, 247, 255);
+      }
+    }
+  }
+}

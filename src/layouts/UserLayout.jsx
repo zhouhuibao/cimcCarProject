@@ -23,7 +23,7 @@ const UserLayout = props => {
   if (pathname === '/user/forget-password' || pathname === '/user/recover-password') {
     titleStr = '找回密码';
   } else {
-    titleStr = '广州中集车辆销售有限公司';
+    titleStr = '挂车管家平台';
   }
 
   const { routes = [] } = route;

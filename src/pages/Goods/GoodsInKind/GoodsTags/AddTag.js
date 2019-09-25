@@ -7,13 +7,13 @@ import 'rc-color-picker/assets/index.css';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
+
+@Form.create()
 @connect(({ specificationsModel }) => ({
   specificationsModel,
 }))
-@Form.create()
 class AddTag extends Component {
   state = {
-    dataList: [],
     tagColor: '#e91313',
     fontColor: '#fff',
     tagName: '',
@@ -48,20 +48,52 @@ class AddTag extends Component {
     });
   };
 
+  afterVisibleChange = e => {
+    const { isEdit, initValue } = this.props;
+    if (e && isEdit) {
+      this.setState({
+        fontColor: initValue.labelFont,
+        tagColor: initValue.labelColor,
+        tagName: initValue.labelName,
+      });
+    }
+  };
+
   render() {
     const {
       onClose,
       visible,
-      title,
       form: { getFieldDecorator },
       isEdit,
       initValue,
+      onOk,
+      editLoading,
+      addLoading,
     } = this.props;
     const { tagColor, fontColor, tagName } = this.state;
 
+    const colorObj = {
+      labelFont: fontColor,
+      labelColor: tagColor,
+    };
+
     return (
-      <Drawer title={title} width="500" onClose={onClose} visible={visible}>
-        <Form onSubmit={this.handleSubmit} className={styles.AddTag}>
+      <Drawer
+        afterVisibleChange={e => {
+          this.afterVisibleChange(e);
+        }}
+        destroyOnClose
+        title={isEdit ? '修改标签' : '新增标签'}
+        width="500"
+        onClose={onClose}
+        visible={visible}
+      >
+        <Form
+          onSubmit={() => {
+            onOk(colorObj);
+          }}
+          className={styles.AddTag}
+        >
           <div className={styles.tagFormItem} style={{ marginBottom: 24 }}>
             <div className={styles.label}>预览最终结果</div>
             <div className={styles.content}>
@@ -76,8 +108,8 @@ class AddTag extends Component {
             </div>
             <div className={styles.content}>
               <FormItem>
-                {getFieldDecorator('name', {
-                  initialValue: isEdit ? initValue.name : null,
+                {getFieldDecorator('labelName', {
+                  initialValue: isEdit ? initValue.labelName : null,
                   rules: [{ required: true, message: '标签名称不能为空' }],
                 })(<Input placeholder="请输入标签名称" onChange={this.changeTagName} />)}
               </FormItem>
@@ -138,7 +170,7 @@ class AddTag extends Component {
             >
               取消
             </Button>
-            <Button htmlType="submit" type="primary">
+            <Button htmlType="submit" type="primary" loading={isEdit ? editLoading : addLoading}>
               保存
             </Button>
           </div>

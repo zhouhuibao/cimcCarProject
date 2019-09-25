@@ -14,7 +14,35 @@
   }
 }
 
+:global {
+  .ant-tooltip {
+    max-width: 400px;
+  }
+}
+
+.goodsTools {
+  :global {
+    .ant-tooltip-arrow::before {
+      background-color: #fff;
+    }
+    .ant-tooltip-inner {
+      background-color: #fff;
+    }
+  }
+  a {
+    padding: 10px;
+  }
+}
+
 .addGoodsWrap {
+  :global {
+    .ant-page-header {
+      padding: 0 0 24px 0;
+    }
+    .ant-page-header-heading-title {
+      font-size: 18px;
+    }
+  }
   .itemWrap {
     display: flex;
     .itemLabel {
@@ -33,35 +61,31 @@
     .ant-drawer-body {
       padding-bottom: 70px;
     }
-  
   }
 
-  .specificationsWrap{
-
+  .specificationsWrap {
     :global {
       .ant-form-item {
         margin-bottom: 0;
       }
-      
     }
-    
-    
-    .specificationsList{
-      box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+
+    .specificationsList {
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
       padding: 20px;
       display: flex;
       margin-bottom: 20px;
-      .specificationsTitle{
+      .specificationsTitle {
         width: auto;
       }
-      .specificationsContent{
+      .specificationsContent {
         flex: 1;
         padding-left: 20px;
-        .specificationsContentItem{
+        .specificationsContentItem {
           float: left;
           margin-right: 20px;
           margin-bottom: 20px;
-          .itemImg{
+          .itemImg {
             width: 50px;
             height: 50px;
             justify-content: center;
@@ -70,7 +94,7 @@
             overflow: hidden;
             background: #f8f8f8;
             margin-bottom: 10px;
-            img{
+            img {
               display: block;
               width: auto;
               height: auto;
@@ -78,19 +102,15 @@
               max-height: 100%;
             }
           }
-          .specificationsCheckBox{
+          .specificationsCheckBox {
             float: left;
             margin-right: 5px;
           }
-          .specificationsInput{
+          .specificationsInput {
             float: left;
           }
         }
       }
     }
-    
   }
 }
-
-
-

@@ -38,10 +38,10 @@ class LocalPic extends Component {
       <div>
         <Button type="primary">上传图片</Button>
         <div style={{ marginBottom: 20 }}>只能上传jpg/png文件，且不超过2M</div>
-        <Row gutter={16}>
+        <Row gutter={32}>
           {data.map(item => {
             return (
-              <Col className="gutter-row" sm={12} lg={6} xl={4} key={item.media_id}>
+              <Col className="gutter-row" sm={12} xl={4} key={item.media_id}>
                 <div className={styles.pic}>
                   <div
                     className={styles.imgContent}

@@ -34,6 +34,7 @@ class CustomerList extends Component {
     ],
     infoList: [
       {
+        id: '',
         label: '客户名称',
         value: '张坤(个体)',
       },

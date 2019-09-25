@@ -1,9 +1,9 @@
 import fetch from 'dva/fetch';
-import {notification} from 'antd';
-import {stringify} from 'qs';
+import { notification } from 'antd';
+import { stringify } from 'qs';
 import router from 'umi/router';
 import hash from 'hash.js';
-import { isAntDesignPro } from './utils';
+import { isAntDesignPro, dataType } from './utils';
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
   201: '新建或修改数据成功。',
@@ -82,10 +82,10 @@ export default function request(url, option) {
   const defaultOptions = {
     credentials: 'include',
   };
-  const newOptions = {...defaultOptions, ...options};
+  const newOptions = { ...defaultOptions, ...options };
   newOptions.headers = {
     'X-Requested-With': 'XMLHttpRequest',
-    ...options.headers
+    ...options.headers,
   };
   if (
     newOptions.method === 'POST' ||
@@ -93,7 +93,7 @@ export default function request(url, option) {
     newOptions.method === 'DELETE'
   ) {
     if (!(newOptions.body instanceof FormData)) {
-      let contentType = ''
+      let contentType = '';
       if (newOptions.headers['Content-Type'] == undefined) {
         contentType = 'application/json;charset=UTF-8';
       } else {
@@ -106,10 +106,17 @@ export default function request(url, option) {
         ...newOptions.headers,
       };
 
-      if (newOptions.headers['Content-Type'] == 'application/json;charset=UTF-8') {
-        newOptions.body = JSON.stringify(newOptions.body)
+      let bodyData = {};
+      if (dataType(newOptions.body) !== 'Undefined') {
+        bodyData = {
+          ...newOptions.body,
+        };
+      }
+
+      if (newOptions.headers['Content-Type'] === 'application/json;charset=UTF-8') {
+        newOptions.body = JSON.stringify(bodyData);
       } else {
-        newOptions.body = stringify(newOptions.body);
+        newOptions.body = stringify(bodyData);
       }
     } else {
       // newOptions.body is FormData
@@ -118,7 +125,6 @@ export default function request(url, option) {
         ...newOptions.headers,
       };
     }
-
   }
 
   const expirys = options.expirys && 60;
@@ -137,13 +143,10 @@ export default function request(url, option) {
     }
   }
 
-
   return fetch(url, newOptions)
     .then(checkStatus)
     .then(response => cachedSave(response, hashcode))
     .then(response => {
-        console.log(response)
-
       // if (newOptions.method === 'DELETE' || response.status === 204) {
       //   response.clone().json().then(json => {
       //     const status = json.code;
@@ -185,12 +188,11 @@ export default function request(url, option) {
       //     return;
       //   }
       // });
-      // return response.json();
 
-
-
+      return response.json();
     })
     .catch(e => {
+      return false;
 
       // const status = e.name;
       // if (status === 401) {
@@ -214,6 +216,5 @@ export default function request(url, option) {
       // if (status >= 404 && status < 422) {
       //   router.push('/exception/404');
       // }
-
     });
 }

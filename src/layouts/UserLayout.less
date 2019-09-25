@@ -1,8 +1,7 @@
 @import '~antd/es/style/themes/default.less';
 
-@menuHeight:30px;
-
-
+// @menuHeight:30px;
+@menuHeight: 40px;
 
 .container {
   display: flex;
@@ -122,13 +121,12 @@
   }
 
   :global {
-    .ant-menu-item{
-      height: 30px !important;  
+    .ant-menu-item {
+      height: @menuHeight !important;
       line-height: @menuHeight !important;
-
     }
-    
-    .ant-menu-submenu-title{
+
+    .ant-menu-submenu-title {
       height: @menuHeight !important;
       line-height: @menuHeight !important;
     }

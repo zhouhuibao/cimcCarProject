@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import { Button, Icon, Tabs, Table } from 'antd';
+import { Button, Icon, Tabs, Table, InputNumber, Tooltip, message } from 'antd';
+import { router } from 'umi';
 import SearchComponent from '@/components/SearchComponent';
-import AddGoods from './AddGoods';
+import goodsList from './list.json';
+import OperationModal from './OperationModal';
 import styles from './styles.less';
 
 const ButtonGroup = Button.Group;
@@ -15,19 +17,49 @@ class GoodsManagement extends Component {
 
   state = {
     visible: false,
+    selectedData: [],
     columns: [
       {
         title: '操作',
-        dataIndex: 'name',
-        render: text => <a>{text}</a>,
+        render: (text, record) => (
+          <a>
+            编辑{' '}
+            <Tooltip
+              mouseLeaveDelay={0.1}
+              overlayClassName={styles.goodsTools}
+              placement="right"
+              title={
+                <>
+                  <a
+                    onClick={() => {
+                      this.delGoods(record);
+                    }}
+                  >
+                    删除
+                  </a>
+                  <a>添加相似</a>
+                  <a>设置价格</a>
+                  <a>标签</a>
+                  <a>复制链接</a>
+                </>
+              }
+            >
+              <Icon type="double-right" />
+            </Tooltip>{' '}
+          </a>
+        ),
       },
       {
         title: '商品id',
-        dataIndex: 'age',
+        dataIndex: 'itemId',
       },
       {
         title: '排序编号',
-        dataIndex: 'address',
+        dataIndex: 'sort',
+        width: 100,
+        render: text => {
+          return <InputNumber min={0} defaultValue={text} style={{ textAlign: 'center' }} />;
+        },
       },
       {
         title: '规格',
@@ -35,11 +67,11 @@ class GoodsManagement extends Component {
       },
       {
         title: '商品名称',
-        dataIndex: 'address2',
+        dataIndex: 'itemName',
       },
       {
         title: '库存',
-        dataIndex: 'address3',
+        dataIndex: 'store',
       },
       {
         title: '状态',
@@ -47,10 +79,24 @@ class GoodsManagement extends Component {
       },
       {
         title: '标签',
-        dataIndex: 'address5',
+        render: (text, record) => (
+          <span>
+            {record.tagList.map(item => {
+              return (
+                <span
+                  key={item.tag_id}
+                  className="ant-tag"
+                  style={{ color: item.font_color, background: item.tag_color }}
+                >
+                  {item.tag_name}
+                </span>
+              );
+            })}
+          </span>
+        ),
       },
     ],
-    data: [],
+    data: goodsList,
     fields: [
       {
         id: 'goodsname',
@@ -124,31 +170,63 @@ class GoodsManagement extends Component {
     ],
   };
 
-  
   // 添加修改商品
-  addGoods = () => {
+  addGoods = () => {};
+
+  // 删除商品
+  delGoods = record => {
+    console.log(record);
+  };
+
+  setModalType = title => {
     this.setState({
       visible: true,
+      title,
     });
   };
 
-  // 关闭添加修改商品
-  closeAdd = () => {
-    this.setState({
-      visible: false,
-    });
+  // 更改商品分类
+  updataGoodsType = () => {
+    const { selectedData } = this.state;
+    if (selectedData.length <= 0) {
+      message.warning('请选择需要更改的商品');
+    } else {
+      this.setModalType('更改商品分类');
+    }
+  };
+
+  // 更改运费模板
+  updataTemplate = () => {
+    const { selectedData } = this.state;
+    if (selectedData.length <= 0) {
+      message.warning('请选择需要更改的商品');
+    } else {
+      this.setModalType('更改运费模板');
+    }
+  };
+
+  // 更改运费模板
+  updataTag = () => {
+    const { selectedData } = this.state;
+    if (selectedData.length <= 0) {
+      message.warning('请选择需要打标签的商品');
+    } else {
+      this.setModalType('打标签');
+    }
+  };
+
+  handOk = e => {
+    console.log(e);
   };
 
   render() {
-    const { fields, columns, data, visible } = this.state;
+    const { fields, columns, data, visible, title } = this.state;
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+        this.setState({
+          selectedData: selectedRows,
+        });
       },
-      getCheckboxProps: record => ({
-        disabled: record.name === 'Disabled User', // Column configuration not to be checked
-        name: record.name,
-      }),
     };
     return (
       <div className={styles.GoodsManagementWrap}>
@@ -157,38 +235,61 @@ class GoodsManagement extends Component {
           <Button
             type="primary"
             onClick={() => {
-              this.addGoods();
+              router.push('/goods/goods-kind/goods-management/add-goods');
             }}
           >
             <Icon type="plus-circle" />
             添加商品
           </Button>
-          <Button type="primary">
+          <Button
+            type="primary"
+            onClick={e => {
+              this.updataGoodsType(e);
+            }}
+          >
             <Icon type="edit" />
             更改商品分类
           </Button>
-          <Button type="primary">
+          <Button
+            type="primary"
+            onClick={() => {
+              this.updataTemplate();
+            }}
+          >
             <Icon type="edit" />
             更改运费模板
           </Button>
-          <Button type="primary">
+          <Button
+            type="primary"
+            onClick={() => {
+              this.updataTag();
+            }}
+          >
             <Icon type="edit" />
             打标签
           </Button>
         </ButtonGroup>
         <Tabs type="card">
           <TabPane tab="全部商品" key="1">
-            <Table rowSelection={rowSelection} columns={columns} dataSource={data} />
+            <Table
+              rowSelection={rowSelection}
+              columns={columns}
+              dataSource={data}
+              rowKey={record => record.itemId}
+            />
           </TabPane>
           <TabPane tab="库存预警商品" key="2">
             <Table rowSelection={rowSelection} columns={columns} dataSource={data} />
           </TabPane>
         </Tabs>
-        <AddGoods
+
+        <OperationModal
           visible={visible}
-          onClose={() => {
-            this.closeAdd();
+          title={title}
+          onOk={e => {
+            this.handOk(e);
           }}
+          onCancel={() => this.setState({ visible: false })}
         />
       </div>
     );

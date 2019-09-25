@@ -17,7 +17,20 @@ body,
   background: #fff;
 }
 
+// 地图样式
+.amap-icon img {
+  width: 25px;
+  height: 34px;
+}
+
 :global {
+  .ant-page-header {
+    padding: 0 0 24px 0 !important;
+  }
+  .ant-page-header-heading-title {
+    font-size: 18px !important;
+  }
+
   .formDrawer {
     .ant-drawer-body {
       padding-bottom: 60px;
@@ -82,6 +95,13 @@ body,
 }
 .clearfix {
   *zoom: 1; /*ie6清除浮动的方式 *号只有IE6-IE7执行，其他浏览器不执行*/
+}
+
+.pull-left {
+  float: left !important;
+}
+.pull-right {
+  float: right !important;
 }
 
 .textCenter {

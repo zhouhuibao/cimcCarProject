@@ -4,7 +4,7 @@ import videoData from '../video.json';
 import styles from '../file.less';
 
 const { confirm } = Modal;
-class Video extends Component {
+class VideoComponent extends Component {
   state = {
     data: videoData,
   };
@@ -90,4 +90,4 @@ class Video extends Component {
     );
   }
 }
-export default Video;
+export default VideoComponent;

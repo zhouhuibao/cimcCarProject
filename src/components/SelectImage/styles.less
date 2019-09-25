@@ -1,0 +1,51 @@
+.line {
+  border-bottom: 1px solid #ccc;
+  margin: 20px 0;
+}
+
+.SelectImage {
+  :global {
+    .ant-upload-list {
+      display: none;
+    }
+  }
+  .imgWrap {
+    .imgItem {
+      border: 1px solid #ccc;
+      cursor: pointer;
+      margin-bottom: 20px;
+      position: relative;
+      .checked {
+        height: 120px;
+        width: 100%;
+        text-align: center;
+        line-height: 120px;
+        position: absolute;
+        opacity: 0.5;
+        background: #000;
+        top: 0;
+        left: 0;
+
+        .checkedIcon {
+          color: #fff;
+          font-size: 36px;
+        }
+      }
+      img {
+        height: 120px;
+        width: 100%;
+        display: block;
+      }
+      .imgName {
+        text-align: center;
+        line-height: 36px;
+        padding: 0 20px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        height: 36px;
+        border-top: 1px solid #ccc;
+      }
+    }
+  }
+}

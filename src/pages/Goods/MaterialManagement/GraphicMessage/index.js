@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Alert, Button, Pagination } from 'antd';
 
 class GraphicMessage extends Component {
+  state = {};
+
   componentDidMount() {
     console.log('图文消息');
   }

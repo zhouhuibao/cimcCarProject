@@ -2,10 +2,10 @@ import defaultSettings from './defaultSettings'; // https://umijs.org/config/
 import os from 'os';
 import slash from 'slash2';
 import webpackPlugin from './plugin.config';
-import router from './router.config'
+import router from './router.config';
 const { pwa, primaryColor } = defaultSettings; // preview.pro.ant.design only do not use in your production ;
 // preview.pro.ant.design 专用环境变量，请不要在你的项目中使用它。
-const {APP_TYPE, TEST} = process.env;
+const { APP_TYPE, TEST } = process.env;
 
 const { ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION } = process.env;
 const isAntDesignProPreview = ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION === 'site';
@@ -29,24 +29,24 @@ const plugins = [
       },
       pwa: pwa
         ? {
-          workboxPluginMode: 'InjectManifest',
-          workboxOptions: {
-            importWorkboxFrom: 'local',
-          },
-        }
+            workboxPluginMode: 'InjectManifest',
+            workboxOptions: {
+              importWorkboxFrom: 'local',
+            },
+          }
         : false,
       ...(!TEST && os.platform() === 'darwin'
         ? {
-          dll: {
-            include: ['dva', 'dva/router', 'dva/saga', 'dva/fetch'],
-            exclude: ['@babel/runtime'],
-          },
-          hardSource: false,
-        }
+            dll: {
+              include: ['dva', 'dva/router', 'dva/saga', 'dva/fetch'],
+              exclude: ['@babel/runtime'],
+            },
+            hardSource: false,
+          }
         : {}),
     },
   ],
-];// 针对 preview.pro.ant.design 的 GA 统计代码
+]; // 针对 preview.pro.ant.design 的 GA 统计代码
 
 if (isAntDesignProPreview) {
   plugins.push([
@@ -62,15 +62,15 @@ if (isAntDesignProPreview) {
     },
   ]);
 }
- 
+
 export default {
   plugins,
-  base: '' ,   //定义路由的基本路径
-  publicPath: './' ,  //定义资源的基本路径
+  base: '', //定义路由的基本路径
+  publicPath: './', //定义资源的基本路径
   block: {
     defaultGitUrl: 'https://github.com/ant-design/pro-blocks',
   },
-  hash: true, 
+  hash: true,
   history: 'hash',
   targets: {
     ie: 11,
@@ -126,11 +126,10 @@ export default {
       changeOrigin: true,
       pathRewrite: { '^/server': '' },
     },
-    '/project': {
-      target: 'http://112.74.85.111:18882/',
+    '/gcgj/': {
+      target: 'http://192.168.1.144:8080/',
       changeOrigin: true,
-      pathRewrite: {'^/project': '/project'},
+      pathRewrite: { '^/gcgj/': '/gcgj/' },
     },
   },
-  
 };

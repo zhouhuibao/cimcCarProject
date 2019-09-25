@@ -9,36 +9,6 @@ import styles from './UserLayout.less';
 import logoMaxImg from '@/assets/logo-max.png';
 import logoMinImg from '@/assets/logo-min.png';
 
-console.log(logoMinImg);
-const rootSubmenuKeysArr = [];
-const newArr = [];
-function fun(arr) {
-  for (let i = 0; i < arr.length; i += 1) {
-    if (Array.isArray(arr[i].routes)) {
-      newArr.push(arr[i]);
-
-      fun(arr[i].routes);
-    }
-    // else{
-    //     newArr.push(arr[i]);
-    // }
-  }
-}
-
-function copyArr(obj) {
-  const out = [];
-  for (let i = 0; i < obj.length; i += 1) {
-    // console.log(obj[i].path)
-    if (obj[i].routes instanceof Array) {
-      out.push(obj[i].path);
-      out[i] = copyArr(obj[i].routes);
-    } else if (isEmpty(obj[i].path)) {
-      out[i] = obj[i].path;
-    }
-  }
-  return out;
-}
-
 const { Sider } = Layout;
 const { SubMenu } = Menu;
 const imgPath =
@@ -58,37 +28,34 @@ class BasicLayout extends Component {
   componentDidMount() {
     const {
       route: { routes },
+      location: { pathname },
     } = this.props;
-    fun(routes);
 
     const keysArr = [];
-    newArr.forEach(item => {
+
+    routes.forEach(item => {
       if (isEmpty(item.path)) {
         keysArr.push(item.path);
       }
     });
 
-    // this.setState({
-    //   rootSubmenuKeys:keysArr
-    // })
-
-    // this.setRootSubmenuKeys(routes)
-  }
-
-  setRootSubmenuKeys = routes => {
-    // const {
-    //   route: { routes },
-    // } = this.props;
-    const arrKey = [];
-    routes.forEach(item => {
-      if (isEmpty(item.path)) {
-        arrKey.push(item.path);
-        // if(isEmpty(routes)){
-
-        // }
-      }
+    const pathArr = pathname.split('/');
+    let openKey = '';
+    pathArr.forEach(item => {
+      keysArr.forEach(keyItem => {
+        if (`/${item}` === keyItem) {
+          openKey = keyItem;
+        }
+      });
     });
-  };
+
+    keysArr.push('physical-order');
+
+    this.setState({
+      rootSubmenuKeys: keysArr,
+      openKeys: [openKey, 'physical-order'],
+    });
+  }
 
   // 创建子节点
   createSubMenu = item => {
@@ -99,41 +66,8 @@ class BasicLayout extends Component {
             key={item.path}
             title={
               <span>
-                <Icon type={item.icon} />
-                <span>{item.name}</span>
-              </span>
-            }
-          >
-            {item.routes.map(menuitem => {
-              return this.createMenuItem(menuitem);
-            })}
-          </SubMenu>
-        );
-      }
-      return (
-        <Menu.Item key={item.path}>
-          <Link to={item.path ? item.path : '/'} replace>
-            <Icon type={item.icon} />
-            <span>{item.name}</span>
-          </Link>
-        </Menu.Item>
-      );
-    }
-    return null;
-  };
-
-  // 判断子节点中是否有子节点
-  isChilder = () => {};
-
-  createMenuItem = item => {
-    if (item.name) {
-      if (item.routes) {
-        return (
-          <SubMenu
-            key={item.path}
-            title={
-              <span>
-                <Icon type={item.icon} />
+                {isEmpty(item.icon) ? <Icon type={item.icon} /> : null}
+                {/* <Icon type={item.icon} /> */}
                 <span>{item.name}</span>
               </span>
             }
@@ -147,7 +81,8 @@ class BasicLayout extends Component {
       return (
         <Menu.Item key={item.path}>
           <Link to={item.path ? item.path : '/'} replace>
-            <Icon type={item.icon} />
+            {isEmpty(item.icon) ? <Icon type={item.icon} /> : null}
+            {/* <Icon type={item.icon} /> */}
             <span>{item.name}</span>
           </Link>
         </Menu.Item>
@@ -156,46 +91,11 @@ class BasicLayout extends Component {
     return null;
   };
 
-  filterkeys = keys => {
-    const arr = [];
-    rootSubmenuKeysArr.forEach(item => {
-      arr.push(JSON.stringify(item));
-    });
-    console.log(arr);
-    console.log(keys);
-
-    // console.log(arr.indexOf(keys))
-
-    arr.forEach(item => {
-      console.log(item.indexOf(JSON.stringify(keys)));
-    });
-  };
-
-  // onOpenChange = openKeyss => {
-  //   console.log(openKeyss);
-  //   const { rootSubmenuKeys, openKeys } = this.state;
-  //   rootSubmenuKeysArr.push(openKeyss);
-  //   console.log(rootSubmenuKeysArr)
-  //   const latestOpenKey = openKeyss.find(key => openKeys.indexOf(key) === -1);
-
-  //     // console.log(latestOpenKey)
-  //     if (rootSubmenuKeysArr.indexOf(latestOpenKey) === -1) {
-  //       this.setState({ openKeys: openKeyss });
-  //     } else {
-  //       this.setState({
-  //         openKeys: latestOpenKey ? [latestOpenKey] : [],
-  //       });
-  //     }
-  // };
-
-  onOpenChange = openKeys => {
-    console.log(openKeys);
-    const latestOpenKey = openKeys.find(key => this.state.openKeys.indexOf(key) === -1);
-    console.log(latestOpenKey);
-    rootSubmenuKeysArr.push(openKeys);
-
-    if (rootSubmenuKeysArr.indexOf(latestOpenKey) === -1) {
-      this.setState({ openKeys });
+  onOpenChange = openKeyss => {
+    const { openKeys, rootSubmenuKeys } = this.state;
+    const latestOpenKey = openKeyss.find(key => openKeys.indexOf(key) === -1);
+    if (rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
+      this.setState({ openKeys: openKeyss });
     } else {
       this.setState({
         openKeys: latestOpenKey ? [latestOpenKey] : [],
@@ -205,8 +105,6 @@ class BasicLayout extends Component {
 
   toggle = () => {
     const { collapsed } = this.state;
-    console.log(collapsed);
-
     this.setState({
       collapsed: !collapsed,
     });
@@ -236,8 +134,6 @@ class BasicLayout extends Component {
       route: { routes },
       location: { pathname },
     } = this.props;
-    console.log(pathname);
-    console.log(openKeys);
     return (
       <div className={styles.basicLayout}>
         <Sider

@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
 import { Alert, Button, Table, Input, Icon, Popconfirm } from 'antd';
+import AddBasic from './AddBasic';
 import basicData from './basic.json';
 import styles from '../../../goodsStyles.less';
 
 const { Search } = Input;
 class BasicMaterial extends Component {
   state = {
+    visible: false,
+    addTitle: '',
+    editData: null,
     columns: [
       {
         title: '物料名称',
@@ -57,8 +61,21 @@ class BasicMaterial extends Component {
     console.log(record);
   };
 
+  addBasic = () => {
+    this.setState({
+      addTitle: '新增基础物料',
+      visible: true,
+    });
+  };
+
+  closeAdd = () => {
+    this.setState({
+      visible: false,
+    });
+  };
+
   render() {
-    const { columns, dataSource } = this.state;
+    const { columns, dataSource, addTitle, visible, editData } = this.state;
     return (
       <div className={styles.goodsBrand}>
         <Alert
@@ -73,7 +90,9 @@ class BasicMaterial extends Component {
             <Button
               type="primary"
               icon="plus"
-              //   onClick={()=>{this.addGoodsTag()}}
+              onClick={() => {
+                this.addBasic();
+              }}
             >
               新增基础物料
             </Button>
@@ -88,6 +107,14 @@ class BasicMaterial extends Component {
         </div>
 
         <Table columns={columns} dataSource={dataSource} rowKey={record => record.tag_id} />
+        <AddBasic
+          visible={visible}
+          title={addTitle}
+          editData={editData}
+          onClose={() => {
+            this.closeAdd();
+          }}
+        />
       </div>
     );
   }

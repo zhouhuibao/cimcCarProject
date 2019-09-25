@@ -1,7 +1,23 @@
 import React, { Component } from 'react';
-import { Input, Select, DatePicker, Form, Row, Col,Radio } from 'antd';
+import {
+  Input,
+  Select,
+  TimePicker,
+  DatePicker,
+  Form,
+  Row,
+  Col,
+  Radio,
+  InputNumber,
+  Switch,
+  Cascader,
+} from 'antd';
 import UploadImg from '@/components/UploadImg';
+import { isEmpty } from '@/utils/utils';
+import city from '@/utils/city.json';
 import styles from './style.less';
+// import moment from 'moment';
+console.log(city);
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -21,7 +37,7 @@ class TextPage extends Component {
 
   setFormItemDom = props => {
     const domAttrObj = {
-      placeholder: `请输入${props.title}`,
+      placeholder: `${props.domType === 'select' ? '请选择' : '请输入'}${props.title}`,
       ...props.domAttr,
     };
     const {
@@ -29,15 +45,30 @@ class TextPage extends Component {
     } = this.props;
     switch (props.domType) {
       case 'text':
-        return getFieldDecorator(props.id, {initialValue: props.defaultValue, ...props.fieldAttr })(<Input {...domAttrObj} />);
-      case 'TextArea':
+        return getFieldDecorator(props.id, {
+          initialValue: props.defaultValue,
+          ...props.fieldAttr,
+        })(<Input {...domAttrObj} />);
+      case 'number':
+        return getFieldDecorator(props.id, {
+          initialValue: props.defaultValue,
+          ...props.fieldAttr,
+        })(<InputNumber {...domAttrObj} />);
+      case 'textArea':
         return getFieldDecorator(props.id, { ...props.fieldAttr })(
           <TextArea autosize={{ minRows: 4, maxRows: 8 }} {...domAttrObj} />,
         );
-      case 'Radio':
-        return getFieldDecorator(props.id, {initialValue: props.defaultValue, ...props.fieldAttr })(
-          <Radio.Group options={props.options} {...domAttrObj} />
+      case 'switch':
+        return getFieldDecorator(props.id, { ...props.fieldAttr })(<Switch {...domAttrObj} />);
+      case 'selectCity':
+        return getFieldDecorator(props.id, { ...props.fieldAttr })(
+          <Cascader {...domAttrObj} options={city.data} />,
         );
+      case 'radio':
+        return getFieldDecorator(props.id, {
+          initialValue: props.defaultValue,
+          ...props.fieldAttr,
+        })(<Radio.Group options={props.options} {...domAttrObj} />);
 
       case 'select': {
         let propsObj = {};
@@ -74,9 +105,12 @@ class TextPage extends Component {
         return getFieldDecorator(props.id, { ...props.fieldAttr })(<MonthPicker {...domAttrObj} />);
       case 'WeekPicker':
         return getFieldDecorator(props.id, { ...props.fieldAttr })(<WeekPicker {...domAttrObj} />);
+      case 'TimePicker':
+        return getFieldDecorator(props.id, { ...props.fieldAttr })(<TimePicker {...domAttrObj} />);
+
       case 'upload':
         return getFieldDecorator(props.id, { ...props.fieldAttr })(<UploadImg {...domAttrObj} />);
-  
+
       default:
         break;
     }
@@ -84,8 +118,11 @@ class TextPage extends Component {
     return null;
   };
 
+  // getCol=(item)=>{
+  //   if(){
 
-  
+  //   }
+  // }
 
   render() {
     const { formData } = this.props;
@@ -101,7 +138,7 @@ class TextPage extends Component {
       }
       bigArr.push(arr);
     }
-    
+
     return (
       <Row gutter={16} className={styles.formWrapper}>
         {bigArr.map((divItem, i) => {
@@ -109,9 +146,13 @@ class TextPage extends Component {
             <div key={i} className="clearfix">
               {divItem.map((item, j) => {
                 return (
-                  <Col className="gutter-row" span={item.domType === 'upload' || item.domType==='TextArea' ||  item.domType==='Radio' ? 24 : 12} key={j}>
+                  <Col className="gutter-row" span={isEmpty(item.col) ? item.col : 12} key={j}>
+                    {/* <Col className="gutter-row" span={item.domType === 'upload' || item.domType===' ' ||  item.domType==='Radio' ? 24 : 12} key={j}> */}
                     <div className={styles.itemWrap}>
-                      <p className={styles.itemLabel}>
+                      <p
+                        className={styles.itemLabel}
+                        style={{ width: isEmpty(item.labelWidth) ? `${item.labelWidth}px` : 80 }}
+                      >
                         {item.required ? (
                           <span
                             style={{
@@ -125,7 +166,12 @@ class TextPage extends Component {
                         {item.title}
                       </p>
                       <div className={styles.itemContent}>
-                        <FormItem>{this.setFormItemDom(item)}</FormItem>
+                        <FormItem>
+                          {this.setFormItemDom(item)}
+                          {isEmpty(item.tips) ? (
+                            <span className="ant-form-text">{item.tips}</span>
+                          ) : null}
+                        </FormItem>
                       </div>
                     </div>
                   </Col>
