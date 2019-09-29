@@ -1,4 +1,4 @@
-import { addGoodsCategory, editGoodsCategory, delGoodsCategory } from '@/services/goods';
+import { addGoodsClassify, queryGoodsClassify, updateGoodsClassify } from '@/services/goods';
 
 export default {
   namespace: 'categoryModel',
@@ -6,20 +6,20 @@ export default {
     GoodsBrandList: [],
   },
   effects: {
-    *addGoodsCategory({ payload, callBack }, { call }) {
-      const response = yield call(addGoodsCategory, payload);
+    *addGoodsClassify({ payload, callBack }, { call }) {
+      const response = yield call(addGoodsClassify, payload);
       if (callBack) {
         callBack(response);
       }
     },
-    *editGoodsCategory({ payload, callBack }, { call }) {
-      const response = yield call(editGoodsCategory, payload);
+    *queryGoodsClassify({ payload, callBack }, { call }) {
+      const response = yield call(queryGoodsClassify, payload);
       if (callBack) {
         callBack(response);
       }
     },
-    *delGoodsCategory({ payload, callBack }, { call }) {
-      const response = yield call(delGoodsCategory, payload);
+    *updateGoodsClassify({ payload, callBack }, { call }) {
+      const response = yield call(updateGoodsClassify, payload);
       if (callBack) {
         callBack(response);
       }

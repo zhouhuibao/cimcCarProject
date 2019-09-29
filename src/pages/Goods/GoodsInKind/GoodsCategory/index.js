@@ -1,17 +1,16 @@
 import React, { Component } from 'react';
-import { Table, Icon, Input, InputNumber, Button, Popconfirm } from 'antd';
+import { Table, Icon, Input, InputNumber, Button, Popconfirm, message } from 'antd';
 import { connect } from 'dva';
-import moment from 'moment';
-import dataJSON from './category.json';
 import AddCategory from '../GoodsMainCategory/AddCategory';
-import SelectImage from '@/components/SelectImage';
+import SelectImage from '@/components/CustomSelectImage';
 
 import { isUrl } from '@/utils/utils';
 
 @connect(({ categoryModel, loading }) => ({
   categoryModel,
-  addCategoryLoading: loading.effects['categoryModel/addGoodsCategory'],
-  editCategoryLoading: loading.effects['categoryModel/editGoodsCategory'],
+  addCategoryLoading: loading.effects['categoryModel/addGoodsClassify'],
+  editCategoryLoading: loading.effects['categoryModel/updateGoodsClassify'],
+  queryGoodsClassifyLoading: loading.effects['categoryModel/queryGoodsClassify'],
   // myExecuteloading: loading.effects['completedTaskModel/queryMyExecuteTask'],
 }))
 class GoodsCategory extends Component {
@@ -22,11 +21,12 @@ class GoodsCategory extends Component {
 
   state = {
     imageVisible: false,
-    expandedRowKeys: [],
+    topLevel: true,
+    editData: {},
     columns: [
       {
         title: '分类名称',
-        dataIndex: 'category_name',
+        dataIndex: 'classifyName',
         render: (text, record) => {
           return (
             <>
@@ -38,10 +38,12 @@ class GoodsCategory extends Component {
                   this.nameBlur(e, record);
                 }}
               />
-              {record.category_level === 1 ? (
+              {record.level === 0 ? (
                 <a
                   style={{ marginLeft: 10 }}
-                  onClick={() => this.setState({ categoryVisible: true })}
+                  onClick={() =>
+                    this.setState({ categoryVisible: true, topLevel: false, editData: record })
+                  }
                 >
                   <Icon type="plus" /> 增加子分类
                 </a>
@@ -52,7 +54,7 @@ class GoodsCategory extends Component {
       },
       {
         title: '分类排序',
-        dataIndex: 'sort',
+        dataIndex: 'ordNum',
         render: (text, record) => {
           return (
             <InputNumber
@@ -69,7 +71,7 @@ class GoodsCategory extends Component {
       },
       {
         title: '图片',
-        dataIndex: 'image_url',
+        dataIndex: 'classifyPicture',
         render: text => {
           return isUrl(text) ? (
             <img
@@ -92,11 +94,7 @@ class GoodsCategory extends Component {
       },
       {
         title: '创建时间',
-        dataIndex: 'created',
-        align: 'center',
-        render: text => {
-          return moment(text * 1000).format('YYYY-MM-DD');
-        },
+        dataIndex: 'addTime',
       },
       {
         title: '操作',
@@ -122,21 +120,27 @@ class GoodsCategory extends Component {
         },
       },
     ],
-    data: dataJSON,
+    data: [],
     categoryVisible: false,
     isEditCategory: false,
   };
 
   componentDidMount() {
-    console.log(dataJSON);
-    const arr = [];
-    dataJSON.forEach(item => {
-      arr.push(item.id);
-    });
-    this.setState({
-      expandedRowKeys: arr,
-    });
+    this.getGoodsClassifyList();
   }
+
+  // 获取分类列表
+  getGoodsClassifyList = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'categoryModel/queryGoodsClassify',
+      callBack: res => {
+        this.setState({
+          data: res.data.rows || [],
+        });
+      },
+    });
+  };
 
   // 删除分类
   delCategory = record => {
@@ -145,10 +149,11 @@ class GoodsCategory extends Component {
 
   // 修改分类排序
   sortBlur = (e, record) => {
-    if (e.target.value !== record.sort) {
+    if (e.target.value !== record.ordNum) {
       const obj = {
+        pId: record.pId,
         id: record.id,
-        categName: record.category_name,
+        classifyName: record.classifyName,
         ordNum: e.target.value,
       };
       this.submitEdit(obj);
@@ -157,31 +162,15 @@ class GoodsCategory extends Component {
 
   // 修改分类名称
   nameBlur = (e, record) => {
-    if (e.target.value !== record.category_name) {
+    if (e.target.value !== record.classifyName) {
       const obj = {
+        pId: record.pId,
         id: record.id,
-        categName: e.target.value,
-        ordNum: record.sort,
+        classifyName: e.target.value,
+        ordNum: record.ordNum,
       };
       this.submitEdit(obj);
     }
-  };
-
-  // 展开表格全部节点
-  handleOnExpand = (expanded, record) => {
-    const { expandedRowKeys } = this.state;
-    if (expanded) {
-      expandedRowKeys.push(record.id);
-    } else {
-      expandedRowKeys.forEach((item, i) => {
-        if (record.id === item) {
-          expandedRowKeys.splice(i, 1);
-        }
-      });
-    }
-    this.setState({
-      expandedRowKeys,
-    });
   };
 
   // 打开选择图片组件
@@ -196,10 +185,19 @@ class GoodsCategory extends Component {
     console.log(values);
     const { dispatch } = this.props;
     dispatch({
-      type: 'categoryModel/addGoodsCategory',
+      type: 'categoryModel/addGoodsClassify',
       payload: values,
       callBack: res => {
         console.log(res);
+        if (res.success) {
+          message.success('分类添加成功');
+          this.setState({
+            categoryVisible: false,
+          });
+          this.getGoodsClassifyList();
+        } else {
+          message.error(res.message);
+        }
       },
     });
   };
@@ -209,10 +207,15 @@ class GoodsCategory extends Component {
     console.log(values);
     const { dispatch } = this.props;
     dispatch({
-      type: 'categoryModel/editGoodsCategory',
+      type: 'categoryModel/updateGoodsClassify',
       payload: values,
       callBack: res => {
         console.log(res);
+        if (res.success) {
+          message.success('分类修改成功');
+        } else {
+          message.error(res.message);
+        }
       },
     });
   };
@@ -224,12 +227,13 @@ class GoodsCategory extends Component {
     validateFields((err, values) => {
       if (!err) {
         console.log(values);
-        const { isEdit } = this.state;
-        if (!isEdit) {
-          this.submitAdd(values);
-        } else {
-          this.submitEdit(values);
+        const { topLevel, editData } = this.state;
+        if (!topLevel) {
+          // 如果不是添加顶级目录
+          values.pId = editData.id;
         }
+        values.level = topLevel ? 0 : 1;
+        this.submitAdd(values);
       }
     });
   };
@@ -243,21 +247,16 @@ class GoodsCategory extends Component {
   };
 
   render() {
-    const {
-      columns,
-      data,
-      expandedRowKeys,
-      categoryVisible,
-      isEditCategory,
-      imageVisible,
-    } = this.state;
+    const { columns, data, categoryVisible, isEditCategory, imageVisible } = this.state;
     const { addCategoryLoading, editCategoryLoading } = this.props;
 
     return (
       <div>
         <div style={{ marginBottom: 20 }}>
-          <Button type="primary" onClick={() => this.setState({ categoryVisible: true })}>
-            {' '}
+          <Button
+            type="primary"
+            onClick={() => this.setState({ categoryVisible: true, topLevel: true })}
+          >
             添加顶级目录
           </Button>
         </div>
@@ -265,10 +264,10 @@ class GoodsCategory extends Component {
           columns={columns}
           dataSource={data}
           rowKey={record => record.id}
-          onExpand={this.handleOnExpand}
-          expandedRowKeys={expandedRowKeys}
+          pagination={false}
         />
         <AddCategory
+          classify
           visible={categoryVisible}
           isEdit={isEditCategory}
           ref={this.categoryRef}

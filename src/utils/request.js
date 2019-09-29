@@ -3,7 +3,8 @@ import { notification } from 'antd';
 import { stringify } from 'qs';
 import router from 'umi/router';
 import hash from 'hash.js';
-import { isAntDesignPro, dataType } from './utils';
+import { isAntDesignPro, dataType, getCookie } from './utils';
+
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
   201: '新建或修改数据成功。',
@@ -106,10 +107,25 @@ export default function request(url, option) {
         ...newOptions.headers,
       };
 
-      let bodyData = {};
+      // 通用的参数
+      const dataObj = {
+        platform: 'MALLADMIN',
+        terminal: 'PC',
+      };
+
+      if (!newOptions.noToken) {
+        dataObj.token = getCookie('gcgjCookie');
+      }
+
+      // 如果没有传任何参数,默认的参数
+      let bodyData = {
+        ...dataObj,
+      };
+
       if (dataType(newOptions.body) !== 'Undefined') {
         bodyData = {
           ...newOptions.body,
+          ...dataObj,
         };
       }
 
@@ -142,7 +158,6 @@ export default function request(url, option) {
       sessionStorage.removeItem(`${hashcode}:timestamp`);
     }
   }
-
   return fetch(url, newOptions)
     .then(checkStatus)
     .then(response => cachedSave(response, hashcode))

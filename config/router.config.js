@@ -284,6 +284,11 @@ export default [
             name: '行政区划',
             component: './Sys/Division',
           },
+          {
+            path: '/sys/user-management',
+            name: '用户管理',
+            component: './Sys/UserManagement',
+          },
         ],
       },
 

@@ -11,8 +11,10 @@ import {
   InputNumber,
   Switch,
   Cascader,
+  Checkbox,
 } from 'antd';
 import UploadImg from '@/components/UploadImg';
+import SelectImage from '@/components/SelectImage';
 import { isEmpty } from '@/utils/utils';
 import city from '@/utils/city.json';
 import styles from './style.less';
@@ -49,6 +51,11 @@ class TextPage extends Component {
           initialValue: props.defaultValue,
           ...props.fieldAttr,
         })(<Input {...domAttrObj} />);
+      case 'password':
+        return getFieldDecorator(props.id, {
+          initialValue: props.defaultValue,
+          ...props.fieldAttr,
+        })(<Input.Password {...domAttrObj} />);
       case 'number':
         return getFieldDecorator(props.id, {
           initialValue: props.defaultValue,
@@ -69,7 +76,24 @@ class TextPage extends Component {
           initialValue: props.defaultValue,
           ...props.fieldAttr,
         })(<Radio.Group options={props.options} {...domAttrObj} />);
-
+      case 'checkbox':
+        return getFieldDecorator(props.id, {
+          initialValue: props.defaultValue,
+          ...props.fieldAttr,
+        })(<Checkbox.Group options={props.options} {...domAttrObj} />);
+      case 'img':
+        return getFieldDecorator(props.id, {
+          initialValue: props.defaultValue,
+          ...props.fieldAttr,
+        })(
+          <SelectImage
+            multiple={false}
+            customShowDom={props.customShowDom}
+            onOk={imgList => {
+              this.imgOk(imgList, props.id);
+            }}
+          />,
+        );
       case 'select': {
         let propsObj = {};
         if (!this.isObject(props.optionsObj)) {
@@ -82,7 +106,10 @@ class TextPage extends Component {
             ...props.optionsObj,
           };
         }
-        return getFieldDecorator(props.id, { ...props.fieldAttr })(
+        return getFieldDecorator(props.id, {
+          ...props.fieldAttr,
+          initialValue: props.defaultValue,
+        })(
           <Select {...domAttrObj} allowClear>
             {props.options.map(domItem => {
               return (
@@ -124,6 +151,15 @@ class TextPage extends Component {
   //   }
   // }
 
+  imgOk = (list, id) => {
+    const {
+      form: { setFieldsValue, getFieldValue },
+    } = this.props;
+    setFieldsValue({
+      [id]: list,
+    });
+  };
+
   render() {
     const { formData } = this.props;
 
@@ -140,47 +176,49 @@ class TextPage extends Component {
     }
 
     return (
-      <Row gutter={16} className={styles.formWrapper}>
-        {bigArr.map((divItem, i) => {
-          return (
-            <div key={i} className="clearfix">
-              {divItem.map((item, j) => {
-                return (
-                  <Col className="gutter-row" span={isEmpty(item.col) ? item.col : 12} key={j}>
-                    {/* <Col className="gutter-row" span={item.domType === 'upload' || item.domType===' ' ||  item.domType==='Radio' ? 24 : 12} key={j}> */}
-                    <div className={styles.itemWrap}>
-                      <p
-                        className={styles.itemLabel}
-                        style={{ width: isEmpty(item.labelWidth) ? `${item.labelWidth}px` : 80 }}
-                      >
-                        {item.required ? (
-                          <span
-                            style={{
-                              color: 'red',
-                            }}
-                          >
-                            *
-                          </span>
-                        ) : null}
-
-                        {item.title}
-                      </p>
-                      <div className={styles.itemContent}>
-                        <FormItem>
-                          {this.setFormItemDom(item)}
-                          {isEmpty(item.tips) ? (
-                            <span className="ant-form-text">{item.tips}</span>
+      <>
+        <Row gutter={16} className={styles.formWrapper}>
+          {bigArr.map((divItem, i) => {
+            return (
+              <div key={i} className="clearfix">
+                {divItem.map((item, j) => {
+                  return (
+                    <Col className="gutter-row" span={isEmpty(item.col) ? item.col : 12} key={j}>
+                      {/* <Col className="gutter-row" span={item.domType === 'upload' || item.domType===' ' ||  item.domType==='Radio' ? 24 : 12} key={j}> */}
+                      <div className={styles.itemWrap}>
+                        <p
+                          className={styles.itemLabel}
+                          style={{ width: isEmpty(item.labelWidth) ? `${item.labelWidth}px` : 80 }}
+                        >
+                          {item.required ? (
+                            <span
+                              style={{
+                                color: 'red',
+                              }}
+                            >
+                              *
+                            </span>
                           ) : null}
-                        </FormItem>
+
+                          {item.title}
+                        </p>
+                        <div className={styles.itemContent}>
+                          <FormItem>
+                            {this.setFormItemDom(item)}
+                            {isEmpty(item.tips) ? (
+                              <span className="ant-form-text">{item.tips}</span>
+                            ) : null}
+                          </FormItem>
+                        </div>
                       </div>
-                    </div>
-                  </Col>
-                );
-              })}
-            </div>
-          );
-        })}
-      </Row>
+                    </Col>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </Row>
+      </>
     );
   }
 }

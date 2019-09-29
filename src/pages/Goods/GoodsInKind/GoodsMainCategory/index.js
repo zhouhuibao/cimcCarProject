@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { Input, InputNumber, Icon, Button, Table, Popconfirm, message } from 'antd';
-import moment from 'moment';
 import { connect } from 'dva';
 import AddCategory from './AddCategory';
 import SpecificationOrDataModal from './SpecificationOrDataModal';
 import { isEmpty } from '@/utils/utils';
 
-@connect(({ mainCategoryModel, loading }) => ({
+@connect(({ mainCategoryModel, loading, common }) => ({
   mainCategoryModel,
+  common,
   addLoading: loading.effects['mainCategoryModel/addGoodsCategory'],
   listLoading: loading.effects['mainCategoryModel/queryGoodsCategory'],
 }))
@@ -136,7 +136,7 @@ class GoodsMainCategory extends Component {
         console.log(res);
         if (res.success) {
           this.setState({
-            dataSource: res.data || [],
+            dataSource: res.data.rows || [],
           });
         } else {
           message.error(res.message);
@@ -251,7 +251,7 @@ class GoodsMainCategory extends Component {
           // 如果不是添加顶级目录
           values.pId = editData.id;
         }
-        values.level = editData.level;
+        values.level = topLevel ? 0 : editData.level;
         this.submitAddCategory(values);
       }
     });

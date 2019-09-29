@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Drawer, Form, Button, Input, Icon } from 'antd';
+import { Drawer, Form, Button, Input } from 'antd';
 import { connect } from 'dva';
 import SelectImage from '@/components/SelectImage';
 import styles from '../../goodsStyles.less';
@@ -15,7 +15,6 @@ const FormItem = Form.Item;
 class AddBrand extends Component {
   state = {
     imgVisible: false,
-    imageUrl: '',
   };
 
   componentDidMount() {
@@ -36,9 +35,6 @@ class AddBrand extends Component {
       setFieldsValue({
         brandPicture: imgArr[0].url,
       });
-      this.setState({
-        imageUrl: imgArr[0].url,
-      });
     }
     this.setState({
       imgVisible: false,
@@ -46,18 +42,8 @@ class AddBrand extends Component {
   };
 
   afterVisibleChange = visible => {
-    if (visible) {
-      const { isAdd, initValue } = this.props;
-      if (!isAdd) {
-        this.setState({
-          imageUrl: initValue.brandPicture,
-        });
-      } else {
-        this.setState({
-          imageUrl: '',
-        });
-      }
-    }
+    // if (visible) {
+    // }
   };
 
   render() {
@@ -71,10 +57,8 @@ class AddBrand extends Component {
       form: { getFieldDecorator },
       initValue,
     } = this.props;
-    const { imageUrl, imgVisible } = this.state;
-    const uploadButton = (
-      <Icon type="camera" style={{ fontSize: 40, lineHeight: '100px', color: '#ccc' }} />
-    );
+    const { imgVisible } = this.state;
+
     return (
       <Drawer
         title={isAdd ? '新增品牌' : '修改品牌'}
@@ -92,28 +76,26 @@ class AddBrand extends Component {
             <FormItem>
               {getFieldDecorator('brandName', {
                 initialValue: isAdd ? null : initValue.brandName,
-                rules: [{ required: true, message: '请输入品牌名称' }],
-              })(<Input />)}
+                rules: [{ required: true, message: '品牌名称不能为空' }],
+              })(<Input placeholder="请输入品牌名称" />)}
             </FormItem>
           </div>
           <div>
             <span style={{ fontSize: 14 }}>品牌logo</span>&ensp;&ensp;&ensp;
-            <span style={{ fontSize: 12, color: '#666' }}>
-              只能上传jpg/png文件，且不超过2M （建议尺寸：200px * 200px）
-            </span>
-            <div
-              className={styles.logoWrap}
-              onClick={() => {
-                this.openImg();
+            <SelectImage
+              visible={imgVisible}
+              onCancel={() => this.setState({ imgVisible: false })}
+              defaultValue={isAdd ? null : initValue.brandPicture}
+              onOk={imgArr => {
+                this.changeImage(imgArr);
               }}
-            >
-              {imageUrl ? <img src={imageUrl} alt="avatar" /> : uploadButton}
-            </div>
+              multiple={false}
+            />
             <FormItem>
               {getFieldDecorator('brandPicture', {
                 initialValue: isAdd ? null : initValue.brandPicture,
                 rules: [{ required: true, message: '品牌logo不能为空' }],
-              })(<Input style={{ display: 'none' }} />)}
+              })(<span />)}
             </FormItem>
           </div>
 
@@ -137,14 +119,6 @@ class AddBrand extends Component {
             </Button>
           </div>
         </Form>
-        <SelectImage
-          visible={imgVisible}
-          onCancel={() => this.setState({ imgVisible: false })}
-          onOk={imgArr => {
-            this.changeImage(imgArr);
-          }}
-          multiple={false}
-        />
       </Drawer>
     );
   }

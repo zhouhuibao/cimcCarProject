@@ -1,12 +1,17 @@
 import React, { Component } from 'react';
-import { Input, Button, Checkbox, Form } from 'antd';
+import { Input, Button, Checkbox, Form, message } from 'antd';
+import { connect } from 'dva';
 import { router } from 'umi';
-import { rules } from '@/utils/utils';
+import { rules, setCookie } from '@/utils/utils';
 import styles from './styles.less';
 
 const FormItem = Form.Item;
 
 @Form.create()
+@connect(({ userModel, loading }) => ({
+  userModel,
+  loginLoading: loading.effects['userModel/login'],
+}))
 class Login extends Component {
   state = {
     isDynamicpassword: false,
@@ -16,18 +21,37 @@ class Login extends Component {
   handleSubmit = e => {
     e.preventDefault();
     const {
+      dispatch,
       form: { validateFields },
     } = this.props;
+    const { isDynamicpassword } = this.state;
     validateFields((err, values) => {
       if (!err) {
         console.log(values);
-        router.push('/');
+        console.log(isDynamicpassword);
+        values.loginType = isDynamicpassword ? 'LOGIN_CHECKCODE' : 'LOGIN_PASSWORD';
+        dispatch({
+          type: 'userModel/login',
+          payload: values,
+          callBack: res => {
+            console.log(res);
+            setCookie('gcgjCookie', res.data.token, 7);
+            router.push('/goods/goods-kind/goods-brand');
+          },
+        });
       }
     });
   };
 
   handleClickDynamic = () => {
     const { isDynamicpassword } = this.state;
+    const {
+      form: { setFieldsValue },
+    } = this.props;
+    setFieldsValue({
+      account: null,
+      password: null,
+    });
     this.setState({
       isDynamicpassword: !isDynamicpassword,
     });
@@ -38,24 +62,49 @@ class Login extends Component {
     if (rules('number').test(getText)) {
       return;
     }
+    const {
+      dispatch,
+      form: { validateFields },
+    } = this.props;
 
-    let timeNumber = 60;
-    this.setState({
-      getText: timeNumber,
-    });
-    const time = setInterval(() => {
-      timeNumber -= 1;
-      this.setState({
-        getText: timeNumber,
-      });
-
-      if (timeNumber < 1) {
-        clearInterval(time);
+    validateFields(['account'], (err, values) => {
+      if (!err) {
+        console.log(values);
+        const dataObj = {
+          mobile: values.account,
+          checkCodeType: 'LOGIN_CHECKCODE',
+        };
+        let timeNumber = 60;
         this.setState({
-          getText: '重新获取',
+          getText: timeNumber,
+        });
+        const time = setInterval(() => {
+          timeNumber -= 1;
+          this.setState({
+            getText: timeNumber,
+          });
+
+          if (timeNumber < 1) {
+            clearInterval(time);
+            this.setState({
+              getText: '重新获取',
+            });
+          }
+        }, 1000);
+        dispatch({
+          type: 'userModel/sendCheckCode',
+          payload: dataObj,
+          callBack: res => {
+            console.log(res);
+            if (res.success) {
+              message.success('验证码发送成功,请注意查收');
+            } else {
+              message.error(res.message);
+            }
+          },
         });
       }
-    }, 1000);
+    });
   };
 
   handleClickForgetPassword = () => {
@@ -74,9 +123,13 @@ class Login extends Component {
             <div className={styles.loginItemLabel}>{isDynamicpassword ? '手机号' : '账号'}</div>
             <div className={styles.loginItemValue}>
               <FormItem>
-                {getFieldDecorator('username', {
+                {getFieldDecorator('account', {
                   rules: [
-                    { required: true, message: `请输入${isDynamicpassword ? '手机号' : '账号'}` },
+                    {
+                      required: true,
+                      message: `${isDynamicpassword ? '手机号格式不正确' : '请输入账号'}`,
+                      pattern: isDynamicpassword ? rules('mobile') : null,
+                    },
                   ],
                 })(<Input placeholder={`请输入${isDynamicpassword ? '手机号' : '账号'}`} />)}
               </FormItem>
@@ -87,7 +140,7 @@ class Login extends Component {
               <div className={styles.loginItemLabel}>动态密码</div>
               <div className={`${styles.loginItemValue} ${styles.dynamicpass}`}>
                 <FormItem>
-                  {getFieldDecorator('password', {
+                  {getFieldDecorator('checkCode', {
                     rules: [{ required: true, message: '请输入短信动态密码' }],
                   })(<Input placeholder="请输入短信动态密码" type="password" />)}
                 </FormItem>

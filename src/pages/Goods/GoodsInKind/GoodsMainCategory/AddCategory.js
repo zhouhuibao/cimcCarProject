@@ -38,6 +38,7 @@ class AddCategory extends Component {
       initValue,
       onOK,
       addLoading,
+      classify,
     } = this.props;
     return (
       <Drawer
@@ -51,7 +52,7 @@ class AddCategory extends Component {
           <div>
             目录名称
             <FormItem>
-              {getFieldDecorator('categName', {
+              {getFieldDecorator(classify ? 'classifyName' : 'categName', {
                 initialValue: isEdit ? initValue.categName : null,
                 rules: [{ required: true, message: '目录名称不能为空' }],
               })(<Input placeholder="请输入目录名称" />)}

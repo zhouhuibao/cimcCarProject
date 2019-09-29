@@ -11,7 +11,7 @@ const rules = type => {
   switch (type) {
     case 'mobile': // 验证手机号
       // rule = /^(13[0-9]|14[0-9]|15[0-9]|166|17[0-9]|18[0-9]|19[8|9])\d{8}$/;
-      rule = /^1[3-9][0-9]\\d{8}$/;
+      rule = /^1[3-9]\d{9}$/;
       break;
     case 'number': // 判断是不是数字
       rule = /^[0-9]*$/;
@@ -19,7 +19,9 @@ const rules = type => {
     case 'password': // 判断密码是不是数字加字母组合
       rule = /\w{6,17}$/;
       break;
-
+    case 'base64': // 判断是不是base64
+      rule = /^\s*data:([a-z]+\/[a-z0-9-+.]+(;[a-z-]+=[a-z0-9-]+)?)?(;base64)?,([a-z0-9!$&',()*+;=\-._~:@\/?%\s]*?)\s*$/i;
+      break;
     default:
       break;
   }
@@ -43,6 +45,25 @@ const MathRandom = () => {
     str += parseInt(mathRandom);
   }
   return str;
+};
+
+const setCookie = (cname, cvalue, exdays) => {
+  const d = new Date();
+  d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+  const expires = `expires=${d.toGMTString()}`;
+  document.cookie = `${cname}=${cvalue};${expires}`;
+};
+
+const getCookie = cname => {
+  const name = `${cname}=`;
+  const ca = document.cookie.split(';');
+  for (let i = 0; i < ca.length; i += 1) {
+    const c = ca[i].trim();
+    if (c.indexOf(name) === 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return '';
 };
 
 // 判断是否为空
@@ -83,4 +104,6 @@ export {
   isEmpty,
   MathRandom,
   dataType,
+  setCookie,
+  getCookie,
 };

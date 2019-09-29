@@ -1,14 +1,18 @@
 import React, { Component } from 'react';
-import { Button, Input, Table, Popconfirm, Switch, Badge } from 'antd';
+import { Button, Input, Table, Switch, Row, Col, message, Form, Select } from 'antd';
 import { connect } from 'dva';
 import AddBrand from './AddBrand';
 import styles from '../../goodsStyles.less';
 import { dataType } from '@/utils/utils';
 
-const { Search } = Input;
+const { Option } = Select;
+const FormItem = Form.Item;
+@Form.create()
 @connect(({ brandModel, loading }) => ({
   brandModel,
   listLoading: loading.effects['brandModel/queryGoodsBrand'],
+  addLoading: loading.effects['brandModel/addGoodsBrand'],
+  editLoading: loading.effects['brandModel/updateGoodsBrand'],
   // myExecuteloading: loading.effects['completedTaskModel/queryMyExecuteTask'],
 }))
 class GoodsBrand extends Component {
@@ -18,9 +22,24 @@ class GoodsBrand extends Component {
   }
 
   state = {
+    total: 0,
+    page: 1,
     isAdd: true,
-    status: true,
     initValue: {},
+    options: [
+      {
+        value: '',
+        label: '全部',
+      },
+      {
+        value: 0,
+        label: '有效',
+      },
+      {
+        value: 1,
+        label: '失效',
+      },
+    ],
     columns: [
       {
         title: '品牌图片',
@@ -42,9 +61,17 @@ class GoodsBrand extends Component {
         dataIndex: 'status',
         key: 'status',
         align: 'center',
-        render: text => {
-          const str = text === 0 ? '有效' : '失效';
-          return <Badge status={text === 0 ? 'success' : 'default'} text={str} />;
+        render: (text, record) => {
+          return (
+            <Switch
+              checkedChildren="有效"
+              unCheckedChildren="无效"
+              defaultChecked={text === 0 || false}
+              onChange={e => {
+                this.changeSwitch(e, record);
+              }}
+            />
+          );
         },
       },
       {
@@ -52,57 +79,23 @@ class GoodsBrand extends Component {
         dataIndex: 'edit',
         key: 'edit',
         align: 'center',
-        width: 150,
+        width: 100,
         render: (text, record) => {
           return (
-            <div>
-              {record.status === 0 ? (
-                <>
-                  <a
-                    onClick={() => {
-                      this.editBrand(record);
-                    }}
-                  >
-                    编辑{' '}
-                  </a>
-                  &ensp;
-                  <Popconfirm
-                    title="确定删除该品牌?"
-                    onConfirm={e => {
-                      // this.deleteTableDate(e, record)
-                      const obj = {
-                        ...record,
-                        status: 1,
-                      };
-                      this.submitEdit(obj);
-                    }}
-                    okText="确定"
-                    cancelText="取消"
-                  >
-                    <a>删除</a>
-                  </Popconfirm>
-                </>
-              ) : (
-                <a
-                  onClick={() => {
-                    this.back(record);
-                  }}
-                >
-                  恢复{' '}
-                </a>
-              )}
-            </div>
+            record.status === 0 && (
+              <a
+                onClick={() => {
+                  this.editBrand(record);
+                }}
+              >
+                编辑
+              </a>
+            )
           );
         },
       },
     ],
-    dataSource: [
-      // {
-      //   id:'1',
-      //   brandName:'品牌',
-      //   brandPicture:'http://mmbiz.qpic.cn/mmbiz_jpg/Hw4SsicubkrdtmicAt4yB9TY93OBlRubpP1RIgomWheIzEc0v34Ca5icoNBfXg7cgsmerj8rMz6qRnCt8GAW4RD5g/0?wx_fmt=jpeg'
-      // }
-    ],
+    dataSource: [],
     visible: false,
   };
 
@@ -113,10 +106,15 @@ class GoodsBrand extends Component {
   // 获取品牌列表
   getList = obj => {
     let data = obj;
+    const {
+      form: { getFieldValue },
+    } = this.props;
     if (dataType(obj) === 'Undefined') {
-      const { status } = this.state;
+      const { page } = this.state;
       data = {
-        status: status ? 0 : 1,
+        pageNum: page,
+        pageSize: 10,
+        status: getFieldValue('status'),
         brandName: '',
       };
     }
@@ -124,32 +122,24 @@ class GoodsBrand extends Component {
     dispatch({
       type: 'brandModel/queryGoodsBrand',
       payload: data,
-    }).then(() => {
-      const {
-        brandModel: { GoodsBrandList },
-      } = this.props;
-      console.log(GoodsBrandList);
-      this.setState({
-        dataSource: GoodsBrandList || [],
-      });
+      callBack: res => {
+        console.log(res);
+        if (res.success) {
+          this.setState({
+            dataSource: res.data.rows || [],
+            total: res.data.total,
+          });
+        }
+      },
     });
   };
 
   // 恢复
   back = record => {
-    const obj = {
-      ...record,
-      status: 0,
-    };
-    this.submitEdit(obj);
+    this.submitEdit(record);
   };
 
   editBrand = record => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'brandModel/editBrand',
-      payload: record,
-    });
     this.setState({
       initValue: record,
       visible: true,
@@ -164,14 +154,14 @@ class GoodsBrand extends Component {
       payload: {
         id: record.id,
       },
-    }).then(() => {
-      const {
-        brandModel: { delStatus },
-      } = this.props;
-      console.log(delStatus);
-      if (delStatus) {
-        this.getList();
-      }
+      callBack: res => {
+        if (res.success) {
+          this.getList();
+          message.success('品牌更新成功');
+        } else {
+          message.error(res.message);
+        }
+      },
     });
   };
 
@@ -188,17 +178,18 @@ class GoodsBrand extends Component {
     dispatch({
       type: 'brandModel/addGoodsBrand',
       payload: values,
-    }).then(() => {
-      const {
-        brandModel: { addStatus },
-      } = this.props;
-      console.log(addStatus);
-      if (addStatus) {
-        this.getList();
-        this.setState({
-          visible: false,
-        });
-      }
+      callBack: res => {
+        console.log(res);
+        if (res.success) {
+          message.success('品牌添加成功');
+          this.getList();
+          this.setState({
+            visible: false,
+          });
+        } else {
+          message.error(res.message);
+        }
+      },
     });
   };
 
@@ -211,16 +202,18 @@ class GoodsBrand extends Component {
     dispatch({
       type: 'brandModel/updateGoodsBrand',
       payload: values,
-    }).then(() => {
-      const {
-        brandModel: { editStatus },
-      } = this.props;
-      if (editStatus) {
-        this.getList();
-        this.setState({
-          visible: false,
-        });
-      }
+      callBack: res => {
+        console.log(res);
+        if (res.success) {
+          this.getList();
+          this.setState({
+            visible: false,
+          });
+          message.success('品牌修改成功');
+        } else {
+          message.error(res.message);
+        }
+      },
     });
   };
 
@@ -240,67 +233,105 @@ class GoodsBrand extends Component {
     });
   };
 
-  search = value => {
-    const { status } = this.state;
+  changeSwitch = (e, record) => {
+    console.log(e);
+    console.log(record);
     const obj = {
-      brandName: value,
-      status: status ? 0 : 1,
+      ...record,
+      status: e ? 0 : 1,
     };
-    this.getList(obj);
+    this.back(obj);
   };
 
-  changeSwitch = e => {
-    this.setState({
-      status: e,
+  searchTable = e => {
+    e.preventDefault();
+    const {
+      form: { validateFields },
+    } = this.props;
+    validateFields((err, values) => {
+      if (!err) {
+        console.log(values);
+        this.getList(values);
+      }
     });
   };
 
   render() {
-    const { columns, dataSource, visible, initValue, isAdd, status } = this.state;
-    const { listLoading } = this.props;
+    const { columns, dataSource, visible, initValue, isAdd, page, total, options } = this.state;
+    const {
+      listLoading,
+      addLoading,
+      form: { getFieldDecorator },
+      editLoading,
+    } = this.props;
+    const pageObj = {
+      current: page,
+      pageSize: 10,
+      total,
+      onChange: pages => {
+        this.setState(
+          {
+            page: pages,
+          },
+          () => {
+            this.getList();
+          },
+        );
+      },
+    };
     return (
       <div className={styles.goodsBrand}>
-        <div className={styles.goodsBrandHeader}>
-          <div className={styles.addBtn}>
-            <Button
-              type="primary"
-              icon="plus"
-              onClick={() => {
-                this.addGoodsBrand();
-              }}
-            >
-              新增品牌
-            </Button>
-          </div>
-
-          <div className={styles.search} style={{ textAlign: 'right', lineHeight: '32px' }}>
-            是否有效{' '}
-            <Switch
-              style={{ float: 'right', margin: '5px 20px 0 10px' }}
-              defaultChecked={status}
-              onChange={e => {
-                this.changeSwitch(e);
-              }}
-            />
-          </div>
-          <div className={styles.search}>
-            <Search
-              placeholder="请输入品牌名称"
-              onSearch={value => {
-                this.search(value);
-              }}
-              enterButton
-            />
-          </div>
-        </div>
+        <Form onSubmit={this.searchTable}>
+          <Row gutter={16}>
+            <Col span={6}>
+              <Button
+                type="primary"
+                icon="plus"
+                onClick={() => {
+                  this.addGoodsBrand();
+                }}
+                style={{ marginTop: '4px' }}
+              >
+                新增品牌
+              </Button>
+            </Col>
+            <Col span={6}>
+              <FormItem>
+                {getFieldDecorator('status', {})(
+                  <Select placeholder="请选择状态">
+                    {options.map(item => {
+                      return (
+                        <Option value={item.value} key={item.value}>
+                          {item.label}
+                        </Option>
+                      );
+                    })}
+                  </Select>,
+                )}
+              </FormItem>
+            </Col>
+            <Col span={6}>
+              <FormItem>
+                {getFieldDecorator('brandName')(<Input placeholder="请输入品牌名称" />)}
+              </FormItem>
+            </Col>
+            <Col span={6}>
+              <Button htmlType="submit" style={{ marginTop: '4px' }} type="primary">
+                搜索
+              </Button>
+            </Col>
+          </Row>
+        </Form>
         <Table
           columns={columns}
           dataSource={dataSource}
           rowKey={record => record.id}
           loading={listLoading}
-          pagination={false}
+          pagination={pageObj}
         />
         <AddBrand
+          addLoading={addLoading}
+          editLoading={editLoading}
           visible={visible}
           initValue={initValue}
           isAdd={isAdd}
