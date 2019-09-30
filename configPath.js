@@ -1,7 +1,8 @@
 module.exports = {
-  /**发布线上测试环境启用**/
+  /** 发布线上测试环境启用 **/
   pathRoot: '', // 开发环境
   projectName: '/gcgj',
-  // pathRoot: 'http://112.74.85.111:18882',       // 测试环境
-  // pathRoot:'http://112.74.85.111:18882',     // 正式环境
+  projectNameSystem: '/gcgj-system',
+  path: 'http://192.168.1.142:8080', // 坤
+  // path:'http://192.168.1.144:8080/', //曹
 };

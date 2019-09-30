@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'dva';
 import {
   Input,
   Select,
@@ -27,6 +28,9 @@ const { MonthPicker, RangePicker, WeekPicker } = DatePicker;
 const FormItem = Form.Item;
 
 @Form.create()
+@connect(({ common }) => ({
+  common,
+}))
 class TextPage extends Component {
   state = {};
 
@@ -77,17 +81,20 @@ class TextPage extends Component {
           ...props.fieldAttr,
         })(<Radio.Group options={props.options} {...domAttrObj} />);
       case 'checkbox':
+        console.log(props.defaultValue);
         return getFieldDecorator(props.id, {
           initialValue: props.defaultValue,
           ...props.fieldAttr,
         })(<Checkbox.Group options={props.options} {...domAttrObj} />);
       case 'img':
+        // console.log(props.defaultValue)
         return getFieldDecorator(props.id, {
           initialValue: props.defaultValue,
           ...props.fieldAttr,
         })(
           <SelectImage
             multiple={false}
+            defaultValues={props.defaultValue}
             customShowDom={props.customShowDom}
             onOk={imgList => {
               this.imgOk(imgList, props.id);

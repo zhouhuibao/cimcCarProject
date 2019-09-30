@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import {
   Modal,
   Pagination,
@@ -13,15 +13,13 @@ import {
   Spin,
 } from 'antd';
 import { connect } from 'dva';
-import { dataType } from '@/utils/utils';
+import { dataType, showImg, isEmpty } from '@/utils/utils';
 import styles from './styles.less';
-// import imgJson from './imgjson.json'
 
 const { Search } = Input;
 
 /**
  * 参数说明
- * @param {Boolean}  visible  是否显示
  * @param {Boolean}  multiple   是否多选
  * @param {Function} onChange   选择完图片的回调
  * @param {Function} onCancel   关闭
@@ -33,29 +31,52 @@ const { Search } = Input;
   common,
   listLoading: loading.effects['common/queryPicture'],
 }))
-class SelectImage extends Component {
+class SelectImage extends PureComponent {
   state = {
     imgArr: [],
-    selectedImages: [],
+    page: 1,
+    total: 0,
+    selectedImages: this.props.multiple ? [] : this.props.defaultValues,
     uploading: false,
+    visible: false,
+    radioImageUrl: this.props.multiple ? '' : this.props.defaultValues,
   };
 
   componentDidMount() {
+    console.log(this.props);
     console.log(this);
+    // initialization()
+    // const {defaultValues} = this.props;
+    // this.setState({
+    //   radioImageUrl:defaultValues
+    // })
     this.getPicList();
   }
 
-  getPicList = obj => {
+  // componentWillReceiveProps(nextProps){
+  //   console.log('--------------------------')
+  //   console.log(nextProps)
+  //   this.setState({
+  //     radioImageUrl:nextProps.defaultValues
+  //   })
+  // }
+
+  getPicList = str => {
+    const { page } = this.state;
+    const obj = {
+      pageNum: page,
+      pageSize: 12,
+      fileName: str,
+    };
     const { dispatch } = this.props;
     dispatch({
       type: 'common/queryPicture',
       payload: obj,
       callBack: res => {
-        console.log(res);
-
         if (res.success) {
           this.setState({
-            imgArr: res.data || [],
+            imgArr: res.data.rows || [],
+            total: res.data.total,
           });
         }
       },
@@ -132,6 +153,7 @@ class SelectImage extends Component {
           item.checked = false;
         }
       });
+      console.log(selectObj);
       this.setState({
         imgArr,
         selectedImages: [selectObj],
@@ -161,24 +183,47 @@ class SelectImage extends Component {
     console.log(current, pageSize);
   };
 
+  changePage = page => {
+    this.setState(
+      {
+        page,
+      },
+      () => {
+        this.getPicList();
+      },
+    );
+  };
+
   afterClose = () => {
-    const { imgArr } = this.state;
-    imgArr.forEach(item => {
-      item.checked = false;
-    });
+    // const { imgArr } = this.state;
+    // imgArr.forEach(item => {
+    //   item.checked = false;
+    // });
+    // this.setState({
+    //   imgArr,
+    //   selectedImages: [],
+    // });
+  };
+
+  closeImage = () => {
+    const { multiple } = this.props;
+    const { selectedImages } = this.state;
     this.setState({
-      imgArr,
-      selectedImages: [],
+      visible: false,
+      radioImageUrl: multiple ? '' : showImg(selectedImages[0].url),
     });
   };
 
   render() {
-    const { visible, onOk, onCancel, listLoading } = this.props;
-    const { imgArr, selectedImages, uploading } = this.state;
+    const { onOk, listLoading, multiple } = this.props;
+    const { imgArr, selectedImages, uploading, radioImageUrl, visible, total } = this.state;
+    const uploadButton = (
+      <Icon type="camera" style={{ fontSize: 40, lineHeight: '100px', color: '#ccc' }} />
+    );
     const THIS = this;
     const props = {
       name: 'file',
-      action: 'gcgj/pc-picture/fileUpload',
+      action: 'gcgj-system/file/pictureUpload',
       headers: {
         authorization: 'authorization-text',
       },
@@ -209,71 +254,115 @@ class SelectImage extends Component {
       },
       beforeUpload: this.beforeUpload,
     };
+    console.log(radioImageUrl);
     return (
-      <Modal
-        width="60%"
-        title="选择图片"
-        visible={visible}
-        afterClose={() => {
-          this.afterClose();
-        }}
-        onOk={() => {
-          onOk(selectedImages);
-        }}
-        onCancel={onCancel}
-      >
-        <div className={styles.SelectImage}>
-          <div className="clearfix">
-            <div className="pull-left">
-              <Upload {...props}>
-                <Button type="primary" icon="upload" loading={uploading}>
-                  上传图片
-                </Button>
-              </Upload>
+      <Fragment>
+        {multiple ? (
+          <>
+            <div className={`${styles.checkbox} clearfix`}>
+              {selectedImages.map(item => {
+                return (
+                  <div className={styles.imgList}>
+                    <img src={item.url} alt="图片" />
+                  </div>
+                );
+              })}
+
+              <div className={styles.addImg} onClick={() => this.setState({ visible: true })}>
+                <Icon type="plus" />
+              </div>
             </div>
-            <div className="pull-right">
-              <Search placeholder="搜索图片" onSearch={value => console.log(value)} enterButton />
+            <div style={{ color: '#ccc', fontSize: '12px', lineHeight: '30px' }}>
+              最多可上传9个图片，文件格式为png、jpeg，大小不超过2M
             </div>
+          </>
+        ) : (
+          <>
+            <div className={styles.radio} onClick={() => this.setState({ visible: true })}>
+              {radioImageUrl ? <img src={showImg(radioImageUrl)} alt="avatar" /> : uploadButton}
+            </div>
+            <div style={{ color: '#ccc', fontSize: '12px', lineHeight: '30px' }}>
+              只能上传jpg/png文件，且不超过2M
+            </div>
+          </>
+        )}
+        <Modal
+          width="60%"
+          title="选择图片"
+          visible={visible}
+          afterClose={() => {
+            this.afterClose();
+          }}
+          destroyOnClose
+          onOk={() => {
+            onOk(selectedImages);
+            this.closeImage();
+          }}
+          onCancel={() => this.setState({ visible: false })}
+        >
+          <div className={styles.SelectImage}>
+            <div className="clearfix">
+              <div className="pull-left">
+                <Upload {...props}>
+                  <Button type="primary" icon="upload" loading={uploading}>
+                    上传图片
+                  </Button>
+                </Upload>
+              </div>
+              <div className="pull-right">
+                <Search
+                  placeholder="搜索图片"
+                  onSearch={value => this.getPicList(value)}
+                  enterButton
+                />
+              </div>
+            </div>
+            <div className={styles.line} />
+
+            <Spin spinning={false}>
+              {/* <Spin spinning={listLoading}> */}
+              <Row gutter={48} className={styles.imgWrap}>
+                {imgArr.length > 0 ? (
+                  imgArr.map(item => {
+                    return (
+                      <Col sm={12} lg={6} key={item.id}>
+                        <div
+                          className={styles.imgItem}
+                          onClick={() => {
+                            this.selectImg(item);
+                          }}
+                        >
+                          <img src={showImg(item.url)} alt="图片" />
+                          {item.checked ? (
+                            <div className={styles.checked}>
+                              <Icon type="check" className={styles.checkedIcon} />
+                            </div>
+                          ) : null}
+                          <div className={styles.imgName}>{`${item.fileName}`}</div>
+                        </div>
+                      </Col>
+                    );
+                  })
+                ) : (
+                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                )}
+              </Row>
+            </Spin>
+
+            <Pagination
+              // showSizeChanger
+              onShowSizeChange={this.onShowSizeChange}
+              showTotal={this.showTotal}
+              defaultPageSize={12}
+              total={total}
+              onChange={(page, pageSize) => {
+                this.changePage(page, pageSize);
+              }}
+              // pageSizeOptions={''}
+            />
           </div>
-          <div className={styles.line} />
-
-          <Spin spinning={listLoading}>
-            <Row gutter={48} className={styles.imgWrap}>
-              {imgArr.length > 0 ? (
-                imgArr.map(item => {
-                  return (
-                    <Col sm={12} lg={6} key={item.id}>
-                      <div
-                        className={styles.imgItem}
-                        onClick={() => {
-                          this.selectImg(item);
-                        }}
-                      >
-                        <img src={item.url} alt="图片" />
-                        {item.checked ? (
-                          <div className={styles.checked}>
-                            <Icon type="check" className={styles.checkedIcon} />
-                          </div>
-                        ) : null}
-                        <div className={styles.imgName}>{`${item.fileName}${item.suffix}`}</div>
-                      </div>
-                    </Col>
-                  );
-                })
-              ) : (
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-              )}
-            </Row>
-          </Spin>
-
-          <Pagination
-            showSizeChanger
-            onShowSizeChange={this.onShowSizeChange}
-            showTotal={this.showTotal}
-            total={0}
-          />
-        </div>
-      </Modal>
+        </Modal>
+      </Fragment>
     );
   }
 }

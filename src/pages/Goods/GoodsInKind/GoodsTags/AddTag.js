@@ -50,12 +50,20 @@ class AddTag extends Component {
 
   afterVisibleChange = e => {
     const { isEdit, initValue } = this.props;
-    if (e && isEdit) {
-      this.setState({
-        fontColor: initValue.labelFont,
-        tagColor: initValue.labelColor,
-        tagName: initValue.labelName,
-      });
+    if (e) {
+      if (isEdit) {
+        this.setState({
+          fontColor: initValue.labelFont,
+          tagColor: initValue.labelColor,
+          tagName: initValue.labelName,
+        });
+      } else {
+        this.setState({
+          tagColor: '#e91313',
+          fontColor: '#fff',
+          tagName: '',
+        });
+      }
     }
   };
 

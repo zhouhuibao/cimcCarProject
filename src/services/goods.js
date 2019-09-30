@@ -1,6 +1,6 @@
 import { stringify } from 'qs';
 import request from '@/utils/request';
-import { pathRoot, projectName } from '../../configPath';
+import { pathRoot, projectName, projectNameSystem } from '../../configPath';
 // // 查看我的任务
 export async function queryMyExecuteTask(params) {
   return request(`/project/costSubject/getCostSubjectByParentCode?${stringify(params)}`);
@@ -52,6 +52,11 @@ export async function queryPicture(params) {
     method: 'POST',
     body: params,
   });
+}
+
+// 下载图片
+export async function fileDownload(params) {
+  return request(`${pathRoot}${projectNameSystem}/file/fileDownload?${stringify(params)}`);
 }
 
 // 查询目录

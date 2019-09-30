@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Button, Input, Table, Popconfirm, message, Icon } from 'antd';
 import { connect } from 'dva';
 import AddUser from './AddUser';
-import { isUrl } from '@/utils/utils';
+import { isEmpty, dataType, showImg } from '@/utils/utils';
 
 const { Search } = Input;
 @connect(({ usermangmentModel, loading }) => ({
@@ -15,12 +15,19 @@ const { Search } = Input;
 class UserManagement extends Component {
   state = {
     userInfo: {},
+    page: 1,
+    total: 0,
     columns: [
       {
         title: '头像',
         dataIndex: 'photo',
         render: text => {
-          return isUrl(text) ? <img src={text} alt="头像" /> : <Icon type="picture" />;
+          // return <img src={showImg(text)} alt="头像" />;
+          return isEmpty(text) ? (
+            <img style={{ width: 50 }} src={showImg(text)} alt="头像" />
+          ) : (
+            <Icon type="picture" />
+          );
         },
       },
       {
@@ -88,16 +95,24 @@ class UserManagement extends Component {
     this.getUserList();
   }
 
-  getUserList = obj => {
+  // 获取用户列表
+  getUserList = str => {
+    const { page } = this.state;
+    const data = {
+      pageSize: 10,
+      pageNum: page,
+      serch: str,
+    };
     const { dispatch } = this.props;
     dispatch({
       type: 'usermangmentModel/getUserList',
-      payload: obj,
+      payload: data,
       callBack: res => {
         console.log(res);
         if (res.success) {
           this.setState({
             dataSource: res.data.rows || [],
+            total: res.data.total || 0,
           });
         }
       },
@@ -163,6 +178,22 @@ class UserManagement extends Component {
   };
 
   openEdit = record => {
+    const type = record.userType;
+    let userTypeInfo;
+    if (!isEmpty(type)) {
+      userTypeInfo = type;
+    } else if (type.indexOf(',') === -1) {
+      if (dataType(type) === 'Array') {
+        userTypeInfo = type;
+      } else {
+        userTypeInfo = [type];
+      }
+    } else {
+      userTypeInfo = type.split(',');
+    }
+
+    record.userType = userTypeInfo;
+    console.log(record);
     this.setState({
       visible: true,
       isEdit: true,
@@ -171,11 +202,7 @@ class UserManagement extends Component {
   };
 
   searchUser = value => {
-    console.log(value);
-    const obj = {
-      search: value,
-    };
-    this.getUserList(obj);
+    this.getUserList(value);
   };
 
   handleSubmit = ref => {
@@ -199,9 +226,10 @@ class UserManagement extends Component {
           }
         });
         dataObj.user.userType = userTypeStr;
-
-        console.log(dataObj);
-        return;
+        dataObj.user.photo =
+          dataType(dataObj.user.photo) === 'Array' && dataObj.user.photo.length > 0
+            ? dataObj.user.photo[0].url
+            : '';
 
         if (isEdit) {
           dataObj.user.id = userInfo.id;
@@ -214,9 +242,23 @@ class UserManagement extends Component {
   };
 
   render() {
-    const { columns, dataSource, visible, isEdit, userInfo } = this.state;
+    const { columns, dataSource, visible, isEdit, userInfo, page, total } = this.state;
     const { getUserListLoading, addUserLoading, updateUserLoading } = this.props;
-
+    const pageObj = {
+      current: page,
+      pageSize: 10,
+      total,
+      onChange: pages => {
+        this.setState(
+          {
+            page: pages,
+          },
+          () => {
+            this.getUserList();
+          },
+        );
+      },
+    };
     return (
       <div>
         <div style={{ display: 'flex', marginBottom: 20 }}>
@@ -237,6 +279,7 @@ class UserManagement extends Component {
           loading={getUserListLoading}
           columns={columns}
           dataSource={dataSource}
+          pagination={pageObj}
           rowKey={record => record.id}
         />
         <AddUser

@@ -14,10 +14,18 @@ class AddUser extends Component {
     passwordDom: {
       domType: 'password',
       id: 'password',
+      required: true,
       title: '密码',
       col: 22,
       domAttr: {},
-      fieldAttr: {},
+      fieldAttr: {
+        rules: [
+          {
+            required: true,
+            message: '密码不能为空',
+          },
+        ],
+      },
     },
     formItemData: [
       {
@@ -171,8 +179,7 @@ class AddUser extends Component {
             formItemData.splice(index, 1);
           }
         });
-        formItemData.slice(formItemData.length - 2, 0, passwordDom);
-        console.log(formItemData);
+        formItemData.splice(formItemData.length - 1, 0, passwordDom);
         this.setState({
           formItemData,
         });
@@ -200,6 +207,7 @@ class AddUser extends Component {
           }}
         >
           <FormItemDom formData={formItemData} ref={this.formItemRef} />
+
           <div
             style={{
               position: 'absolute',
@@ -215,7 +223,7 @@ class AddUser extends Component {
             <Button onClick={onClose} style={{ marginRight: 8 }}>
               取消
             </Button>
-            <Button htmlType="submit" type="primary" loading={isEdit ? addLoading : editLoading}>
+            <Button htmlType="submit" type="primary" loading={isEdit ? editLoading : addLoading}>
               保存
             </Button>
           </div>

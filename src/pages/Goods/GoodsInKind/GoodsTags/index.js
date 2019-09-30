@@ -20,6 +20,8 @@ class GoodsTags extends Component {
   }
 
   state = {
+    total: 0,
+    page: 1,
     visible: false,
     isEdit: false,
     editData: {},
@@ -104,16 +106,23 @@ class GoodsTags extends Component {
   };
 
   // 获取标签列表
-  getTagList = obj => {
+  getTagList = str => {
     const { dispatch } = this.props;
+    const { page } = this.state;
+    const data = {
+      pageSize: 10,
+      pageNum: page,
+      labelName: str,
+    };
     dispatch({
       type: 'tagModel/queryeGoodsLabel',
-      payload: obj,
+      payload: data,
       callBack: res => {
         console.log(res);
         if (res.success) {
           this.setState({
-            dataSource: res.data || [],
+            dataSource: res.data.rows || [],
+            total: res.data.total,
           });
         } else {
           message.error(res.message);
@@ -172,7 +181,7 @@ class GoodsTags extends Component {
   // 提交修改
   submitEdit = obj => {
     const { editData } = this.state;
-    obj.id = editData.id;
+    obj.goodsLabel.id = editData.id;
     const { dispatch } = this.props;
     dispatch({
       type: 'tagModel/updateGoodsLabel',
@@ -194,10 +203,13 @@ class GoodsTags extends Component {
   onOk = e => {
     const { validateFields } = this.tagRef.current;
     validateFields((err, values) => {
+      console.log(e);
       if (!err) {
         const obj = {
-          ...values,
-          ...e,
+          goodsLabel: {
+            ...values,
+            ...e,
+          },
         };
         const { isEdit } = this.state;
         if (isEdit) {
@@ -210,8 +222,23 @@ class GoodsTags extends Component {
   };
 
   render() {
-    const { columns, dataSource, editData, visible, isEdit } = this.state;
+    const { columns, dataSource, editData, visible, isEdit, total, page } = this.state;
     const { addLoading, editLoading, listLoading } = this.props;
+    const pageObj = {
+      current: page,
+      pageSize: 10,
+      total,
+      onChange: pages => {
+        this.setState(
+          {
+            page: pages,
+          },
+          () => {
+            this.getTagList();
+          },
+        );
+      },
+    };
     return (
       <div className={styles.goodsBrand}>
         <div className={styles.goodsBrandHeader}>
@@ -229,7 +256,7 @@ class GoodsTags extends Component {
           <div className={styles.search}>
             <Search
               placeholder="请输入标签名称"
-              onSearch={value => this.getTagList({ labelName: value })}
+              onSearch={value => this.getTagList(value)}
               enterButton
             />
           </div>
@@ -242,6 +269,7 @@ class GoodsTags extends Component {
           dataSource={dataSource}
           rowKey={record => record.id}
           loading={listLoading}
+          pagination={pageObj}
         />
 
         <AddTag

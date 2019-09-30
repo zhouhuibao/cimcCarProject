@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import {
   Modal,
   Pagination,
@@ -13,9 +13,8 @@ import {
   Spin,
 } from 'antd';
 import { connect } from 'dva';
-import { dataType } from '@/utils/utils';
+import { dataType, showImg } from '@/utils/utils';
 import styles from './styles.less';
-import imgJson from './imgjson.json';
 
 const { Search } = Input;
 
@@ -28,42 +27,64 @@ const { Search } = Input;
  * @param {Boolean} isRequest   是否请求数据
  */
 
-@connect(({ common, loading }) => ({
+@connect(({ common, loading, imgModel }) => ({
   common,
+  imgModel,
   listLoading: loading.effects['common/queryPicture'],
 }))
-class SelectImage extends Component {
+class SelectImage extends PureComponent {
   state = {
-    imgArr: imgJson,
-    selectedImages: this.props.multiple ? [] : this.props.defaultValue,
+    imgArr: [],
+    page: 1,
+    total: 0,
+    selectedImages: this.props.multiple ? [] : this.props.defaultValues,
     uploading: false,
     visible: false,
-    radioImageUrl: this.props.multiple ? '' : this.props.defaultValue,
+    radioImageUrl: this.props.multiple ? '' : this.props.defaultValues,
   };
 
   componentDidMount() {
-    console.log(this);
-    const { imgArr } = this.state;
-    imgArr.forEach(item => {
-      item.id = item.image_id;
-    });
-    this.setState({
-      imgArr,
-    });
+    setTimeout(() => {
+      const { defaultValues } = this.props;
+      this.setState({
+        radioImageUrl: defaultValues,
+      });
+    }, 500);
+
     this.getPicList();
   }
 
-  getPicList = obj => {
+  // componentDidUpdate(prevProps) {
+  //   // 典型用法（不要忘记比较 props）：
+
+  //   // if (this.props.userID !== prevProps.userID) {
+  //   //   this.fetchData(this.props.userID);
+  //   // }
+  //   this.setDefaultValues(this.props.defaultValues)
+  // }
+
+  // setDefaultValues=(str)=>{
+  //   this.setState({
+  //     radioImageUrl: str
+  //   })
+  // }
+
+  getPicList = str => {
+    const { page } = this.state;
+    const obj = {
+      pageNum: page,
+      pageSize: 12,
+      fileName: str,
+    };
     const { dispatch } = this.props;
     dispatch({
       type: 'common/queryPicture',
       payload: obj,
       callBack: res => {
-        console.log(res);
-
         if (res.success) {
           this.setState({
-            imgArr: res.data || [],
+            imgArr: res.data.rows || [],
+            total: res.data.total,
           });
         }
       },
@@ -140,7 +161,6 @@ class SelectImage extends Component {
           item.checked = false;
         }
       });
-      console.log(selectObj);
       this.setState({
         imgArr,
         selectedImages: [selectObj],
@@ -148,6 +168,7 @@ class SelectImage extends Component {
     }
   };
 
+  // 判断多选的时候是不是选择了9张
   checkedImgArr = imgArr => {
     const arr = [];
     imgArr.forEach(item => {
@@ -162,12 +183,21 @@ class SelectImage extends Component {
     return false;
   };
 
+  // 显示总条数
   showTotal = total => {
     return `共 ${total} 条`;
   };
 
-  onShowSizeChange = (current, pageSize) => {
-    console.log(current, pageSize);
+  // 切换分页
+  changePage = page => {
+    this.setState(
+      {
+        page,
+      },
+      () => {
+        this.getPicList();
+      },
+    );
   };
 
   afterClose = () => {
@@ -181,6 +211,7 @@ class SelectImage extends Component {
     // });
   };
 
+  // 点击确定选择的时候
   closeImage = () => {
     const { multiple } = this.props;
     const { selectedImages } = this.state;
@@ -192,14 +223,14 @@ class SelectImage extends Component {
 
   render() {
     const { onOk, listLoading, multiple } = this.props;
-    const { imgArr, selectedImages, uploading, radioImageUrl, visible } = this.state;
+    const { imgArr, selectedImages, uploading, radioImageUrl, visible, total } = this.state;
     const uploadButton = (
       <Icon type="camera" style={{ fontSize: 40, lineHeight: '100px', color: '#ccc' }} />
     );
     const THIS = this;
     const props = {
       name: 'file',
-      action: 'gcgj/web-file/pictureUpload',
+      action: 'gcgj-system/file/pictureUpload',
       headers: {
         authorization: 'authorization-text',
       },
@@ -254,7 +285,7 @@ class SelectImage extends Component {
         ) : (
           <>
             <div className={styles.radio} onClick={() => this.setState({ visible: true })}>
-              {radioImageUrl ? <img src={radioImageUrl} alt="avatar" /> : uploadButton}
+              {radioImageUrl ? <img src={showImg(radioImageUrl)} alt="图片" /> : uploadButton}
             </div>
             <div style={{ color: '#ccc', fontSize: '12px', lineHeight: '30px' }}>
               只能上传jpg/png文件，且不超过2M
@@ -268,6 +299,7 @@ class SelectImage extends Component {
           afterClose={() => {
             this.afterClose();
           }}
+          destroyOnClose
           onOk={() => {
             onOk(selectedImages);
             this.closeImage();
@@ -284,7 +316,11 @@ class SelectImage extends Component {
                 </Upload>
               </div>
               <div className="pull-right">
-                <Search placeholder="搜索图片" onSearch={value => console.log(value)} enterButton />
+                <Search
+                  placeholder="搜索图片"
+                  onSearch={value => this.getPicList(value)}
+                  enterButton
+                />
               </div>
             </div>
             <div className={styles.line} />
@@ -302,13 +338,13 @@ class SelectImage extends Component {
                             this.selectImg(item);
                           }}
                         >
-                          <img src={item.url} alt="图片" />
+                          <img src={showImg(item.url)} alt="图片" />
                           {item.checked ? (
                             <div className={styles.checked}>
                               <Icon type="check" className={styles.checkedIcon} />
                             </div>
                           ) : null}
-                          <div className={styles.imgName}>{`${item.fileName}${item.suffix}`}</div>
+                          <div className={styles.imgName}>{`${item.fileName}`}</div>
                         </div>
                       </Col>
                     );
@@ -320,10 +356,14 @@ class SelectImage extends Component {
             </Spin>
 
             <Pagination
-              showSizeChanger
-              onShowSizeChange={this.onShowSizeChange}
+              // showSizeChanger
               showTotal={this.showTotal}
-              total={0}
+              defaultPageSize={12}
+              total={total}
+              onChange={(page, pageSize) => {
+                this.changePage(page, pageSize);
+              }}
+              // pageSizeOptions={''}
             />
           </div>
         </Modal>

@@ -6,76 +6,53 @@ import styles from '../../goodsStyles.less';
 
 const FormItem = Form.Item;
 
+@Form.create()
 @connect(({ specificationsModel }) => ({
   specificationsModel,
 }))
-@Form.create()
 class AddGoodsData extends Component {
   state = {
     defaultType: 0,
     options: [{ label: '支持商品高级筛选', value: 0 }, { label: '仅用于商品详情展示', value: 1 }],
-    dataList: [],
   };
 
   componentDidMount() {
     console.log('组件已加载');
   }
 
-  handleSubmit = e => {
-    e.preventDefault();
-    const {
-      form: { validateFields },
-    } = this.props;
-
-    validateFields((err, values) => {
-      if (!err) {
-        console.log(values);
-      }
-    });
-  };
-
-  addDataItem = () => {
-    const { dataList } = this.state;
-    const addRowData = {
-      dataName: '',
-      id: MathRandom(),
-    };
-
-    dataList.push(addRowData);
-    this.setState({
-      dataList,
-    });
-  };
-
-  deleteRow = i => {
-    const { dataList } = this.state;
-    dataList.splice(i, 1);
-    this.setState({
-      dataList,
-    });
-  };
-
   render() {
     const {
       onClose,
+      onOk,
       visible,
-      title,
-      form: { getFieldDecorator },
       isEdit,
+      form: { getFieldDecorator },
       initValue,
+      dataList,
+      addLoading,
+      editLoading,
+      changeInput,
+      addDataItem,
+      deleteRow,
     } = this.props;
-    const { defaultType, options, dataList } = this.state;
+    const { defaultType, options } = this.state;
     console.log(dataList);
     return (
-      <Drawer title={title} width="500" onClose={onClose} visible={visible}>
-        <Form onSubmit={this.handleSubmit} className={styles.AddGoodsData}>
+      <Drawer
+        title={isEdit ? '修改参数' : '添加参数'}
+        destroyOnClose
+        width="500"
+        onClose={onClose}
+        visible={visible}
+      >
+        <Form onSubmit={onOk} className={styles.AddGoodsData}>
           <div>
             参数名称
             <FormItem>
-              {getFieldDecorator('name', {
-                initialValue: isEdit ? initValue.name : null,
+              {getFieldDecorator('specName', {
+                initialValue: isEdit ? initValue.specName : null,
                 rules: [{ required: true, message: '请输入参数名称' }],
-              })(<Input />)}
+              })(<Input placeholder="请输入参数名称" />)}
             </FormItem>
           </div>
           <div>
@@ -83,7 +60,7 @@ class AddGoodsData extends Component {
             <FormItem>
               {getFieldDecorator('remark', {
                 initialValue: isEdit ? initValue.remark : null,
-              })(<Input />)}
+              })(<Input placeholder="请输入参数备注" />)}
             </FormItem>
           </div>
 
@@ -91,8 +68,8 @@ class AddGoodsData extends Component {
             <div className={styles.label}>参数类型</div>
             <div className={styles.radio}>
               <FormItem>
-                {getFieldDecorator('type', {
-                  initialValue: isEdit ? initValue.type : defaultType,
+                {getFieldDecorator('specType', {
+                  initialValue: isEdit ? initValue.specType : defaultType,
                 })(<Radio.Group options={options} onChange={this.typeChange} />)}
               </FormItem>
             </div>
@@ -103,33 +80,41 @@ class AddGoodsData extends Component {
             {dataList.map((item, i) => {
               return (
                 <div className={styles.dataItem} key={item.id}>
+                  {defaultType === 0 ? null : (
+                    <div className={styles.crmera}>
+                      <Icon type="camera" />
+                    </div>
+                  )}
                   <div className={styles.dataInput}>
-                    <FormItem>
+                    <Input
+                      onChange={e => {
+                        changeInput(e, i);
+                      }}
+                      defaultValue={item.valueName}
+                    />
+                    {/* <FormItem>
                       {getFieldDecorator(`dataName${item.id}`, {
                         initialValue: isEdit ? initValue.remark : null,
                         rules: [{ required: true, message: '参数值不能为空' }],
                       })(<Input />)}
-                    </FormItem>
+                    </FormItem> */}
                   </div>
-                  <div className={styles.dataIcon}>
-                    <Icon
-                      type="delete"
-                      onClick={() => {
-                        this.deleteRow(i);
-                      }}
-                      style={{ cursor: 'pointer' }}
-                    />
-                  </div>
+                  {dataList.length > 1 && (
+                    <div className={styles.dataIcon}>
+                      <Icon
+                        type="delete"
+                        onClick={() => {
+                          deleteRow(i);
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </div>
+                  )}
                 </div>
               );
             })}
             <div style={{ margin: '10px 0' }}>
-              <Button
-                type="primary"
-                onClick={() => {
-                  this.addDataItem();
-                }}
-              >
+              <Button type="primary" onClick={addDataItem}>
                 添加参数值
               </Button>
             </div>
@@ -155,7 +140,7 @@ class AddGoodsData extends Component {
             >
               取消
             </Button>
-            <Button htmlType="submit" type="primary">
+            <Button htmlType="submit" type="primary" loading={isEdit ? editLoading : addLoading}>
               保存
             </Button>
           </div>

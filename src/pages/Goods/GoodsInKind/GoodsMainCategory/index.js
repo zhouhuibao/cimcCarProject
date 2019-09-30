@@ -18,6 +18,8 @@ class GoodsMainCategory extends Component {
   }
 
   state = {
+    total: 0,
+    page: 1,
     topLevel: true,
     editData: {},
     columns: [
@@ -127,16 +129,23 @@ class GoodsMainCategory extends Component {
     console.log(localStorage.getItem('cityData'));
   }
 
-  getMainCategoryList = obj => {
+  // 获取主目录列表
+  getMainCategoryList = () => {
     const { dispatch } = this.props;
+    const { page } = this.state;
+    const data = {
+      pageSize: 10,
+      pageNum: page,
+    };
     dispatch({
       type: 'mainCategoryModel/queryGoodsCategory',
-      payload: obj,
+      payload: data,
       callBack: res => {
         console.log(res);
         if (res.success) {
           this.setState({
             dataSource: res.data.rows || [],
+            total: res.data.total,
           });
         } else {
           message.error(res.message);
@@ -251,7 +260,7 @@ class GoodsMainCategory extends Component {
           // 如果不是添加顶级目录
           values.pId = editData.id;
         }
-        values.level = topLevel ? 0 : editData.level;
+        values.level = topLevel ? 0 : editData.level + 1;
         this.submitAddCategory(values);
       }
     });
@@ -264,8 +273,25 @@ class GoodsMainCategory extends Component {
       SpecificationOrDataVisible,
       columns,
       dataSource,
+      total,
+      page,
     } = this.state;
     const { addLoading, listLoading } = this.props;
+    const pageObj = {
+      current: page,
+      pageSize: 10,
+      total,
+      onChange: pages => {
+        this.setState(
+          {
+            page: pages,
+          },
+          () => {
+            this.getTagList();
+          },
+        );
+      },
+    };
 
     return (
       <Fragment>
@@ -281,8 +307,8 @@ class GoodsMainCategory extends Component {
           columns={columns}
           dataSource={dataSource}
           rowKey={record => record.id}
-          pagination={false}
           loading={listLoading}
+          pagination={pageObj}
         />
 
         <AddCategory
