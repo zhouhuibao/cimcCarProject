@@ -13,7 +13,7 @@ import {
   Spin,
 } from 'antd';
 import { connect } from 'dva';
-import { dataType, showImg } from '@/utils/utils';
+import { dataType, showImg, isEmpty } from '@/utils/utils';
 import styles from './styles.less';
 
 const { Search } = Input;
@@ -41,34 +41,57 @@ class SelectImage extends PureComponent {
     uploading: false,
     visible: false,
     radioImageUrl: this.props.multiple ? '' : this.props.defaultValues,
+    isShowUrl: false,
+    isClick: false,
   };
 
   componentDidMount() {
-    setTimeout(() => {
-      const { defaultValues } = this.props;
-      this.setState({
-        radioImageUrl: defaultValues,
-      });
-    }, 500);
-
-    this.getPicList();
+    const { imgArr } = this.state;
+    if (imgArr.length <= 0) {
+      this.getPicList();
+    }
   }
 
-  // componentDidUpdate(prevProps) {
-  //   // 典型用法（不要忘记比较 props）：
+  componentWillReceiveProps(prevProps) {
+    if (isEmpty(prevProps.defaultValue)) {
+      this.setState({
+        isShowUrl: true,
+      });
+    }
 
-  //   // if (this.props.userID !== prevProps.userID) {
-  //   //   this.fetchData(this.props.userID);
-  //   // }
-  //   this.setDefaultValues(this.props.defaultValues)
-  // }
+    // 典型用法（不要忘记比较 props）：
 
-  // setDefaultValues=(str)=>{
-  //   this.setState({
-  //     radioImageUrl: str
-  //   })
-  // }
+    // if (this.props.userID !== prevProps.userID) {
+    //   this.fetchData(this.props.userID);
+    // }
+    // this.setDefaultValues(this.props.defaultValues)
+  }
 
+  componentWillUnmount() {
+    this.setState({
+      isShowUrl: false,
+      isClick: false,
+    });
+  }
+
+  // 显示图片
+  showDefaultValues = () => {
+    const { multiple, defaultValue } = this.props;
+    const { isClick, radioImageUrl, isShowUrl } = this.state;
+
+    // 如果是选择完图片过后
+    if (isClick) {
+      return radioImageUrl;
+    }
+
+    // 如果是单选并且是回显状态 (回显默认值)
+
+    if (isShowUrl) {
+      return defaultValue;
+    }
+  };
+
+  // 获取图片列表
   getPicList = str => {
     const { page } = this.state;
     const obj = {
@@ -91,6 +114,7 @@ class SelectImage extends PureComponent {
     });
   };
 
+  // 上传文件之前的回调
   beforeUpload = file => {
     const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
     if (!isJpgOrPng) {
@@ -103,6 +127,7 @@ class SelectImage extends PureComponent {
     return isJpgOrPng && isLt2M;
   };
 
+  // 选择完图片的回调
   selectImg = props => {
     const { multiple, onChange } = this.props;
     const { imgArr } = this.state;
@@ -200,17 +225,6 @@ class SelectImage extends PureComponent {
     );
   };
 
-  afterClose = () => {
-    // const { imgArr } = this.state;
-    // imgArr.forEach(item => {
-    //   item.checked = false;
-    // });
-    // this.setState({
-    //   imgArr,
-    //   selectedImages: [],
-    // });
-  };
-
   // 点击确定选择的时候
   closeImage = () => {
     const { multiple } = this.props;
@@ -218,15 +232,26 @@ class SelectImage extends PureComponent {
     this.setState({
       visible: false,
       radioImageUrl: multiple ? '' : selectedImages[0].url,
+      isClick: true,
+      isShowUrl: true,
     });
   };
 
   render() {
-    const { onOk, listLoading, multiple } = this.props;
-    const { imgArr, selectedImages, uploading, radioImageUrl, visible, total } = this.state;
+    const { onOk, listLoading, multiple, defaultValue } = this.props;
+    const {
+      imgArr,
+      selectedImages,
+      isShowUrl,
+      uploading,
+      radioImageUrl,
+      visible,
+      total,
+    } = this.state;
     const uploadButton = (
       <Icon type="camera" style={{ fontSize: 40, lineHeight: '100px', color: '#ccc' }} />
     );
+
     const THIS = this;
     const props = {
       name: 'file',
@@ -285,7 +310,11 @@ class SelectImage extends PureComponent {
         ) : (
           <>
             <div className={styles.radio} onClick={() => this.setState({ visible: true })}>
-              {radioImageUrl ? <img src={showImg(radioImageUrl)} alt="图片" /> : uploadButton}
+              {isShowUrl ? (
+                <img src={showImg(this.showDefaultValues())} alt="图片" />
+              ) : (
+                uploadButton
+              )}
             </div>
             <div style={{ color: '#ccc', fontSize: '12px', lineHeight: '30px' }}>
               只能上传jpg/png文件，且不超过2M
@@ -296,9 +325,6 @@ class SelectImage extends PureComponent {
           width="60%"
           title="选择图片"
           visible={visible}
-          afterClose={() => {
-            this.afterClose();
-          }}
           destroyOnClose
           onOk={() => {
             onOk(selectedImages);
@@ -325,7 +351,7 @@ class SelectImage extends PureComponent {
             </div>
             <div className={styles.line} />
 
-            <Spin spinning={false}>
+            <Spin spinning={listLoading}>
               {/* <Spin spinning={listLoading}> */}
               <Row gutter={48} className={styles.imgWrap}>
                 {imgArr.length > 0 ? (

@@ -10,32 +10,43 @@ import {
   Table,
   Popconfirm,
   InputNumber,
+  Icon,
 } from 'antd';
 import BraftEditor from 'braft-editor';
+import { connect } from 'dva';
 import { router } from 'umi';
+import CustomSelectImage from '@/components/CustomSelectImage';
 import FormItemDom from '@/components/CreateForm';
 import CardComponent from '@/components/CardComponent';
-import UploadImg from '@/components/UploadImg';
 import Blockquote from '@/components/Blockquote';
-import goodsData from './fenlei.json';
 import 'braft-editor/dist/index.css';
 import styles from './styles.less';
-import { MathRandom } from '@/utils/utils';
+import { MathRandom, showImg, isEmpty, dataType } from '@/utils/utils';
 
 function getValuesByArray(arr1, arr2) {
   const arr = [];
   for (let i = 0; i < arr1.length; i += 1) {
-    const v1 = arr1[i];
+    const v1 = dataType(arr1[i]) === 'Object' ? arr1[i].name : arr1[i];
+    const v1id =
+      dataType(arr1[i]) === 'Object' ? `${arr1[i].idStr}${arr2[0].specId}` : arr2[0].specId;
     for (let j = 0; j < arr2.length; j += 1) {
-      const v2 = arr2[j];
+      const itemObj = {};
+      const v2 = arr2[j].valueName;
+      const v2id = arr2[j].id;
       const value = `${v1} ${v2}`;
-      arr.push(value);
+      const idStrs = `${v1id}:${v2id},`;
+      itemObj.name = value;
+      itemObj.idStr = idStrs;
+      itemObj.specInfo = arr2;
+      arr.push(itemObj);
     }
   }
+
   return arr;
 }
 
 function getArrayByArrays(arrays) {
+  console.log(arrays);
   let arr = [''];
   for (let i = 0; i < arrays.length; i += 1) {
     arr = getValuesByArray(arr, arrays[i]);
@@ -44,6 +55,10 @@ function getArrayByArrays(arrays) {
 }
 
 @Form.create()
+@connect(({ goodsModel, loading }) => ({
+  goodsModel,
+  addLoading: loading.effects['goodsModel/addStation'],
+}))
 class AddGoods extends Component {
   constructor(props) {
     super(props);
@@ -52,18 +67,64 @@ class AddGoods extends Component {
   }
 
   state = {
+    specImgVisible: false,
+    specPicTableData: [],
+    selctedRow: {},
+    specPicColumns: [
+      {
+        title: '规格',
+        dataIndex: 'valueName',
+        width: 130,
+      },
+      {
+        title: '规格图片',
+        render: (text, record) => {
+          return (
+            <div className={`clearfix ${styles.specPicListWrapper}`}>
+              {record.picList.map((item, index) => {
+                return (
+                  <div className={styles.specPicListItem} key={item.id}>
+                    <Icon
+                      type="delete"
+                      className={styles.delIcon}
+                      onClick={() => {
+                        this.deleteSpecPic(record, index);
+                      }}
+                    />
+                    <img
+                      src={showImg(item)}
+                      alt=""
+                      style={{ width: 50, height: 50, float: 'left', marginRight: 10 }}
+                    />
+                  </div>
+                );
+              })}
+              <div
+                className={styles.specPicUpload}
+                onClick={() => this.setState({ specImgVisible: true, selctedRow: record })}
+              >
+                <Icon type="camera" />
+              </div>
+            </div>
+          );
+        },
+      },
+    ],
     dataSource: [],
+    contentVisible: false,
     headerDataSource: [
       {
         key: 'tainchong110',
         name: '批量填充',
-        address: '',
-        age: '',
-        address1: '',
-        address2: '',
-        address3: '',
-        address4: '',
-        address5: '',
+        stock: '',
+        status: '',
+        skuNo: '',
+        weight: '',
+        volume: '',
+        currentPrice: '',
+        costPrice: '',
+        originalPrice: '',
+        barcode: '',
       },
     ],
     headerColumns: [],
@@ -71,6 +132,177 @@ class AddGoods extends Component {
     switchCheck: false,
     editorState: BraftEditor.createEditorState(null),
     SpecificationsData: [],
+    paramsForm: [],
+    unifiedSpecForm: [
+      {
+        domType: 'select',
+        id: 'approvalStatus_3',
+        title: '商品状态',
+        domAttr: {
+          onChange: e => {
+            console.log(e);
+          },
+        },
+        fieldAttr: {
+          rules: [
+            {
+              required: true,
+              message: '商品状态不能为空',
+            },
+          ],
+        },
+        options: [
+          {
+            key: '前台可销售',
+            value: '0',
+          },
+          {
+            key: '可线下销售',
+            value: '1',
+          },
+          {
+            key: '前台仅展示',
+            value: '2',
+          },
+          {
+            key: '不可销售',
+            value: '3',
+          },
+        ],
+      },
+      {
+        domType: 'number',
+        id: 'controlsId_11',
+        title: '库存',
+        required: true,
+        domAttr: {
+          style: { width: '100%' },
+        },
+        fieldAttr: {
+          rules: [
+            {
+              required: true,
+              message: '库存不能为空',
+            },
+          ],
+        },
+      },
+      {
+        domType: 'text',
+        id: 'controlsId_12',
+        title: '商品货号',
+        required: true,
+        domAttr: {},
+        fieldAttr: {
+          rules: [
+            {
+              required: true,
+              message: '商品货号不能为空',
+            },
+          ],
+        },
+      },
+      {
+        domType: 'text',
+        id: 'controlsId_13',
+        title: '重量',
+        required: true,
+        domAttr: {
+          addonAfter: 'kg',
+        },
+        fieldAttr: {
+          rules: [
+            {
+              required: true,
+              message: '重量不能为空',
+            },
+          ],
+        },
+      },
+      {
+        domType: 'text',
+        id: 'controlsId_14',
+        title: '体积',
+        required: true,
+        domAttr: {
+          addonAfter: 'm³',
+        },
+        fieldAttr: {
+          rules: [
+            {
+              required: true,
+              message: '体积不能为空',
+            },
+          ],
+        },
+      },
+      {
+        domType: 'text',
+        id: 'controlsId_15',
+        title: '销售价',
+        required: true,
+        domAttr: {
+          addonBefore: '¥',
+        },
+        fieldAttr: {
+          rules: [
+            {
+              required: true,
+              message: '销售价不能为空',
+            },
+          ],
+        },
+      },
+      {
+        domType: 'text',
+        id: 'controlsId_15',
+        title: '成本价',
+        required: true,
+        domAttr: {
+          addonBefore: '¥',
+        },
+        fieldAttr: {
+          rules: [
+            {
+              required: true,
+              message: '成本价不能为空',
+            },
+          ],
+        },
+      },
+      {
+        domType: 'text',
+        id: 'controlsId_16',
+        title: '原价',
+        required: true,
+        domAttr: {
+          addonBefore: '¥',
+        },
+        fieldAttr: {
+          rules: [
+            {
+              required: true,
+              message: '原价不能为空',
+            },
+          ],
+        },
+      },
+      {
+        domType: 'text',
+        id: 'controlsId_17',
+        title: '条形码',
+        required: true,
+        domAttr: {},
+        fieldAttr: {
+          rules: [
+            {
+              required: true,
+              message: '条形码不能为空',
+            },
+          ],
+        },
+      },
+    ],
     formItemData: [
       {
         domType: 'text',
@@ -79,12 +311,12 @@ class AddGoods extends Component {
         required: true,
         domAttr: {},
         fieldAttr: {
-          rules: [
-            {
-              required: true,
-              message: '商品标题不能为空',
-            },
-          ],
+          // rules: [
+          //   {
+          //     required: true,
+          //     message: '商品标题不能为空',
+          //   },
+          // ],
         },
       },
       {
@@ -105,11 +337,11 @@ class AddGoods extends Component {
           },
         },
         fieldAttr: {
-          rules: [
-            {
-              required: true,
-            },
-          ],
+          // rules: [
+          //   {
+          //     required: true,
+          //   },
+          // ],
         },
         options: [
           {
@@ -128,34 +360,21 @@ class AddGoods extends Component {
       },
       {
         domType: 'select',
-        id: 'approvalStatus4',
+        id: 'goodsBrand',
         title: '品牌',
-        domAttr: {
-          onChange: e => {
-            console.log(e);
-          },
-        },
+        domAttr: {},
         fieldAttr: {
-          rules: [
-            {
-              required: true,
-            },
-          ],
+          // rules: [
+          //   {
+          //     required: true,
+          //   },
+          // ],
         },
-        options: [
-          {
-            key: '小米',
-            value: '0',
-          },
-          {
-            key: 'iphone',
-            value: '1',
-          },
-          {
-            key: 'oppo',
-            value: '2',
-          },
-        ],
+        options: [],
+        optionsObj: {
+          key: 'brandName',
+          value: 'id',
+        },
       },
       {
         domType: 'text',
@@ -174,66 +393,211 @@ class AddGoods extends Component {
         fieldAttr: {},
       },
       {
-        domType: 'select',
-        id: 'approvalStatus7',
+        domType: 'TreeSelect',
+        id: 'fenlei',
         title: '商品分类',
         domAttr: {
+          treeCheckable: true,
+          treeNodeLabelProp: 'classifyName',
+          treeNodeFilterProp: 'value',
+          // showCheckedStrategy:'SHOW_ALL',
+
+          // fieldNames:{
+          //   label: 'classifyName', value: 'id', children: 'children'
+          // },
           onChange: e => {
             console.log(e);
           },
         },
         fieldAttr: {
-          rules: [
-            {
-              required: true,
-            },
-          ],
+          // rules: [
+          //   {
+          //     required: true,
+          //   },
+          // ],
         },
-        options: [
-          {
-            key: '小米',
-            value: '0',
+        options: [],
+      },
+      {
+        domType: 'Cascader',
+        id: 'cityAddress',
+        title: '产地',
+        domAttr: {
+          fieldNames: {
+            label: 'regionName',
+            value: 'id',
+            children: 'regionJoinOut',
           },
-          {
-            key: 'iphone',
-            value: '1',
+          onChange: e => {
+            console.log(e);
           },
-          {
-            key: 'oppo',
-            value: '2',
-          },
-        ],
+        },
+        fieldAttr: {
+          // rules: [
+          //   {
+          //     required: true,
+          //   },
+          // ],
+        },
+        options: [],
+      },
+      {
+        domType: 'img',
+        id: 'imagesArr',
+        title: '商品图',
+        multiple: true,
+        required: true,
+        col: 24,
+        domAttr: {},
+        fieldAttr: {},
       },
     ],
 
-    options: goodsData,
+    options: [],
   };
 
   componentDidMount() {
+    this.getCategoryList();
+    this.getClassifyList();
+    this.getAddressList();
+    this.getGoodsBrand();
     this.setColumns('headerColumns');
     this.setColumns('columns');
-
-    const arr = [];
-    for (let i = 0; i < 3; i += 1) {
-      const obj = {};
-      obj.id = MathRandom();
-      obj.title = `类别${i}`;
-      const list = [];
-      for (let j = 0; j < 4; j += 1) {
-        const listObj = {};
-        listObj.id = MathRandom();
-        listObj.value = `${10 + j}ml`;
-        listObj.checked = false;
-        list.push(listObj);
-      }
-      obj.list = list;
-      arr.push(obj);
-    }
-
-    this.setState({
-      SpecificationsData: arr,
-    });
   }
+
+  // 获取品牌
+  getGoodsBrand = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'goodsModel/selectGoodsBrand',
+      callBack: res => {
+        console.log(res);
+        const { formItemData } = this.state;
+        formItemData.forEach(item => {
+          if (item.id === 'goodsBrand') {
+            item.options = res.data;
+          }
+        });
+        this.setState({
+          formItemData,
+        });
+      },
+    });
+  };
+
+  // 获取地址
+  getAddressList = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'goodsModel/getRegionJoin',
+      callBack: res => {
+        console.log(res);
+        const { formItemData } = this.state;
+        formItemData.forEach(item => {
+          if (item.id === 'cityAddress') {
+            item.options = res.data;
+          }
+        });
+        this.setState({
+          formItemData,
+        });
+      },
+    });
+  };
+
+  // 获取主目录
+  getCategoryList = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'goodsModel/selectGoodsCategory',
+      callBack: res => {
+        console.log(res);
+
+        this.setState({
+          options: res.data || [],
+        });
+      },
+    });
+  };
+
+  // 获取分类
+  getClassifyList = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'goodsModel/selectGoodsClassify',
+      callBack: res => {
+        console.log(res);
+        const { formItemData } = this.state;
+        formItemData.forEach(item => {
+          if (item.id === 'fenlei') {
+            item.options = res.data;
+          }
+        });
+        this.setState({
+          formItemData,
+        });
+      },
+    });
+  };
+
+  // 根据主目录获取关联参数
+  getDataById = id => {
+    // paramsForm
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'goodsModel/goodsCategoryIdSelectParam',
+      payload: { id },
+      callBack: res => {
+        console.log(res);
+        const { data } = res;
+        const arr = [];
+        data.forEach(item => {
+          const obj = {};
+          obj.domType = 'select';
+          obj.title = item.paramName;
+          obj.domAttr = {};
+          obj.id = `params&${item.paramId}`;
+          obj.fieldAttr = {
+            rules: [
+              {
+                required: true,
+              },
+            ],
+          };
+
+          const optionsArr = [];
+          item.specsAndCateOut.forEach(childerItem => {
+            const childerObj = {};
+            childerObj.key = childerItem.valueName;
+            childerObj.value = childerItem.id;
+            optionsArr.push(childerObj);
+          });
+
+          obj.options = optionsArr;
+
+          arr.push(obj);
+        });
+        console.log(arr);
+        this.setState({
+          paramsForm: arr,
+        });
+      },
+    });
+  };
+
+  // 根据主目录获取关联规格
+  getSpectById = id => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'goodsModel/goodsCategoryIdSelect',
+      payload: { id },
+      callBack: res => {
+        this.setState({
+          SpecificationsData: res.data,
+        });
+      },
+    });
+  };
 
   // 设置表头
   setColumns = type => {
@@ -246,16 +610,16 @@ class AddGoods extends Component {
       },
       {
         title: <div style={{ color: 'red' }}>*状态</div>,
-        dataIndex: 'age',
-        key: 'age',
+        dataIndex: 'status',
+        key: 'status',
         render: (text, record) => {
           const {
             form: { getFieldDecorator },
           } = this.props;
           return (
             <Form.Item>
-              {getFieldDecorator(`age_${record.key}`, {
-                initialValue: record[`age_${record.key}`],
+              {getFieldDecorator(`status_${record.key}`, {
+                initialValue: record[`status_${record.key}`],
                 rules:
                   type === 'headerColumns' ? null : [{ required: true, message: '状态不能为空' }],
               })(<InputNumber />)}
@@ -265,16 +629,16 @@ class AddGoods extends Component {
       },
       {
         title: <div style={{ color: 'red' }}>*库存</div>,
-        dataIndex: 'address',
-        key: 'address',
+        dataIndex: 'stock',
+        key: 'stock',
         render: (text, record) => {
           const {
             form: { getFieldDecorator },
           } = this.props;
           return (
             <Form.Item>
-              {getFieldDecorator(`address_${record.key}`, {
-                initialValue: record[`address_${record.key}`],
+              {getFieldDecorator(`stock_${record.key}`, {
+                initialValue: record[`stock_${record.key}`],
                 rules:
                   type === 'headerColumns' ? null : [{ required: true, message: '库存不能为空' }],
               })(<Input style={{ width: 90 }} />)}
@@ -284,16 +648,16 @@ class AddGoods extends Component {
       },
       {
         title: '货号',
-        dataIndex: 'address1',
-        key: 'address1',
+        dataIndex: 'skuNo',
+        key: 'skuNo',
         render: (text, record) => {
           const {
             form: { getFieldDecorator },
           } = this.props;
           return (
             <Form.Item>
-              {getFieldDecorator(`address1_${record.key}`, {
-                initialValue: record[`address1_${record.key}`],
+              {getFieldDecorator(`skuNo_${record.key}`, {
+                initialValue: record[`skuNo_${record.key}`],
               })(<Input style={{ width: 90 }} />)}
             </Form.Item>
           );
@@ -301,16 +665,33 @@ class AddGoods extends Component {
       },
       {
         title: '重量(kg)',
-        dataIndex: 'address2',
-        key: 'address2',
+        dataIndex: 'weight',
+        key: 'weight',
         render: (text, record) => {
           const {
             form: { getFieldDecorator },
           } = this.props;
           return (
             <Form.Item>
-              {getFieldDecorator(`address2_${record.key}`, {
-                initialValue: record[`address2_${record.key}`],
+              {getFieldDecorator(`weight_${record.key}`, {
+                initialValue: record[`weight_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
+          );
+        },
+      },
+      {
+        title: '体积(m³)',
+        dataIndex: 'volume',
+        key: 'volume',
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
+          return (
+            <Form.Item>
+              {getFieldDecorator(`volume_${record.key}`, {
+                initialValue: record[`volume_${record.key}`],
               })(<Input style={{ width: 90 }} />)}
             </Form.Item>
           );
@@ -318,16 +699,16 @@ class AddGoods extends Component {
       },
       {
         title: '销售价',
-        dataIndex: 'address3',
-        key: 'address3',
+        dataIndex: 'currentPrice',
+        key: 'currentPrice',
         render: (text, record) => {
           const {
             form: { getFieldDecorator },
           } = this.props;
           return (
             <Form.Item>
-              {getFieldDecorator(`address3_${record.key}`, {
-                initialValue: record[`address3_${record.key}`],
+              {getFieldDecorator(`currentPrice_${record.key}`, {
+                initialValue: record[`currentPrice_${record.key}`],
               })(<Input style={{ width: 90 }} />)}
             </Form.Item>
           );
@@ -335,16 +716,16 @@ class AddGoods extends Component {
       },
       {
         title: '成本价',
-        dataIndex: 'address4',
-        key: 'address4',
+        dataIndex: 'costPrice',
+        key: 'costPrice',
         render: (text, record) => {
           const {
             form: { getFieldDecorator },
           } = this.props;
           return (
             <Form.Item>
-              {getFieldDecorator(`address4_${record.key}`, {
-                initialValue: record[`address4_${record.key}`],
+              {getFieldDecorator(`costPrice_${record.key}`, {
+                initialValue: record[`costPrice_${record.key}`],
               })(<Input style={{ width: 90 }} />)}
             </Form.Item>
           );
@@ -352,16 +733,33 @@ class AddGoods extends Component {
       },
       {
         title: '原价',
-        dataIndex: 'address5',
-        key: 'address5',
+        dataIndex: 'originalPrice',
+        key: 'originalPrice',
         render: (text, record) => {
           const {
             form: { getFieldDecorator },
           } = this.props;
           return (
             <Form.Item>
-              {getFieldDecorator(`address5_${record.key}`, {
-                initialValue: record[`address5_${record.key}`],
+              {getFieldDecorator(`originalPrice_${record.key}`, {
+                initialValue: record[`originalPrice_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
+          );
+        },
+      },
+      {
+        title: '条形码',
+        dataIndex: 'barcode',
+        key: 'barcode',
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
+          return (
+            <Form.Item>
+              {getFieldDecorator(`barcode_${record.key}`, {
+                initialValue: record[`barcode_${record.key}`],
               })(<Input style={{ width: 90 }} />)}
             </Form.Item>
           );
@@ -439,13 +837,15 @@ class AddGoods extends Component {
       form: { setFieldsValue },
     } = this.props;
     const filedsArr = [
-      'age',
-      'address',
-      'address1',
-      'address2',
-      'address3',
-      'address4',
-      'address5',
+      'status',
+      'stock',
+      'skuNo',
+      'weight',
+      'volume',
+      'currentPrice',
+      'costPrice',
+      'originalPrice',
+      'barcode',
     ];
     filedsArr.forEach(item => {
       setFieldsValue({
@@ -455,13 +855,18 @@ class AddGoods extends Component {
   };
 
   onChange = value => {
-    console.log(value);
+    const id = value[value.length - 1];
+    this.getDataById(id);
+    this.getSpectById(id);
+    this.setState({
+      contentVisible: true,
+    });
   };
 
   handleSubmit = e => {
     e.preventDefault();
     console.log(this.formItemRef);
-    const { editorState, switchCheck } = this.state;
+    const { editorState, switchCheck, dataSource } = this.state;
     const validateFields1 = this.formItemRef.current.validateFields;
     let filedStatus1 = false;
     let filedStatus2 = false;
@@ -490,6 +895,31 @@ class AddGoods extends Component {
             }
           });
           console.log(values);
+          console.log(dataSource);
+
+          const skuArr = [];
+          Object.keys(values).forEach(item => {
+            const skuItem = item.split('skuNo');
+            if (skuItem.length > 1) {
+              const skuObj = {};
+              skuObj.skuNo = values[`skuNo${skuItem[1]}`];
+              skuObj.stock = values[`stock${skuItem[1]}`];
+              skuObj.status = values[`status${skuItem[1]}`];
+              skuObj.weight = values[`weight${skuItem[1]}`];
+              skuObj.volume = values[`volume${skuItem[1]}`];
+              skuObj.currentPrice = values[`currentPrice${skuItem[1]}`];
+              skuObj.costPrice = values[`costPrice${skuItem[1]}`];
+              skuObj.originalPrice = values[`originalPrice${skuItem[1]}`];
+              skuObj.barcode = values[`barcode${skuItem[1]}`];
+              skuArr.push(skuObj);
+            }
+          });
+          console.log(skuArr);
+
+          skuArr.forEach((item, index) => {
+            item.specss = dataSource[index].idStr;
+          });
+          console.log(skuArr);
 
           filedStatus3 = true;
           obj = { ...values };
@@ -533,58 +963,93 @@ class AddGoods extends Component {
     });
   };
 
+  // 设置规格组合表格里面的数据
+  setHeaderTableData = SpecificationsData => {
+    console.log(SpecificationsData);
+    const arr = [];
+    SpecificationsData.forEach(item => {
+      const itemList = item.specsAndCateOut;
+      const minArr = [];
+
+      itemList.forEach(listItem => {
+        if (listItem.checked) {
+          const specItemObj = {};
+          specItemObj.specId = listItem.specId;
+          specItemObj.id = listItem.id;
+          specItemObj.valueName = listItem.valueName;
+          minArr.push(specItemObj);
+        }
+      });
+
+      if (minArr.length > 0) {
+        arr.push(minArr);
+      }
+    });
+
+    console.log(arr);
+
+    let checkedSpecification = [];
+    if (getArrayByArrays(arr).length === 1 && getArrayByArrays(arr)[0] === '') {
+      checkedSpecification = [];
+    } else {
+      getArrayByArrays(arr).forEach(item => {
+        console.log(item);
+        const checkedObj = {};
+        checkedObj.key = MathRandom();
+        checkedObj.name = item.name;
+        checkedObj.specInfo = item.specInfo;
+        checkedObj.idStr = item.idStr;
+        checkedSpecification.push(checkedObj);
+      });
+    }
+
+    this.setState({
+      dataSource: checkedSpecification,
+    });
+  };
+
+  // 设置规格图片里面的表格的数据
+  setSpecPicTableData = value => {
+    const obj = { ...value };
+    obj.picList = [value.valuePicture];
+    const { specPicTableData } = this.state;
+    if (value.checked) {
+      specPicTableData.push(obj);
+    } else {
+      specPicTableData.forEach((item, index) => {
+        if (item.id === value.id) {
+          specPicTableData.splice(index, 1);
+        }
+      });
+    }
+    this.setState({
+      specPicTableData,
+    });
+  };
+
   // 监听规格多选框的变化
   listChange = (e, value) => {
     const { SpecificationsData } = this.state;
     for (let i = 0; i < SpecificationsData.length; i += 1) {
-      const { list } = SpecificationsData[i];
-      for (let j = 0; j < list.length; j += 1) {
-        if (value.id === list[j].id) {
-          list[j].checked = e.target.checked;
+      const { specsAndCateOut } = SpecificationsData[i];
+      for (let j = 0; j < specsAndCateOut.length; j += 1) {
+        if (value.id === specsAndCateOut[j].id) {
+          specsAndCateOut[j].checked = e.target.checked;
+          specsAndCateOut[j].specId = SpecificationsData[i].specId;
         }
       }
+    }
+    if (isEmpty(value.valuePicture)) {
+      this.setSpecPicTableData(value);
     }
     this.setState(
       {
         SpecificationsData,
       },
       () => {
-        const arr = [];
-        SpecificationsData.forEach(item => {
-          const itemList = item.list;
-          const minArr = [];
-          itemList.forEach(listItem => {
-            if (listItem.checked) {
-              minArr.push(listItem.value);
-            }
-          });
-
-          if (minArr.length > 0) {
-            arr.push(minArr);
-          }
-        });
-
-        let checkedSpecification = [];
-        if (getArrayByArrays(arr).length === 1 && getArrayByArrays(arr)[0] === '') {
-          checkedSpecification = [];
-        } else {
-          getArrayByArrays(arr).forEach(item => {
-            const checkedObj = {};
-            checkedObj.key = MathRandom();
-            checkedObj.name = item;
-            checkedSpecification.push(checkedObj);
-          });
-        }
-
-        this.setState({
-          dataSource: checkedSpecification,
-        });
+        this.setHeaderTableData(SpecificationsData);
       },
     );
-  };
-
-  changeTable = e => {
-    console.log(e);
   };
 
   // 监听规格输入框的变化
@@ -592,19 +1057,62 @@ class AddGoods extends Component {
     console.log(e.target.value);
     const { SpecificationsData } = this.state;
     for (let i = 0; i < SpecificationsData.length; i += 1) {
-      const { list } = SpecificationsData[i];
-      for (let j = 0; j < list.length; j += 1) {
-        if (value.id === list[j].id) {
-          list[j].value = e.target.value;
+      const { specsAndCateOut } = SpecificationsData[i];
+      for (let j = 0; j < specsAndCateOut.length; j += 1) {
+        if (value.id === specsAndCateOut[j].id) {
+          specsAndCateOut[j].valueName = e.target.value;
         }
       }
     }
+
+    this.setState(
+      {
+        SpecificationsData,
+      },
+      () => {
+        this.setHeaderTableData(SpecificationsData);
+      },
+    );
+
+    console.log(SpecificationsData);
+  };
+
+  // 删除规格图片
+  deleteSpecPic = (record, index) => {
+    const { specPicTableData } = this.state;
+    specPicTableData.forEach(item => {
+      if (record.id === item.id) {
+        item.picList.splice(index, 1);
+      }
+    });
+    this.setState({
+      specPicTableData,
+    });
+  };
+
+  // 添加规格图片
+  selectSpecImages = arr => {
+    console.log(arr);
+    const { selctedRow, specPicTableData } = this.state;
+    if (arr.length > 0) {
+      specPicTableData.forEach(item => {
+        if (selctedRow.id === item.id) {
+          item.picList.push(arr[0].url);
+        }
+      });
+    }
+
+    this.setState({
+      specPicTableData,
+      specImgVisible: false,
+    });
   };
 
   render() {
     const {
       options,
       formItemData,
+      unifiedSpecForm,
       editorState,
       switchCheck,
       SpecificationsData,
@@ -612,6 +1120,11 @@ class AddGoods extends Component {
       dataSource,
       headerDataSource,
       headerColumns,
+      contentVisible,
+      paramsForm,
+      specPicTableData,
+      specPicColumns,
+      specImgVisible,
     } = this.state;
     const cardDom = (
       <Switch
@@ -622,114 +1135,133 @@ class AddGoods extends Component {
         unCheckedChildren="统一规格"
       />
     );
-    console.log(options);
     return (
       <div className={styles.addGoodsWrap}>
         <PageHeader onBack={() => router.goBack()} title="添加商品" />
         <Form onSubmit={this.handleSubmit}>
           <CardComponent title="选择主分类" style={{ marginBottom: 20 }}>
             <Cascader
-              fieldNames={{ label: 'category_name', value: 'category_id', children: 'children' }}
+              fieldNames={{ label: 'categName', value: 'id', children: 'children' }}
               style={{ width: '50%' }}
               options={options}
               onChange={this.onChange}
               placeholder="请选择主分类"
             />
           </CardComponent>
-          <CardComponent title="基础信息" style={{ marginBottom: 20 }}>
-            <FormItemDom formData={formItemData} ref={this.formItemRef} />
 
-            <div className={styles.itemWrap}>
-              <p className={styles.itemLabel}>
-                <span style={{ color: 'red' }}>*</span>商品图
-              </p>
-              <div className={styles.itemContent}>
-                <UploadImg />
-              </div>
-            </div>
-          </CardComponent>
-          <CardComponent title="商品规格" dom={cardDom}>
-            {switchCheck ? (
-              <div className={styles.specificationsWrap}>
-                {SpecificationsData.map(item => {
-                  return (
-                    <div className={styles.specificationsList} key={item.id}>
-                      <div className={styles.specificationsTitle}>{item.title}:</div>
-                      <div className={styles.specificationsContent}>
-                        <div className="clearfix">
-                          {item.list.map(listItem => {
-                            return (
-                              <div className={styles.specificationsContentItem} key={listItem.id}>
-                                <div className={styles.itemImg}>
-                                  <img
-                                    alt=""
-                                    src="http://mmbiz.qpic.cn/mmbiz_jpg/Hw4SsicubkrcUYGfibradQQ1x5GGJJwD9aj4q3zN0y7UibgU1BMOlPQz6lG8R8fcWicy7bR2a4r0rAsvkVqYf8RTiaQ/0?wx_fmt=jpeg"
-                                  />
-                                </div>
-                                <div className={styles.specificationsValues}>
-                                  <div className="clearfix">
-                                    <div className={styles.specificationsCheckBox}>
-                                      <Checkbox
-                                        onChange={e => {
-                                          this.listChange(e, listItem);
-                                        }}
-                                      />
-                                    </div>
-                                    <div className={styles.specificationsInput}>
-                                      {listItem.checked ? (
-                                        <Input
-                                          size="small"
-                                          style={{ width: 80 }}
-                                          onChange={e => {
-                                            this.listInputChange(e, listItem);
-                                          }}
-                                          defaultValue={listItem.value}
-                                        />
-                                      ) : (
-                                        listItem.value
-                                      )}
+          {contentVisible ? (
+            <div>
+              <CardComponent title="基础信息" style={{ marginBottom: 20 }}>
+                <FormItemDom formData={formItemData} ref={this.formItemRef} />
+              </CardComponent>
+              <CardComponent title="商品参数" style={{ marginBottom: 20 }}>
+                <FormItemDom formData={paramsForm} ref={this.paramsFormRef} />
+              </CardComponent>
+              <CardComponent title="商品规格" dom={cardDom}>
+                {switchCheck ? (
+                  <div className={styles.specificationsWrap}>
+                    {SpecificationsData.map(item => {
+                      return (
+                        <div className={styles.specificationsList} key={item.specId}>
+                          <div className={styles.specificationsTitle}>{item.specName}:</div>
+                          <div className={styles.specificationsContent}>
+                            <div className="clearfix">
+                              {item.specsAndCateOut.map(listItem => {
+                                return (
+                                  <div
+                                    className={styles.specificationsContentItem}
+                                    key={listItem.id}
+                                  >
+                                    {item.specType === 1 ? (
+                                      <div className={styles.itemImg}>
+                                        <img alt="" src={showImg(listItem.valuePicture)} />
+                                      </div>
+                                    ) : null}
+                                    <div className={styles.specificationsValues}>
+                                      <div className="clearfix">
+                                        <div className={styles.specificationsCheckBox}>
+                                          <Checkbox
+                                            onChange={e => {
+                                              this.listChange(e, listItem);
+                                            }}
+                                          />
+                                        </div>
+                                        <div className={styles.specificationsInput}>
+                                          {listItem.checked ? (
+                                            <Input
+                                              size="small"
+                                              style={{ width: 80 }}
+                                              onChange={e => {
+                                                this.listInputChange(e, listItem);
+                                              }}
+                                              defaultValue={listItem.valueName}
+                                            />
+                                          ) : (
+                                            listItem.valueName
+                                          )}
+                                        </div>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              </div>
-                            );
-                          })}
+                                );
+                              })}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                      );
+                    })}
 
-                <Blockquote title="设置规格图片" />
-                <Blockquote title="设置规格" />
-                <Table
-                  showHeader={false}
-                  dataSource={headerDataSource}
-                  columns={headerColumns}
-                  pagination={false}
-                />
-                <Table dataSource={dataSource} columns={columns} />
-              </div>
-            ) : (
-              <FormItemDom formData={formItemData} ref={this.formItemRef1} />
-            )}
-          </CardComponent>
+                    <Blockquote title="设置规格图片" />
+                    <Table
+                      dataSource={specPicTableData}
+                      columns={specPicColumns}
+                      rowKey={record => record.id}
+                      pagination={false}
+                    />
+                    <Blockquote title="设置规格" />
+                    <Table
+                      showHeader={false}
+                      dataSource={headerDataSource}
+                      rowKey={record => record.key}
+                      columns={headerColumns}
+                      pagination={false}
+                    />
 
-          <CardComponent title="图文详情">
-            <BraftEditor value={editorState} onChange={this.handleChange} />
-          </CardComponent>
-          <Button
-            onClose={() => {
-              this.closeAdd();
-            }}
-            style={{ marginRight: 8 }}
-          >
-            取消
-          </Button>
-          <Button htmlType="submit" type="primary">
-            保存
-          </Button>
+                    <Table
+                      dataSource={dataSource}
+                      columns={columns}
+                      rowKey={record => record.key}
+                    />
+                  </div>
+                ) : (
+                  <FormItemDom formData={unifiedSpecForm} ref={this.formItemRef1} />
+                )}
+              </CardComponent>
+
+              <CardComponent title="图文详情">
+                <BraftEditor value={editorState} onChange={this.handleChange} />
+              </CardComponent>
+              <Button
+                onClose={() => {
+                  this.closeAdd();
+                }}
+                style={{ marginRight: 8 }}
+              >
+                取消
+              </Button>
+              <Button htmlType="submit" type="primary">
+                保存
+              </Button>
+            </div>
+          ) : null}
         </Form>
+        <CustomSelectImage
+          visible={specImgVisible}
+          onOk={imgArr => {
+            this.selectSpecImages(imgArr);
+          }}
+          onCancel={() => this.setState({ specImgVisible: false })}
+        />
       </div>
     );
   }

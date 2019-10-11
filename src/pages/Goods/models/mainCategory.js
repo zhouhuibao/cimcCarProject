@@ -3,12 +3,40 @@ import {
   updateGoodsCategory,
   deleteGoodsCategory,
   queryGoodsCategory,
+  queryCategoryParam,
+  queryCategorySpecs,
+  updateCategoryParam,
+  updateCategorySpecs,
 } from '@/services/goods';
 
 export default {
   namespace: 'mainCategoryModel',
   state: {},
   effects: {
+    *queryCategoryParam({ payload, callBack }, { call }) {
+      const response = yield call(queryCategoryParam, payload);
+      if (callBack) {
+        callBack(response);
+      }
+    },
+    *queryCategorySpecs({ payload, callBack }, { call }) {
+      const response = yield call(queryCategorySpecs, payload);
+      if (callBack) {
+        callBack(response);
+      }
+    },
+    *updateCategoryParam({ payload, callBack }, { call }) {
+      const response = yield call(updateCategoryParam, payload);
+      if (callBack) {
+        callBack(response);
+      }
+    },
+    *updateCategorySpecs({ payload, callBack }, { call }) {
+      const response = yield call(updateCategorySpecs, payload);
+      if (callBack) {
+        callBack(response);
+      }
+    },
     *addGoodsCategory({ payload, callBack }, { call }) {
       const response = yield call(addGoodsCategory, payload);
       if (callBack) {

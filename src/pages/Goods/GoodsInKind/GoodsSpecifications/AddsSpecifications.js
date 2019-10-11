@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Drawer, Form, Button, Input, Radio, Icon } from 'antd';
 import { connect } from 'dva';
+import CustomSelectImage from '@/components/CustomSelectImage';
 import styles from '../../goodsStyles.less';
+import { isEmpty, showImg } from '@/utils/utils';
 
 const FormItem = Form.Item;
 
@@ -12,12 +14,10 @@ const FormItem = Form.Item;
 class AddGoodsData extends Component {
   state = {
     defaultType: 0,
+    index: 0,
     options: [{ label: '文字', value: 0 }, { label: '图片', value: 1 }],
+    imgVisible: false,
   };
-
-  componentDidMount() {
-    console.log('组件已加载');
-  }
 
   typeChange = e => {
     this.setState({
@@ -31,7 +31,7 @@ class AddGoodsData extends Component {
       onOk,
       visible,
       isEdit,
-      form: { getFieldDecorator },
+      form: { getFieldDecorator, getFieldValue },
       initValue,
       dataList,
       addLoading,
@@ -39,9 +39,9 @@ class AddGoodsData extends Component {
       changeInput,
       addDataItem,
       deleteRow,
+      changeImage,
     } = this.props;
-    const { defaultType, options } = this.state;
-    console.log(defaultType);
+    const { defaultType, options, imgVisible, index } = this.state;
     return (
       <Drawer
         title={isEdit ? '修改规格' : '添加规格'}
@@ -85,9 +85,20 @@ class AddGoodsData extends Component {
             {dataList.map((item, i) => {
               return (
                 <div className={styles.dataItem} key={item.id}>
-                  {defaultType === 0 ? null : (
-                    <div className={styles.crmera}>
-                      <Icon type="camera" />
+                  {getFieldValue('specType') === 0 ? null : (
+                    <div
+                      className={styles.crmera}
+                      onClick={() => this.setState({ imgVisible: true, index: i })}
+                    >
+                      {isEmpty(item.valuePicture) ? (
+                        <img
+                          src={showImg(item.valuePicture)}
+                          style={{ width: '100%', height: '100%' }}
+                          alt=""
+                        />
+                      ) : (
+                        <Icon type="camera" />
+                      )}
                     </div>
                   )}
                   <div className={styles.dataInput}>
@@ -150,6 +161,16 @@ class AddGoodsData extends Component {
             </Button>
           </div>
         </Form>
+        <CustomSelectImage
+          visible={imgVisible}
+          onCancel={() => this.setState({ imgVisible: false })}
+          defaultValue={isEdit ? null : initValue.brandPicture}
+          onOk={imgArr => {
+            changeImage(imgArr, index);
+            this.setState({ imgVisible: false });
+          }}
+          multiple={false}
+        />
       </Drawer>
     );
   }

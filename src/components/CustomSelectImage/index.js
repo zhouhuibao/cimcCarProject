@@ -13,7 +13,7 @@ import {
   Spin,
 } from 'antd';
 import { connect } from 'dva';
-import { dataType } from '@/utils/utils';
+import { dataType, showImg } from '@/utils/utils';
 import styles from './styles.less';
 // import imgJson from './imgjson.json'
 
@@ -36,6 +36,8 @@ const { Search } = Input;
 class CustomSelectImage extends Component {
   state = {
     imgArr: [],
+    page: 1,
+    total: 0,
     selectedImages: [],
     uploading: false,
   };
@@ -45,7 +47,13 @@ class CustomSelectImage extends Component {
     this.getPicList();
   }
 
-  getPicList = obj => {
+  getPicList = str => {
+    const { page } = this.state;
+    const obj = {
+      pageNum: page,
+      pageSize: 12,
+      fileName: str,
+    };
     const { dispatch } = this.props;
     dispatch({
       type: 'common/queryPicture',
@@ -55,7 +63,8 @@ class CustomSelectImage extends Component {
 
         if (res.success) {
           this.setState({
-            imgArr: res.data || [],
+            imgArr: res.data.rows || [],
+            total: res.data.total,
           });
         }
       },
@@ -157,24 +166,32 @@ class CustomSelectImage extends Component {
     return `共 ${total} 条`;
   };
 
-  onShowSizeChange = (current, pageSize) => {
-    console.log(current, pageSize);
+  // 切换分页
+  changePage = page => {
+    this.setState(
+      {
+        page,
+      },
+      () => {
+        this.getPicList();
+      },
+    );
   };
 
   afterClose = () => {
-    const { imgArr } = this.state;
-    imgArr.forEach(item => {
-      item.checked = false;
-    });
-    this.setState({
-      imgArr,
-      selectedImages: [],
-    });
+    // const { imgArr } = this.state;
+    // imgArr.forEach(item => {
+    //   item.checked = false;
+    // });
+    // this.setState({
+    //   imgArr,
+    //   selectedImages: [],
+    // });
   };
 
   render() {
     const { visible, onOk, onCancel, listLoading } = this.props;
-    const { imgArr, selectedImages, uploading } = this.state;
+    const { imgArr, selectedImages, uploading, total } = this.state;
     const THIS = this;
     const props = {
       name: 'file',
@@ -232,7 +249,11 @@ class CustomSelectImage extends Component {
               </Upload>
             </div>
             <div className="pull-right">
-              <Search placeholder="搜索图片" onSearch={value => console.log(value)} enterButton />
+              <Search
+                placeholder="搜索图片"
+                onSearch={value => this.getPicList(value)}
+                enterButton
+              />
             </div>
           </div>
           <div className={styles.line} />
@@ -249,13 +270,13 @@ class CustomSelectImage extends Component {
                           this.selectImg(item);
                         }}
                       >
-                        <img src={item.url} alt="图片" />
+                        <img src={showImg(item.url)} alt="图片" />
                         {item.checked ? (
                           <div className={styles.checked}>
                             <Icon type="check" className={styles.checkedIcon} />
                           </div>
                         ) : null}
-                        <div className={styles.imgName}>{`${item.fileName}${item.suffix}`}</div>
+                        <div className={styles.imgName}>{`${item.fileName}`}</div>
                       </div>
                     </Col>
                   );
@@ -267,10 +288,12 @@ class CustomSelectImage extends Component {
           </Spin>
 
           <Pagination
-            showSizeChanger
-            onShowSizeChange={this.onShowSizeChange}
             showTotal={this.showTotal}
-            total={0}
+            defaultPageSize={12}
+            total={total}
+            onChange={(page, pageSize) => {
+              this.changePage(page, pageSize);
+            }}
           />
         </div>
       </Modal>

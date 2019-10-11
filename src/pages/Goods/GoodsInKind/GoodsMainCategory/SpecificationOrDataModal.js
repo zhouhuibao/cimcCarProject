@@ -1,28 +1,30 @@
 import React, { Component } from 'react';
-import { Drawer, Form, Alert, Table, Row, Col, Button } from 'antd';
+import { Drawer, Form, Alert, Table, Row, Col, Button, Tag } from 'antd';
 import { connect } from 'dva';
-import tableJSON from './table.json';
-import specificationJSON from './guige.json';
+// import tableJSON from './table.json';
+// import specificationJSON from './guige.json';
 
-@connect(({ specificationsModel }) => ({
-  specificationsModel,
+@connect(({ mainCategoryModel, loading }) => ({
+  mainCategoryModel,
+  specsListLoading: loading.effects['mainCategoryModel/queryCategorySpecs'],
+  paramListLoading: loading.effects['mainCategoryModel/queryCategoryParam'],
 }))
 @Form.create()
 class SpecificationOrDataModal extends Component {
   state = {
-    dataList: tableJSON,
+    page: 1,
+    total: 0,
+    dataList: [],
     // specificationDataList:specificationJSON,
     columns: [
       {
         title: '全部',
-        dataIndex: 'attribute_name',
       },
     ],
     selectList: [],
     selectColumns: [
       {
         title: `已选择`,
-        dataIndex: 'attribute_name',
       },
     ],
     selectedRowKeys: [],
@@ -32,88 +34,127 @@ class SpecificationOrDataModal extends Component {
     console.log('组件已加载');
   }
 
-  setDefaultData = () => {
-    const { type } = this.props;
-    let list = [];
-    let selectList = [];
-    if (!type) {
-      // 当前是关联规格
-      list = [];
-      selectList = [];
-      list.forEach(item => {
-        specificationJSON.forEach(listItem => {
-          if (item === listItem.attribute_id) {
-            selectList.push(listItem);
-          }
-        });
-      });
-
-      this.setState({
-        selectList,
-        dataList: specificationJSON,
-        selectedRowKeys: list,
-      });
-    } else {
-      list = ['434', '410', '454'];
-      selectList = [];
-      list.forEach(item => {
-        tableJSON.forEach(listItem => {
-          if (item === listItem.attribute_id) {
-            selectList.push(listItem);
-          }
-        });
-      });
-      this.setState({
-        selectList,
-        dataList: tableJSON,
-        selectedRowKeys: list,
-      });
-    }
-  };
-
-  handleSubmit = e => {
-    e.preventDefault();
-    const {
-      form: { validateFields },
-    } = this.props;
-
-    validateFields((err, values) => {
-      if (!err) {
-        console.log(values);
+  // 判断是否存在相同的id
+  isExistId = (obj, type) => {
+    const { selectedRowKeys, selectList } = this.state;
+    let flag = false;
+    selectedRowKeys.forEach((item, index) => {
+      if (item === obj.id) {
+        selectedRowKeys.splice(index, 1);
+        selectList.splice(index, 1);
+        if (type === 'auto') {
+          obj.show = true;
+          selectedRowKeys.push(obj.id);
+          selectList.push(obj);
+        }
+        flag = true;
       }
     });
+
+    if (!flag) {
+      if (type === 'auto') {
+        obj.show = true;
+      }
+      selectedRowKeys.push(obj.id);
+      selectList.push(obj);
+    }
+    this.setState({
+      selectedRowKeys,
+      selectList,
+    });
   };
 
-  getChilderDom = record => {
-    const { list } = record.attribute_values;
-    let dom = '';
-    list.forEach(item => {
-      dom += `<span style='padding:0 10px;line-height:30px;background-color: hsla(220,4%,58%,.1);
-             border:1px solid hsla(220,4%,58%,.2);display:inline-block;height:30px;margin:0 10px 5px 0;border-radius:5px'>${item.attribute_value}</span>`;
+  setDefaultData = () => {
+    const { type, dispatch, initValue } = this.props;
+    const { page } = this.state;
+
+    const modelType = type ? 'queryCategoryParam' : 'queryCategorySpecs';
+
+    const paramsObj = {
+      pageNum: page,
+      pageSize: 10,
+      categId: initValue.id,
+    };
+
+    dispatch({
+      type: `mainCategoryModel/${modelType}`,
+      payload: paramsObj,
+      callBack: res => {
+        console.log(res);
+        if (res.success) {
+          res.data.rows.forEach(item => {
+            if (item.chosen === 1) {
+              this.isExistId(item, 'auto');
+            }
+          });
+          this.setState({
+            dataList: res.data.rows || [],
+            total: res.total,
+          });
+        }
+      },
     });
-    return <div dangerouslySetInnerHTML={{ __html: dom }} />;
   };
 
   afterVisibleChange = visible => {
     if (visible) {
+      const { type } = this.props;
+      const { columns, selectColumns } = this.state;
+      columns[0].dataIndex = !type ? 'specName' : 'paramName';
+      selectColumns[0].dataIndex = !type ? 'specName' : 'paramName';
+      this.setState({
+        columns,
+        selectColumns,
+      });
       this.setDefaultData();
+    } else {
+      this.setState({
+        total: 0,
+        page: 1,
+        selectList: [],
+        selectedRowKeys: [],
+      });
     }
   };
 
   render() {
-    const { onClose, visible, type } = this.props;
-    const { dataList, columns, selectColumns, selectList, selectedRowKeys } = this.state;
-    console.log(dataList);
+    const { onClose, visible, type, specsListLoading, paramListLoading, onOk } = this.props;
+    const {
+      dataList,
+      columns,
+      selectColumns,
+      selectList,
+      selectedRowKeys,
+      page,
+      total,
+    } = this.state;
     const rowSelection = {
-      onChange: (selectedRowKeyss, selectedRows) => {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-        this.setState({
-          selectedRowKeys: selectedRowKeyss,
-          selectList: selectedRows,
+      onSelect: record => {
+        this.isExistId(record, 'onSelect');
+      },
+      onSelectAll: (selected, selectedRows, changeRows) => {
+        changeRows.forEach(item => {
+          this.isExistId(item);
         });
       },
       selectedRowKeys,
     };
+    const pageObj = {
+      current: page,
+      pageSize: 10,
+      total,
+      onChange: pages => {
+        this.setState(
+          {
+            page: pages,
+          },
+          () => {
+            this.setDefaultData();
+          },
+        );
+      },
+    };
+    const dataType = type ? 'goodsParamValue' : 'goodsSpecsValueList';
 
     return (
       <Drawer
@@ -136,17 +177,23 @@ class SpecificationOrDataModal extends Component {
             <Table
               rowSelection={rowSelection}
               columns={columns}
+              pagination={pageObj}
               dataSource={dataList}
-              rowKey={record => record.attribute_id}
-              expandedRowRender={this.getChilderDom}
+              rowKey={record => record.id}
+              loading={type ? paramListLoading : specsListLoading}
+              expandedRowRender={record =>
+                record[dataType].map(item => {
+                  return (
+                    <Tag color="cyan" key={item.id}>
+                      {item.valueName}
+                    </Tag>
+                  );
+                })
+              }
             />
           </Col>
           <Col span={12}>
-            <Table
-              columns={selectColumns}
-              dataSource={selectList}
-              rowKey={record => record.attribute_id}
-            />
+            <Table columns={selectColumns} dataSource={selectList} rowKey={record => record.id} />
           </Col>
         </Row>
 
@@ -170,7 +217,12 @@ class SpecificationOrDataModal extends Component {
           >
             取消
           </Button>
-          <Button htmlType="submit" type="primary">
+          <Button
+            type="primary"
+            onClick={() => {
+              onOk(selectList);
+            }}
+          >
             保存
           </Button>
         </div>

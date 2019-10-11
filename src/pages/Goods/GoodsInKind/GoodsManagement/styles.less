@@ -14,6 +14,35 @@
   }
 }
 
+.specPicListWrapper {
+  .specPicListItem {
+    float: left;
+    position: relative;
+    margin-right: 20px;
+    .delIcon {
+      position: absolute;
+      top: -3px;
+      right: 0;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    img {
+      width: 50px;
+      height: 50px;
+    }
+  }
+  .specPicUpload {
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    border: 1px dashed #ccc;
+    text-align: center;
+    line-height: 50px;
+    border-radius: 6px;
+    float: left;
+  }
+}
+
 :global {
   .ant-tooltip {
     max-width: 400px;
@@ -72,7 +101,7 @@
 
     .specificationsList {
       box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-      padding: 20px;
+      padding: 20px 20px 0 20px;
       display: flex;
       margin-bottom: 20px;
       .specificationsTitle {

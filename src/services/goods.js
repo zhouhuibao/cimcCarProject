@@ -1,14 +1,18 @@
 import { stringify } from 'qs';
 import request from '@/utils/request';
 import { pathRoot, projectName, projectNameSystem } from '../../configPath';
-// // 查看我的任务
-export async function queryMyExecuteTask(params) {
-  return request(`/project/costSubject/getCostSubjectByParentCode?${stringify(params)}`);
-}
 
 // 查看商品品牌列表
 export async function queryGoodsBrand(params) {
   return request(`${pathRoot}${projectName}/pc-goodsBrand/queryGoodsBrand`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 查看商品品牌列表(不分页)
+export async function selectGoodsBrand(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsBrand/selectGoodsBrand`, {
     method: 'POST',
     body: params,
   });
@@ -91,6 +95,38 @@ export async function deleteGoodsCategory(params) {
   });
 }
 
+// 主目录查询关联参数
+export async function queryCategoryParam(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsCategory/queryCategoryParam`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 主目录查询关联规格
+export async function queryCategorySpecs(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsCategory/queryCategorySpecs`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 主目录添加或修改关联参数
+export async function updateCategoryParam(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsCategory/updateCategoryParam`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 主目录添加或修改关联规格
+export async function updateCategorySpecs(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsCategory/updateCategorySpecs`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
 // 新增分类
 export async function addGoodsClassify(params) {
   return request(`${pathRoot}${projectName}/pc-goodsGoodsClassify/addGoodsClassify`, {
@@ -166,6 +202,78 @@ export async function addGoodsSpecs(params) {
 // 修改规格
 export async function updateGoodsSpecs(params) {
   return request(`${pathRoot}${projectName}/pc-goodsSpecs/updateGoodsSpecs`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 规格失效或恢复
+export async function updateOrDeleteGoodsSpecs(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsSpecs/updateOrDeleteGoodsSpecs`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 查询目录不分页
+export async function selectGoodsCategory(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsCategory/selectGoodsCategory`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 查询分类不分页
+export async function selectGoodsClassify(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsGoodsClassify/selectGoodsClassify`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 根据主目录id查询参数
+export async function goodsCategoryIdSelectParam(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsCategory/goodsCategoryIdSelectParam`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 根据主目录id查询规格
+export async function goodsCategoryIdSelect(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsCategory/goodsCategoryIdSelect`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 查询商品参数
+export async function queryGoodsParam(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsParam/queryGoodsParam`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 添加商品参数
+export async function addGoodsParam(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsParam/addGoodsParam`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 修改商品参数
+export async function updateGoodsParam(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsParam/updateGoodsParam`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 修改商品失效与有效状态
+export async function updateGoodsParamStatus(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsParam/updateGoodsParamStatus`, {
     method: 'POST',
     body: params,
   });

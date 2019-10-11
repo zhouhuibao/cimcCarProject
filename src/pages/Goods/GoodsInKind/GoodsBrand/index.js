@@ -3,7 +3,7 @@ import { Button, Input, Table, Switch, Row, Col, message, Form, Select } from 'a
 import { connect } from 'dva';
 import AddBrand from './AddBrand';
 import styles from '../../goodsStyles.less';
-import { dataType } from '@/utils/utils';
+import { dataType, showImg } from '@/utils/utils';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -47,7 +47,7 @@ class GoodsBrand extends Component {
         width: 170,
         key: 'brandPicture',
         render: text => {
-          return <img style={{ width: 60 }} src={text} alt="品牌logo" />;
+          return <img style={{ width: 60 }} src={showImg(text)} alt="品牌logo" />;
         },
       },
       {
@@ -196,7 +196,7 @@ class GoodsBrand extends Component {
   submitEdit = (values, type) => {
     const { initValue } = this.state;
     if (type === 'edit') {
-      values.id = initValue.id.toString();
+      values.goodsBrand.id = initValue.id.toString();
     }
     const { dispatch } = this.props;
     dispatch({
@@ -224,10 +224,15 @@ class GoodsBrand extends Component {
       if (!err) {
         console.log(values);
         const { isAdd } = this.state;
+        const paramsObj = {
+          goodsBrand: {
+            ...values,
+          },
+        };
         if (isAdd) {
-          this.submitAdd(values);
+          this.submitAdd(paramsObj);
         } else {
-          this.submitEdit(values, 'edit');
+          this.submitEdit(paramsObj, 'edit');
         }
       }
     });
@@ -237,9 +242,15 @@ class GoodsBrand extends Component {
     console.log(e);
     console.log(record);
     const obj = {
-      ...record,
-      status: e ? 0 : 1,
+      goodsBrand: {
+        ...record,
+        status: e ? 0 : 1,
+      },
     };
+    // const obj = {
+    //   ...record,
+    //   status: e ? 0 : 1,
+    // };
     this.back(obj);
   };
 
@@ -297,7 +308,9 @@ class GoodsBrand extends Component {
             </Col>
             <Col span={6}>
               <FormItem>
-                {getFieldDecorator('status', {})(
+                {getFieldDecorator('status', {
+                  initialValue: '',
+                })(
                   <Select placeholder="请选择状态">
                     {options.map(item => {
                       return (

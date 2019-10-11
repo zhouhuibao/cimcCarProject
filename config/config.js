@@ -127,14 +127,14 @@ export default {
       pathRewrite: { '^/server': '' },
     },
     '/gcgj/': {
-      // target: 'http://192.168.1.144:8080/', // 曹
-      target: 'http://192.168.1.142:8080/', // 坤
+      target: 'http://192.168.1.144:8080/', // 曹
+      // target: 'http://192.168.1.142:8080/', // 坤
       changeOrigin: true,
       pathRewrite: { '^/gcgj/': '/gcgj/' },
     },
     '/gcgj-system/': {
-      // target: 'http://192.168.1.144:8080/', // 曹
-      target: 'http://192.168.1.142:8080/', // 坤
+      target: 'http://192.168.1.144:8080/', // 曹/
+      // target: 'http://192.168.1.142:8080/', // 坤
       changeOrigin: true,
       pathRewrite: { '^/gcgj-system/': '/gcgj-system/' },
     },

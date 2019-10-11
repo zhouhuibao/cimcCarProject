@@ -41,7 +41,13 @@ const dataType = data => {
 
 // 显示图片
 const showImg = str => {
-  return `${path}${projectNameSystem}/file/fileDownload?url=${str}`;
+  let pathUrl = '';
+  if (isUrl(str)) {
+    pathUrl = str;
+  } else {
+    pathUrl = `${path}${projectNameSystem}/file/fileDownload?url=${str}`;
+  }
+  return pathUrl;
 };
 
 // 生成10位随机数,可用于作为遍历节点时候的key

@@ -51,12 +51,15 @@ class GoodsSpecifications extends Component {
       {
         title: '状态',
         dataIndex: 'status',
-        render: text => {
+        render: (text, record) => {
           return (
             <Switch
               checkedChildren="有效"
               unCheckedChildren="无效"
               defaultChecked={text === 0 || false}
+              onChange={e => {
+                this.changeSwitch(e, record);
+              }}
             />
           );
         },
@@ -89,13 +92,42 @@ class GoodsSpecifications extends Component {
     this.getSpecList();
   }
 
+  changeSwitch = (e, record) => {
+    const obj = {
+      goodsSpecs: {
+        id: record.id,
+        status: e ? 0 : 1,
+      },
+    };
+
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'specificationsModel/updateOrDeleteGoodsSpecs',
+      payload: obj,
+      callBack: res => {
+        if (res.success) {
+          message.success('状态更新成功');
+        } else {
+          message.error(res.message);
+        }
+      },
+    });
+
+    // this.back(obj);
+  };
+
+  // 恢复
+  back = record => {
+    this.submitEdit(record);
+  };
+
   // 获取规格列表
   getSpecList = obj => {
     const { page } = this.state;
     const parmas = {
       pageNum: page,
       pageSize: 10,
-      goodsSpecs: { ...obj },
+      ...obj,
     };
     const { dispatch } = this.props;
     dispatch({
@@ -168,6 +200,14 @@ class GoodsSpecifications extends Component {
       }
     }
     return flag;
+  };
+
+  changeImage = (imgArr, index) => {
+    const { dataList } = this.state;
+    dataList[index].valuePicture = imgArr[0].url;
+    this.setState({
+      dataList,
+    });
   };
 
   // 提交
@@ -366,13 +406,13 @@ class GoodsSpecifications extends Component {
             </Col>
             <Col span={6}>
               <FormItem>
-                {getFieldDecorator('specType', {
+                {getFieldDecorator('status', {
                   initialValue: '',
                 })(
                   <Select placeholder="请选择状态">
                     <Option value="">全部</Option>
-                    <Option value={1}>有效</Option>
-                    <Option value={0}>失效</Option>
+                    <Option value={0}>有效</Option>
+                    <Option value={1}>失效</Option>
                   </Select>,
                 )}
               </FormItem>
@@ -417,6 +457,9 @@ class GoodsSpecifications extends Component {
           initValue={initValue}
           ref={this.specRef}
           dataList={dataList}
+          changeImage={(arr, index) => {
+            this.changeImage(arr, index);
+          }}
           addDataItem={() => {
             this.addDataItem();
           }}

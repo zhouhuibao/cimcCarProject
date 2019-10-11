@@ -1,35 +1,40 @@
+import {
+  queryGoodsParam,
+  addGoodsParam,
+  updateGoodsParam,
+  updateGoodsParamStatus,
+} from '@/services/goods';
+
 export default {
   namespace: 'goodsDataModel',
   state: {
     type: 0,
   },
-  effects: {},
-  reducers: {
-    addGoodData(state) {
-      const { formItemData } = state;
-      formItemData.forEach(item => {
-        if (item.domType === 'Radio') {
-          item.defaultValue = 0;
-        } else {
-          item.defaultValue = null;
-        }
-      });
-
-      return {
-        ...state,
-        formItemData,
-      };
+  effects: {
+    *queryGoodsParam({ payload, callBack }, { call }) {
+      const response = yield call(queryGoodsParam, payload);
+      if (callBack) {
+        callBack(response);
+      }
     },
-    delGoodData(state, { payload }) {
-      console.log(payload);
-      const { formItemData } = state;
-      formItemData.forEach(item => {
-        item.defaultValue = payload[item.id];
-      });
-      return {
-        ...state,
-        formItemData,
-      };
+    *addGoodsParam({ payload, callBack }, { call }) {
+      const response = yield call(addGoodsParam, payload);
+      if (callBack) {
+        callBack(response);
+      }
+    },
+    *updateGoodsParam({ payload, callBack }, { call }) {
+      const response = yield call(updateGoodsParam, payload);
+      if (callBack) {
+        callBack(response);
+      }
+    },
+    *updateGoodsParamStatus({ payload, callBack }, { call }) {
+      const response = yield call(updateGoodsParamStatus, payload);
+      if (callBack) {
+        callBack(response);
+      }
     },
   },
+  reducers: {},
 };

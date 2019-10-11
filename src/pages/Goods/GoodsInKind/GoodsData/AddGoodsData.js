@@ -1,19 +1,24 @@
 import React, { Component } from 'react';
 import { Drawer, Form, Button, Input, Radio, Icon } from 'antd';
 import { connect } from 'dva';
-import { MathRandom } from '@/utils/utils';
+// import { MathRandom } from '@/utils/utils';
 import styles from '../../goodsStyles.less';
 
 const FormItem = Form.Item;
 
 @Form.create()
-@connect(({ specificationsModel }) => ({
+@connect(({ specificationsModel, loading }) => ({
   specificationsModel,
+  addLoading: loading.effects['goodsDataModel/addGoodsParam'],
+  editLoading: loading.effects['goodsDataModel/updateGoodsParam'],
 }))
 class AddGoodsData extends Component {
   state = {
-    defaultType: 0,
-    options: [{ label: '支持商品高级筛选', value: 0 }, { label: '仅用于商品详情展示', value: 1 }],
+    defaultType: true,
+    options: [
+      { label: '支持商品高级筛选', value: true },
+      { label: '仅用于商品详情展示', value: false },
+    ],
   };
 
   componentDidMount() {
@@ -36,7 +41,8 @@ class AddGoodsData extends Component {
       deleteRow,
     } = this.props;
     const { defaultType, options } = this.state;
-    console.log(dataList);
+    console.log(initValue);
+    console.log(initValue);
     return (
       <Drawer
         title={isEdit ? '修改参数' : '添加参数'}
@@ -49,8 +55,8 @@ class AddGoodsData extends Component {
           <div>
             参数名称
             <FormItem>
-              {getFieldDecorator('specName', {
-                initialValue: isEdit ? initValue.specName : null,
+              {getFieldDecorator('paramName', {
+                initialValue: isEdit ? initValue.paramName : null,
                 rules: [{ required: true, message: '请输入参数名称' }],
               })(<Input placeholder="请输入参数名称" />)}
             </FormItem>
@@ -68,8 +74,8 @@ class AddGoodsData extends Component {
             <div className={styles.label}>参数类型</div>
             <div className={styles.radio}>
               <FormItem>
-                {getFieldDecorator('specType', {
-                  initialValue: isEdit ? initValue.specType : defaultType,
+                {getFieldDecorator('isSearch', {
+                  initialValue: isEdit ? initValue.isSearch : defaultType,
                 })(<Radio.Group options={options} onChange={this.typeChange} />)}
               </FormItem>
             </div>
@@ -80,11 +86,6 @@ class AddGoodsData extends Component {
             {dataList.map((item, i) => {
               return (
                 <div className={styles.dataItem} key={item.id}>
-                  {defaultType === 0 ? null : (
-                    <div className={styles.crmera}>
-                      <Icon type="camera" />
-                    </div>
-                  )}
                   <div className={styles.dataInput}>
                     <Input
                       onChange={e => {

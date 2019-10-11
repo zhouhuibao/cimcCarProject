@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Drawer, Form, Button, Input } from 'antd';
+import { Drawer, Form, Button, Input, InputNumber } from 'antd';
 import { connect } from 'dva';
 import SelectImage from '@/components/SelectImage';
 import styles from '../../goodsStyles.less';
@@ -7,12 +7,10 @@ import styles from '../../goodsStyles.less';
 const FormItem = Form.Item;
 
 @Form.create()
-@connect(({ brandModel, loading }) => ({
-  brandModel,
-  addLoading: loading.effects['brandModel/addGoodsBrand'],
-  editLoading: loading.effects['brandModel/updateGoodsBrand'],
+@connect(({ specificationsModel }) => ({
+  specificationsModel,
 }))
-class AddBrand extends Component {
+class AddCategory extends Component {
   state = {
     imgVisible: false,
   };
@@ -21,9 +19,16 @@ class AddBrand extends Component {
     console.log('组件已加载');
   }
 
-  openImg = () => {
-    this.setState({
-      imgVisible: true,
+  handleSubmit = e => {
+    e.preventDefault();
+    const {
+      form: { validateFields },
+    } = this.props;
+
+    validateFields((err, values) => {
+      if (!err) {
+        console.log(values);
+      }
     });
   };
 
@@ -33,7 +38,7 @@ class AddBrand extends Component {
         form: { setFieldsValue },
       } = this.props;
       setFieldsValue({
-        brandPicture: imgArr[0].url,
+        classifyPicture: imgArr[0].url,
       });
     }
     this.setState({
@@ -43,33 +48,41 @@ class AddBrand extends Component {
 
   render() {
     const {
-      addLoading,
-      editLoading,
       onClose,
-      onOk,
       visible,
-      isAdd,
       form: { getFieldDecorator },
+      isEdit,
       initValue,
+      onOK,
+      addLoading,
+      classify,
     } = this.props;
     const { imgVisible } = this.state;
-
     return (
       <Drawer
-        title={isAdd ? '新增品牌' : '修改品牌'}
+        title={isEdit ? '修改分类' : '添加分类'}
         width="500"
-        destroyOnClose
         onClose={onClose}
         visible={visible}
+        destroyOnClose
       >
-        <Form onSubmit={onOk} className={`${styles.AddGoodsData} ${styles.goodsBrand}`}>
+        <Form onSubmit={onOK} className={styles.AddGoodsData}>
           <div>
-            品牌名称
+            分类名称
             <FormItem>
-              {getFieldDecorator('brandName', {
-                initialValue: isAdd ? null : initValue.brandName,
-                rules: [{ required: true, message: '品牌名称不能为空' }],
-              })(<Input placeholder="请输入品牌名称" />)}
+              {getFieldDecorator(classify ? 'classifyName' : 'categName', {
+                initialValue: isEdit ? initValue.categName : null,
+                rules: [{ required: true, message: '分类名称不能为空' }],
+              })(<Input placeholder="请输入分类名称" />)}
+            </FormItem>
+          </div>
+          <div>
+            分类排序
+            <FormItem>
+              {getFieldDecorator('ordNum', {
+                initialValue: isEdit ? initValue.ordNum : null,
+                rules: [{ required: true, message: '分类排序不能为空' }],
+              })(<InputNumber style={{ width: '100%' }} placeholder="请输入分类排序" min={0} />)}
             </FormItem>
           </div>
           <div>
@@ -77,16 +90,15 @@ class AddBrand extends Component {
             <SelectImage
               visible={imgVisible}
               onCancel={() => this.setState({ imgVisible: false })}
-              defaultValue={isAdd ? null : initValue.brandPicture}
+              defaultValue={isEdit ? initValue.classifyPicture : null}
               onOk={imgArr => {
                 this.changeImage(imgArr);
               }}
               multiple={false}
             />
             <FormItem>
-              {getFieldDecorator('brandPicture', {
-                initialValue: isAdd ? null : initValue.brandPicture,
-                // rules: [{ required: true, message: '品牌logo不能为空' }],
+              {getFieldDecorator('classifyPicture', {
+                initialValue: isEdit ? initValue.classifyPicture : null,
               })(<span />)}
             </FormItem>
           </div>
@@ -103,10 +115,15 @@ class AddBrand extends Component {
               textAlign: 'right',
             }}
           >
-            <Button onClick={onClose} style={{ marginRight: 8 }}>
+            <Button
+              onClose={() => {
+                this.closeAdd();
+              }}
+              style={{ marginRight: 8 }}
+            >
               取消
             </Button>
-            <Button htmlType="submit" type="primary" loading={isAdd ? addLoading : editLoading}>
+            <Button htmlType="submit" type="primary" loading={addLoading}>
               保存
             </Button>
           </div>
@@ -115,4 +132,4 @@ class AddBrand extends Component {
     );
   }
 }
-export default AddBrand;
+export default AddCategory;

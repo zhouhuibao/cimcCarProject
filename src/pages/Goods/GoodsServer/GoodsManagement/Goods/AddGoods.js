@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { PageHeader, Form, Button, Table, InputNumber, Popconfirm } from 'antd';
 import BraftEditor from 'braft-editor';
 import { router } from 'umi';
+import { connect } from 'dva';
 import FormItemDom from '@/components/CreateForm';
 import styles from '../../../goodsStyles.less';
 import Addmaterials from './Addmaterials';
@@ -274,6 +275,8 @@ class AddGoods extends Component {
       },
     ],
   };
+
+  componentDidMount() {}
 
   deleteTableDate = (e, record) => {
     const { dataSource, selectedRowKeys } = this.state;

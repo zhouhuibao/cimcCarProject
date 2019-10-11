@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { Table, Icon, Input, InputNumber, Button, Popconfirm, message } from 'antd';
 import { connect } from 'dva';
-import AddCategory from '../GoodsMainCategory/AddCategory';
+import AddCategory from './AddCategory';
 import SelectImage from '@/components/CustomSelectImage';
 
-import { isUrl } from '@/utils/utils';
+import { isEmpty, showImg } from '@/utils/utils';
 
 @connect(({ categoryModel, loading }) => ({
   categoryModel,
@@ -22,6 +22,8 @@ class GoodsCategory extends Component {
   state = {
     imageVisible: false,
     topLevel: true,
+    page: 1,
+    total: 0,
     editData: {},
     columns: [
       {
@@ -72,21 +74,21 @@ class GoodsCategory extends Component {
       {
         title: '图片',
         dataIndex: 'classifyPicture',
-        render: text => {
-          return isUrl(text) ? (
+        render: (text, record) => {
+          return isEmpty(text) ? (
             <img
-              src={text}
+              src={showImg(text)}
               style={{ width: 40, height: 40 }}
               alt="分类图片"
               onClick={() => {
-                this.showImg();
+                this.showImg(record);
               }}
             />
           ) : (
             <Icon
               type="picture"
               onClick={() => {
-                this.showImg();
+                this.showImg(record);
               }}
             />
           );
@@ -120,6 +122,7 @@ class GoodsCategory extends Component {
         },
       },
     ],
+    initValue: {},
     data: [],
     categoryVisible: false,
     isEditCategory: false,
@@ -132,8 +135,14 @@ class GoodsCategory extends Component {
   // 获取分类列表
   getGoodsClassifyList = () => {
     const { dispatch } = this.props;
+    const { page } = this.state;
+    const data = {
+      pageSize: 10,
+      pageNum: page,
+    };
     dispatch({
       type: 'categoryModel/queryGoodsClassify',
+      payload: data,
       callBack: res => {
         this.setState({
           data: res.data.rows || [],
@@ -149,12 +158,16 @@ class GoodsCategory extends Component {
 
   // 修改分类排序
   sortBlur = (e, record) => {
-    if (e.target.value !== record.ordNum) {
+    if (Number(e.target.value) !== record.ordNum) {
       const obj = {
-        pId: record.pId,
-        id: record.id,
-        classifyName: record.classifyName,
-        ordNum: e.target.value,
+        goodsClassify: {
+          pId: record.pId,
+          id: record.id,
+          classifyName: record.classifyName,
+          classifyPicture: record.classifyPicture,
+          ordNum: e.target.value,
+          level: record.level,
+        },
       };
       this.submitEdit(obj);
     }
@@ -164,19 +177,25 @@ class GoodsCategory extends Component {
   nameBlur = (e, record) => {
     if (e.target.value !== record.classifyName) {
       const obj = {
-        pId: record.pId,
-        id: record.id,
-        classifyName: e.target.value,
-        ordNum: record.ordNum,
+        goodsClassify: {
+          pId: record.pId,
+          id: record.id,
+          classifyName: e.target.value,
+          classifyPicture: record.classifyPicture,
+          ordNum: record.ordNum,
+          level: record.level,
+        },
       };
       this.submitEdit(obj);
     }
   };
 
   // 打开选择图片组件
-  showImg = () => {
+  showImg = record => {
+    console.log(record);
     this.setState({
       imageVisible: true,
+      initValue: record,
     });
   };
 
@@ -213,6 +232,7 @@ class GoodsCategory extends Component {
         console.log(res);
         if (res.success) {
           message.success('分类修改成功');
+          this.getGoodsClassifyList();
         } else {
           message.error(res.message);
         }
@@ -233,7 +253,14 @@ class GoodsCategory extends Component {
           values.pId = editData.id;
         }
         values.level = topLevel ? 0 : 1;
-        this.submitAdd(values);
+
+        const obj = {
+          goodsClassify: {
+            ...values,
+          },
+        };
+
+        this.submitAdd(obj);
       }
     });
   };
@@ -241,15 +268,50 @@ class GoodsCategory extends Component {
   // 选择完图片
   imageOnOk = e => {
     console.log(e);
+    const { initValue } = this.state;
+    console.log(initValue);
+    const obj = {
+      goodsClassify: {
+        pId: initValue.pId,
+        id: initValue.id,
+        classifyName: initValue.classifyName,
+        classifyPicture: e.length > 0 ? e[0].url : '',
+        ordNum: initValue.ordNum,
+        level: initValue.level,
+      },
+    };
+    this.submitEdit(obj);
     this.setState({
       imageVisible: false,
     });
   };
 
   render() {
-    const { columns, data, categoryVisible, isEditCategory, imageVisible } = this.state;
-    const { addCategoryLoading, editCategoryLoading } = this.props;
-
+    const {
+      columns,
+      data,
+      categoryVisible,
+      isEditCategory,
+      imageVisible,
+      total,
+      page,
+    } = this.state;
+    const { addCategoryLoading, editCategoryLoading, queryGoodsClassifyLoading } = this.props;
+    const pageObj = {
+      current: page,
+      pageSize: 10,
+      total,
+      onChange: pages => {
+        this.setState(
+          {
+            page: pages,
+          },
+          () => {
+            this.getTagList();
+          },
+        );
+      },
+    };
     return (
       <div>
         <div style={{ marginBottom: 20 }}>
@@ -257,14 +319,15 @@ class GoodsCategory extends Component {
             type="primary"
             onClick={() => this.setState({ categoryVisible: true, topLevel: true })}
           >
-            添加顶级目录
+            添加顶级分类
           </Button>
         </div>
         <Table
           columns={columns}
           dataSource={data}
           rowKey={record => record.id}
-          pagination={false}
+          pagination={pageObj}
+          loading={queryGoodsClassifyLoading}
         />
         <AddCategory
           classify

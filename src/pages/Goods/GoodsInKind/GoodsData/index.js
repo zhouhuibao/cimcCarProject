@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Input, Table, Switch, Form, Col, Row, Select, message } from 'antd';
+import { Button, Input, Table, Switch, Form, Col, Row, Select, message, Tag } from 'antd';
 import { connect } from 'dva';
 import AddGoodsData from './AddGoodsData';
 import styles from '../../goodsStyles.less';
@@ -18,11 +18,12 @@ class GoodsData extends Component {
   }
 
   state = {
+    total: 0,
+    page: 1,
     dataList: [
       {
         valueName: '',
         id: `xin_${MathRandom()}`,
-        valuePicture: '',
       },
     ],
     isEdit: false,
@@ -30,30 +31,33 @@ class GoodsData extends Component {
     columns: [
       {
         title: '参数名称',
-        dataIndex: 'name',
+        dataIndex: 'paramName',
         align: 'center',
-        key: 'name',
       },
       {
         title: '参数类型',
-        dataIndex: 'typeName',
+        dataIndex: 'isSearch',
         align: 'center',
-        key: 'typeName',
+        render: text => {
+          return text ? '支持商品高级筛选' : '仅用于商品详情展示';
+        },
       },
       {
         title: '参数备注',
-        dataIndex: 'remake',
-        key: 'remake',
+        dataIndex: 'remark',
       },
       {
         title: '状态',
         dataIndex: 'status',
-        render: text => {
+        render: (text, record) => {
           return (
             <Switch
               checkedChildren="有效"
               unCheckedChildren="无效"
               defaultChecked={text === 0 || false}
+              onChange={e => {
+                this.changeSwitch(e, record);
+              }}
             />
           );
         },
@@ -61,7 +65,6 @@ class GoodsData extends Component {
       {
         title: '操作',
         dataIndex: 'edit',
-        key: 'edit',
         align: 'center',
         width: 100,
         render: (text, record) => {
@@ -77,34 +80,69 @@ class GoodsData extends Component {
         },
       },
     ],
-    editData: null,
-    dataSource: [
-      {
-        typeName: '图片',
-        type: 1,
-        name: '挂车管家1',
-        description: '尺码  颜色  材质  风格',
-      },
-      {
-        typeName: '文字',
-        type: 0,
-        name: '挂车管家2',
-        description: '尺码  颜色  材质  风格',
-      },
-    ],
+    dataSource: [],
     visible: false,
   };
 
-  componentDidMount() {}
+  componentDidMount() {
+    this.getGoodsParmas();
+  }
 
-  editBrand = record => {
+  // 修改状态
+  changeSwitch = (e, record) => {
+    const obj = {
+      goodsParam: {
+        id: record.id,
+        status: e ? 0 : 1,
+      },
+    };
+
     const { dispatch } = this.props;
     dispatch({
-      type: 'specificationsModel/editSpecifications',
-      payload: record,
+      type: 'goodsDataModel/updateGoodsParamStatus',
+      payload: obj,
+      callBack: res => {
+        console.log(res);
+        if (res.success) {
+          message.success('状态更新成功');
+        } else {
+          message.error(res.message);
+        }
+      },
     });
+
+    // this.back(obj);
+  };
+
+  // 获取商品参数列表
+  getGoodsParmas = obj => {
+    const { page } = this.state;
+    const parmas = {
+      pageNum: page,
+      pageSize: 10,
+      ...obj,
+    };
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'goodsDataModel/queryGoodsParam',
+      payload: parmas,
+      callBack: res => {
+        console.log(res);
+        if (res.success) {
+          this.setState({
+            dataSource: res.data.rows || [],
+            total: res.data.total,
+          });
+        }
+      },
+    });
+  };
+
+  editBrand = record => {
+    const arr = record.goodsParamValue;
     this.setState({
-      editData: record,
+      initValue: record,
+      dataList: arr,
       visible: true,
       isEdit: true,
     });
@@ -116,13 +154,16 @@ class GoodsData extends Component {
   };
 
   addGoodsBrand = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'specificationsModel/addSpecifications',
-    });
     this.setState({
       visible: true,
       isEdit: false,
+      dataList: [
+        {
+          valueName: '',
+          id: `xin_${MathRandom()}`,
+          valuePicture: '',
+        },
+      ],
     });
   };
 
@@ -138,7 +179,6 @@ class GoodsData extends Component {
     const addRowData = {
       valueName: '',
       id: `xin_${MathRandom()}`,
-      valuePicture: '',
     };
 
     dataList.push(addRowData);
@@ -196,7 +236,7 @@ class GoodsData extends Component {
           }
         } else {
           for (let i = 0; i < dataList.length; i += 1) {
-            if (!isEmpty(dataList[i].valueName) || !isEmpty(dataList[i].valuePicture)) {
+            if (!isEmpty(dataList[i].valueName)) {
               flag = false;
               break;
             }
@@ -212,9 +252,8 @@ class GoodsData extends Component {
           dataList.forEach(item => {
             const objItem = {};
             objItem.valueName = item.valueName;
-            objItem.valuePicture = item.valuePicture;
             if (isEdit) {
-              objItem.specId = initValue.id;
+              objItem.paramId = initValue.id;
               if (item.id.indexOf('xin_') === 0) {
                 objItem.id = null;
               } else {
@@ -225,27 +264,96 @@ class GoodsData extends Component {
           });
 
           const dataobj = {
-            goodsSpecs: { ...values },
-            goodsSpecsValueList: arrList,
+            goodsParam: { ...values },
+            goodsParamValue: arrList,
           };
           console.log(dataobj);
 
-          // if (isEdit) {
-          //   dataobj.goodsSpecs.id = initValue.id;
-          //   this.submitEdit(dataobj);
-          // } else {
-          //   this.submitAdd(dataobj);
-          // }
+          if (isEdit) {
+            dataobj.goodsParam.id = initValue.id;
+            this.submitEdit(dataobj);
+          } else {
+            this.submitAdd(dataobj);
+          }
         }
       }
     });
   };
 
+  submitAdd = obj => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'goodsDataModel/addGoodsParam',
+      payload: obj,
+      callBack: res => {
+        console.log(res);
+        if (res.success) {
+          message.success('参数添加成功');
+          this.setState({
+            visible: false,
+          });
+          this.getGoodsParmas();
+        } else {
+          message.error(res.message);
+        }
+      },
+    });
+  };
+
+  submitEdit = obj => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'goodsDataModel/updateGoodsParam',
+      payload: obj,
+      callBack: res => {
+        console.log(res);
+        if (res.success) {
+          message.success('参数修改成功');
+          this.setState({
+            visible: false,
+          });
+          this.getGoodsParmas();
+        } else {
+          message.error(res.message);
+        }
+      },
+    });
+  };
+
+  searchTable = e => {
+    e.preventDefault();
+    const {
+      form: { validateFields },
+    } = this.props;
+    validateFields((err, values) => {
+      if (!err) {
+        console.log(values);
+        this.getGoodsParmas(values);
+      }
+    });
+  };
+
   render() {
-    const { columns, dataSource, visible, isEdit, editData, dataList, initValue } = this.state;
+    const { columns, dataSource, page, visible, isEdit, dataList, initValue, total } = this.state;
     const {
       form: { getFieldDecorator },
     } = this.props;
+
+    const pageObj = {
+      current: page,
+      pageSize: 10,
+      total,
+      onChange: pages => {
+        this.setState(
+          {
+            page: pages,
+          },
+          () => {
+            this.getGoodsParmas();
+          },
+        );
+      },
+    };
     return (
       <div className={styles.goodsBrand}>
         <Form onSubmit={this.searchTable}>
@@ -264,20 +372,20 @@ class GoodsData extends Component {
             </Col>
             <Col span={6}>
               <FormItem>
-                {getFieldDecorator('specType', {
+                {getFieldDecorator('status', {
                   initialValue: '',
                 })(
                   <Select placeholder="请选择状态">
                     <Option value="">全部</Option>
-                    <Option value={1}>有效</Option>
-                    <Option value={0}>失效</Option>
+                    <Option value={0}>有效</Option>
+                    <Option value={1}>失效</Option>
                   </Select>,
                 )}
               </FormItem>
             </Col>
             <Col span={6}>
               <FormItem>
-                {getFieldDecorator('specName')(<Input placeholder="请输入参数名称" />)}
+                {getFieldDecorator('paramName')(<Input placeholder="请输入参数名称" />)}
               </FormItem>
             </Col>
             <Col span={6}>
@@ -289,13 +397,22 @@ class GoodsData extends Component {
         </Form>
         <Table
           columns={columns}
+          pagination={pageObj}
           dataSource={dataSource}
-          expandedRowRender={record => <p style={{ margin: 0 }}>{record.description}</p>}
+          expandedRowRender={record =>
+            record.goodsParamValue.map(item => {
+              return (
+                <Tag color="cyan" key={item.id}>
+                  {item.valueName}
+                </Tag>
+              );
+            })
+          }
+          rowKey={record => record.id}
         />
         <AddGoodsData
           visible={visible}
           isEdit={isEdit}
-          editData={editData}
           initValue={initValue}
           ref={this.specRef}
           dataList={dataList}

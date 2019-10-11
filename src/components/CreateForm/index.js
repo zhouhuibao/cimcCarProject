@@ -13,13 +13,15 @@ import {
   Switch,
   Cascader,
   Checkbox,
+  TreeSelect,
 } from 'antd';
 import UploadImg from '@/components/UploadImg';
 import SelectImage from '@/components/SelectImage';
+import MapAddress from '@/components/MapAddress';
 import { isEmpty } from '@/utils/utils';
 import city from '@/utils/city.json';
 import styles from './style.less';
-// import moment from 'moment';
+
 console.log(city);
 
 const { TextArea } = Input;
@@ -41,9 +43,27 @@ class TextPage extends Component {
     return false;
   };
 
+  placeholderType = type => {
+    let str = '';
+    if (
+      type === 'select' ||
+      type === 'Time' ||
+      type === 'selectCity' ||
+      type === 'DatePicker' ||
+      type === 'MonthPicker' ||
+      type === 'RangePicker' ||
+      type === 'WeekPicker'
+    ) {
+      str = '请选择';
+    } else if (type === 'text' || type === 'number' || type === 'password' || type === 'textArea') {
+      str = '请输入';
+    }
+    return str;
+  };
+
   setFormItemDom = props => {
     const domAttrObj = {
-      placeholder: `${props.domType === 'select' ? '请选择' : '请输入'}${props.title}`,
+      placeholder: ` ${this.placeholderType(props.domType)}${props.title}`,
       ...props.domAttr,
     };
     const {
@@ -66,15 +86,30 @@ class TextPage extends Component {
           ...props.fieldAttr,
         })(<InputNumber {...domAttrObj} />);
       case 'textArea':
-        return getFieldDecorator(props.id, { ...props.fieldAttr })(
-          <TextArea autosize={{ minRows: 4, maxRows: 8 }} {...domAttrObj} />,
-        );
+        return getFieldDecorator(props.id, {
+          initialValue: props.defaultValue,
+          ...props.fieldAttr,
+        })(<TextArea autosize={{ minRows: 4, maxRows: 8 }} {...domAttrObj} />);
       case 'switch':
-        return getFieldDecorator(props.id, { ...props.fieldAttr })(<Switch {...domAttrObj} />);
+        return getFieldDecorator(props.id, {
+          initialValue: props.defaultValue,
+          ...props.fieldAttr,
+        })(<Switch {...domAttrObj} />);
       case 'selectCity':
         return getFieldDecorator(props.id, { ...props.fieldAttr })(
           <Cascader {...domAttrObj} options={city.data} />,
         );
+      case 'Cascader':
+        return getFieldDecorator(props.id, {
+          initialValue: props.defaultValue,
+          ...props.fieldAttr,
+        })(<Cascader {...domAttrObj} options={props.options} />);
+      case 'TreeSelect':
+        console.log(props);
+        return getFieldDecorator(props.id, {
+          initialValue: props.defaultValue,
+          ...props.fieldAttr,
+        })(<TreeSelect {...domAttrObj} treeData={props.options} />);
       case 'radio':
         return getFieldDecorator(props.id, {
           initialValue: props.defaultValue,
@@ -87,17 +122,29 @@ class TextPage extends Component {
           ...props.fieldAttr,
         })(<Checkbox.Group options={props.options} {...domAttrObj} />);
       case 'img':
-        // console.log(props.defaultValue)
+        console.log(props.multiple || false);
         return getFieldDecorator(props.id, {
           initialValue: props.defaultValue,
           ...props.fieldAttr,
         })(
           <SelectImage
-            multiple={false}
+            multiple={props.multiple || false}
             defaultValues={props.defaultValue}
             customShowDom={props.customShowDom}
             onOk={imgList => {
               this.imgOk(imgList, props.id);
+            }}
+          />,
+        );
+      case 'map':
+        return getFieldDecorator(props.id, {
+          initialValue: props.defaultValue,
+          ...props.fieldAttr,
+        })(
+          <MapAddress
+            defaultValues={props.defaultValue}
+            selected={record => {
+              this.imgOk(record, props.id);
             }}
           />,
         );
@@ -140,7 +187,9 @@ class TextPage extends Component {
       case 'WeekPicker':
         return getFieldDecorator(props.id, { ...props.fieldAttr })(<WeekPicker {...domAttrObj} />);
       case 'TimePicker':
-        return getFieldDecorator(props.id, { ...props.fieldAttr })(<TimePicker {...domAttrObj} />);
+        return getFieldDecorator(props.id, { ...props.fieldAttr })(
+          <TimePicker {...domAttrObj} style={{ width: '100%' }} />,
+        );
 
       case 'upload':
         return getFieldDecorator(props.id, { ...props.fieldAttr })(<UploadImg {...domAttrObj} />);
@@ -160,7 +209,7 @@ class TextPage extends Component {
 
   imgOk = (list, id) => {
     const {
-      form: { setFieldsValue, getFieldValue },
+      form: { setFieldsValue },
     } = this.props;
     setFieldsValue({
       [id]: list,

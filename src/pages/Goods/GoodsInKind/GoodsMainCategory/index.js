@@ -22,6 +22,7 @@ class GoodsMainCategory extends Component {
     page: 1,
     topLevel: true,
     editData: {},
+    initValue: {},
     columns: [
       {
         title: '类目名称',
@@ -87,7 +88,7 @@ class GoodsMainCategory extends Component {
                   <a
                     style={{ marginRight: 10 }}
                     onClick={() => {
-                      this.openRelation('关联参数');
+                      this.openRelation('关联参数', record);
                     }}
                   >
                     关联参数
@@ -95,7 +96,7 @@ class GoodsMainCategory extends Component {
                   <a
                     style={{ marginRight: 10 }}
                     onClick={() => {
-                      this.openRelation();
+                      this.openRelation('关联规格', record);
                     }}
                   >
                     关联规格
@@ -180,6 +181,7 @@ class GoodsMainCategory extends Component {
         id: record.id,
         categName: record.categName,
         ordNum: e.target.value,
+        level: record.level,
       };
       this.submitEdit(obj);
     }
@@ -192,6 +194,7 @@ class GoodsMainCategory extends Component {
         id: record.id,
         categName: e.target.value,
         ordNum: record.ordNum,
+        level: record.level,
       };
       this.submitEdit(obj);
     }
@@ -200,10 +203,16 @@ class GoodsMainCategory extends Component {
   // 修改分类
   submitEdit = values => {
     console.log(values);
+    const obj = {
+      goodsCategory: {
+        ...values,
+      },
+    };
+
     const { dispatch } = this.props;
     dispatch({
       type: 'mainCategoryModel/updateGoodsCategory',
-      payload: values,
+      payload: obj,
       callBack: res => {
         console.log(res);
         if (res.success) {
@@ -218,19 +227,25 @@ class GoodsMainCategory extends Component {
     });
   };
 
-  openRelation = str => {
+  openRelation = (str, record) => {
     this.setState({
       SpecificationOrDataVisible: true,
+      initValue: record,
       isDataModal: str === '关联参数' || false,
     });
   };
 
   submitAddCategory = obj => {
     const { dispatch } = this.props;
+    const paramsObj = {
+      goodsCategory: {
+        ...obj,
+      },
+    };
 
     dispatch({
       type: 'mainCategoryModel/addGoodsCategory',
-      payload: obj,
+      payload: paramsObj,
       callBack: res => {
         console.log(res);
         if (res.success) {
@@ -266,6 +281,55 @@ class GoodsMainCategory extends Component {
     });
   };
 
+  onOk = arr => {
+    if (arr.length <= 0) {
+      message.warning('请至少选择一个参数或规格');
+      return;
+    }
+
+    const { dispatch } = this.props;
+    const { isDataModal, initValue } = this.state;
+
+    const submitType = isDataModal ? 'updateCategoryParam' : 'updateCategorySpecs';
+    const obj = {
+      categId: initValue.id,
+    };
+
+    const goodsCategoryParam = [];
+    arr.forEach(item => {
+      const itemObj = {};
+      if (item.chosen === 1) {
+        itemObj.id = item[isDataModal ? 'goodsCategoryParam' : 'goodsCategorySpecs'].id;
+      } else {
+        itemObj.id = '';
+      }
+      itemObj.categId = initValue.id;
+      if (!isDataModal) {
+        itemObj.specType = item.specType;
+      }
+      itemObj[isDataModal ? 'paramId' : 'specId'] = item.id;
+      goodsCategoryParam.push(itemObj);
+    });
+
+    obj[isDataModal ? 'goodsCategoryParam' : 'goodsCategorySpecs'] = goodsCategoryParam;
+
+    dispatch({
+      type: `mainCategoryModel/${submitType}`,
+      payload: obj,
+      callBack: res => {
+        if (res.success) {
+          message.success('关联成功');
+          this.setState({
+            SpecificationOrDataVisible: false,
+          });
+          this.getMainCategoryList();
+        } else {
+          message.error(res.message);
+        }
+      },
+    });
+  };
+
   render() {
     const {
       categoryVisible,
@@ -275,6 +339,7 @@ class GoodsMainCategory extends Component {
       dataSource,
       total,
       page,
+      initValue,
     } = this.state;
     const { addLoading, listLoading } = this.props;
     const pageObj = {
@@ -287,7 +352,7 @@ class GoodsMainCategory extends Component {
             page: pages,
           },
           () => {
-            this.getTagList();
+            this.getMainCategoryList();
           },
         );
       },
@@ -322,6 +387,10 @@ class GoodsMainCategory extends Component {
         />
         <SpecificationOrDataModal
           type={isDataModal}
+          initValue={initValue}
+          onOk={arr => {
+            this.onOk(arr);
+          }}
           visible={SpecificationOrDataVisible}
           onClose={() => this.setState({ SpecificationOrDataVisible: false })}
         />
