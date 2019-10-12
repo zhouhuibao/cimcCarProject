@@ -8,6 +8,13 @@ const isUrl = urlPath => reg.test(urlPath);
 
 const amapKey = '7456de5e90a1be2a58600fa5c714d63b';
 
+// 删除最后一个字符串
+const delStringLastOne = str => {
+  let s = str;
+  s = s.substring(0, s.length - 1);
+  return s;
+};
+
 const rules = type => {
   let rule = '';
   switch (type) {
@@ -120,4 +127,5 @@ export {
   setCookie,
   getCookie,
   showImg,
+  delStringLastOne,
 };

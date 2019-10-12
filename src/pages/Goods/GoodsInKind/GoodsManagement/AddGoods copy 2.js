@@ -9,7 +9,7 @@ import {
   Input,
   Table,
   Popconfirm,
-  // InputNumber,
+  InputNumber,
   // Icon,
   Spin,
 } from 'antd';
@@ -82,7 +82,6 @@ class AddGoods extends Component {
   }
 
   state = {
-    skuList: [],
     specImgVisible: false,
     dataSource: [],
     contentVisible: false,
@@ -506,37 +505,41 @@ class AddGoods extends Component {
         key: 'name',
         width: 130,
       },
-      // {
-      //   title: <div style={{ color: 'red' }}>*状态</div>,
-      //   dataIndex: 'status',
-      //   key: 'status',
-      //   render: (text, record) => {
-      //     const {
-      //       form: { getFieldDecorator },
-      //     } = this.props;
-      //     return (
-      //       <Form.Item>
-      //         {getFieldDecorator(`status_${record.key}`, {
-      //           initialValue: record[`status_${record.key}`],
-      //           rules:
-      //             type === 'headerColumns' ? null : [{ required: true, message: '状态不能为空' }],
-      //         })(<InputNumber />)}
-      //       </Form.Item>
-      //     );
-      //   },
-      // },
+      {
+        title: <div style={{ color: 'red' }}>*状态</div>,
+        dataIndex: 'status',
+        key: 'status',
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
+          return (
+            <Form.Item>
+              {getFieldDecorator(`status_${record.key}`, {
+                initialValue: record[`status_${record.key}`],
+                rules:
+                  type === 'headerColumns' ? null : [{ required: true, message: '状态不能为空' }],
+              })(<InputNumber />)}
+            </Form.Item>
+          );
+        },
+      },
       {
         title: <div style={{ color: 'red' }}>*库存</div>,
         dataIndex: 'stock',
         key: 'stock',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'stock');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`stock_${record.key}`, {
+                initialValue: record[`stock_${record.key}`],
+                rules:
+                  type === 'headerColumns' ? null : [{ required: true, message: '库存不能为空' }],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -544,14 +547,16 @@ class AddGoods extends Component {
         title: '货号',
         dataIndex: 'skuNo',
         key: 'skuNo',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'skuNo');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`skuNo_${record.key}`, {
+                initialValue: record[`skuNo_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -559,14 +564,16 @@ class AddGoods extends Component {
         title: '重量(kg)',
         dataIndex: 'weight',
         key: 'weight',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'weight');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`weight_${record.key}`, {
+                initialValue: record[`weight_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -574,14 +581,16 @@ class AddGoods extends Component {
         title: '体积(m³)',
         dataIndex: 'volume',
         key: 'volume',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'volume');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`volume_${record.key}`, {
+                initialValue: record[`volume_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -589,14 +598,16 @@ class AddGoods extends Component {
         title: '销售价',
         dataIndex: 'currentPrice',
         key: 'currentPrice',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'currentPrice');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`currentPrice_${record.key}`, {
+                initialValue: record[`currentPrice_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -604,14 +615,16 @@ class AddGoods extends Component {
         title: '成本价',
         dataIndex: 'costPrice',
         key: 'costPrice',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'costPrice');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`costPrice_${record.key}`, {
+                initialValue: record[`costPrice_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -619,14 +632,23 @@ class AddGoods extends Component {
         title: '原价',
         dataIndex: 'originalPrice',
         key: 'originalPrice',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'originalPrice');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`originalPrice_${record.key}`, {
+                initialValue: record[`originalPrice_${record.key}`],
+              })(
+                <Input
+                  style={{ width: 90 }}
+                  onChange={e => {
+                    this.changeSku(e, record);
+                  }}
+                />,
+              )}
+            </Form.Item>
           );
         },
       },
@@ -634,14 +656,16 @@ class AddGoods extends Component {
         title: '条形码',
         dataIndex: 'barcode',
         key: 'barcode',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'barcode');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`barcode_${record.key}`, {
+                initialValue: record[`barcode_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -700,50 +724,9 @@ class AddGoods extends Component {
     });
   };
 
-  // 监听是否改变了sku表格里面的值
-  changeSku = (e, record, index, type) => {
-    const { dataSource } = this.state;
-    console.log(index);
-    console.log(record);
-    console.log(type);
-    if (record.key !== 'tainchong110') {
-      dataSource[index][type] = e.target.value;
-      this.setState(
-        {
-          dataSource,
-        },
-        () => {
-          console.log(record);
-          this.setSkuList(record);
-        },
-      );
-    }
-
-    console.log(dataSource);
-
+  changeSku = (e, record) => {
     console.log(e.target.value);
-  };
-
-  setSkuList = record => {
-    const { skuList } = this.state;
-    let flag = false;
-    let index = '';
-    skuList.forEach((item, i) => {
-      if (delStringLastOne(item.idStr) === delStringLastOne(record.idStr)) {
-        // 判断是否有重复项
-        flag = true;
-        index = i; // 记录重复项的下标
-      }
-    });
-
-    if (!flag) {
-      skuList.push(record);
-    } else {
-      skuList.splice(index, 1, record);
-    }
-    this.setState({
-      skuList,
-    });
+    console.log(record);
   };
 
   // 填充列数据
@@ -812,41 +795,11 @@ class AddGoods extends Component {
     let filedStatus3 = false;
 
     let obj = {};
-
-    const specArr = [];
-    SpecificationsData.forEach(item => {
-      // 组装规格参数
-      item.specsAndCateOut.forEach(specItem => {
-        const specObj = {};
-        specObj.specId = item.specId;
-        specObj.specValueId = specItem.id;
-        specArr.push(specObj);
-      });
-    });
-    obj = { goodsSpuSpecs: specArr };
-
     validateFields1((err, values) => {
-      // 组装spu参数
       if (!err) {
         console.log(values);
-        if (dataType(values.cityAddress) === 'Array') {
-          const { countryId, provinceId, cityId } = values.cityAddress;
-          values.countryId = countryId;
-          values.provinceId = provinceId;
-          values.cityId = cityId;
-        } else {
-          values.countryId = '';
-          values.provinceId = '';
-          values.cityId = '';
-        }
-        values.specsType = switchCheck ? 1 : 0;
-
         values.classifys = values.classifys.join(',');
-        obj = {
-          ...obj,
-          goodsSpu: { ...values },
-          picture: [{ pictureUrl: '123.jpg', ordNum: '0' }],
-        };
+        obj = { ...values };
         filedStatus1 = true;
       }
     });
@@ -882,45 +835,42 @@ class AddGoods extends Component {
           console.log(values);
           console.log(dataSource);
           const skuArr = [];
-
-          dataSource.forEach(item => {
-            const skuObj = {};
-            skuObj.specss = delStringLastOne(item.idStr);
-            skuObj.skuNo = item.skuNo;
-            skuObj.barcode = item.barcode;
-            skuObj.weight = item.weight;
-            skuObj.volume = item.volume;
-            skuObj.stock = item.stock;
-            skuObj.currentPrice = item.currentPrice;
-            skuObj.marketPrice = item.marketPrice;
-            skuObj.costPrice = item.costPrice;
-            skuObj.goodsSkuPicture = [];
-            skuArr.push(skuObj);
+          Object.keys(values).forEach(item => {
+            const skuItem = item.split('skuNo');
+            if (skuItem.length > 1) {
+              const skuObj = {};
+              skuObj.skuNo = values[`skuNo${skuItem[1]}`];
+              skuObj.stock = values[`stock${skuItem[1]}`];
+              skuObj.status = values[`status${skuItem[1]}`];
+              skuObj.weight = values[`weight${skuItem[1]}`];
+              skuObj.volume = values[`volume${skuItem[1]}`];
+              skuObj.currentPrice = values[`currentPrice${skuItem[1]}`];
+              skuObj.costPrice = values[`costPrice${skuItem[1]}`];
+              skuObj.originalPrice = values[`originalPrice${skuItem[1]}`];
+              skuObj.barcode = values[`barcode${skuItem[1]}`];
+              skuArr.push(skuObj);
+            }
           });
 
+          skuArr.forEach((item, index) => {
+            const s = dataSource[index].idStr;
+            item.specss = delStringLastOne(s);
+            console.log(dataType(dataSource[index].goodsSkuPicture));
+            item.goodsSkuPicture =
+              dataType(dataSource[index].goodsSkuPicture) === 'Array'
+                ? dataSource[index].goodsSkuPicture
+                : [];
+          });
           console.log(skuArr);
 
           filedStatus3 = true;
-          obj = {
-            ...obj,
-            goodsSku: skuArr,
-            detail: editorState.toHTML(),
-          };
+          obj = { ...obj, goodsSku: skuArr };
         }
       });
 
       if (filedStatus1 && filedStatus3) {
         console.log(obj);
         console.log(editorState.toHTML());
-
-        const { dispatch } = this.props;
-        dispatch({
-          type: 'goodsModel/addGoodsSpu',
-          payload: obj,
-          callBack: res => {
-            console.log(res);
-          },
-        });
       }
     } else {
       const validateFields2 = this.formItemRef1.current.validateFields;
@@ -956,7 +906,6 @@ class AddGoods extends Component {
   // 设置规格组合表格里面的数据
   setHeaderTableData = SpecificationsData => {
     console.log(SpecificationsData);
-    const { dataSource } = this.state;
     const arr = [];
     SpecificationsData.forEach(item => {
       const itemList = item.specsAndCateOut;
@@ -979,25 +928,18 @@ class AddGoods extends Component {
     });
 
     console.log(arr);
-    console.log(getArrayByArrays(arr));
 
     let checkedSpecification = [];
     if (getArrayByArrays(arr).length === 1 && getArrayByArrays(arr)[0] === '') {
       checkedSpecification = [];
     } else {
       getArrayByArrays(arr).forEach(item => {
-        let checkedObj = {};
+        const checkedObj = {};
         checkedObj.key = MathRandom();
         checkedObj.name = item.name;
         checkedObj.specInfo = item.specInfo;
         checkedObj.idStr = item.idStr;
         checkedObj.specType = item.specType;
-        dataSource.forEach(dataItem => {
-          if (item.idStr === dataItem.idStr) {
-            checkedObj = { ...dataItem };
-          }
-        });
-
         checkedSpecification.push(checkedObj);
       });
     }
@@ -1005,41 +947,6 @@ class AddGoods extends Component {
     this.setState({
       dataSource: checkedSpecification,
     });
-  };
-
-  // 判断之前是否存在
-  switchIsExist = arr => {
-    const { skuList, dataSource } = this.state;
-    if (skuList.length <= 0) {
-      // const checkedObj = {};
-      // checkedObj.key = MathRandom();
-      // checkedObj.name = arrItem.name;
-      // checkedObj.specInfo = arrItem.specInfo;
-      // checkedObj.idStr = arrItem.idStr;
-      // checkedObj.specType = arrItem.specType;
-      // dataSource.push(checkedObj)
-    }
-    skuList.forEach(item => {
-      arr.forEach(arrItem => {
-        if (item.idStr === arrItem.idStr) {
-          dataSource.push(item);
-        } else {
-          const checkedObj = {};
-          checkedObj.key = MathRandom();
-          checkedObj.name = arrItem.name;
-          checkedObj.specInfo = arrItem.specInfo;
-          checkedObj.idStr = arrItem.idStr;
-          checkedObj.specType = arrItem.specType;
-          dataSource.push(checkedObj);
-        }
-      });
-    });
-
-    return dataSource;
-
-    // this.setState({
-    //   dataSource
-    // })
   };
 
   // 监听规格多选框的变化

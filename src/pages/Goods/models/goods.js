@@ -4,6 +4,7 @@ import {
   goodsCategoryIdSelectParam,
   goodsCategoryIdSelect,
   selectGoodsBrand,
+  addGoodsSpu,
 } from '@/services/goods';
 import { getRegionJoin } from '@/services/webStation';
 
@@ -15,6 +16,12 @@ export default {
   effects: {
     *getRegionJoin({ payload, callBack }, { call }) {
       const response = yield call(getRegionJoin, payload);
+      if (callBack) {
+        callBack(response);
+      }
+    },
+    *addGoodsSpu({ payload, callBack }, { call }) {
+      const response = yield call(addGoodsSpu, payload);
       if (callBack) {
         callBack(response);
       }

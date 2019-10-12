@@ -9,8 +9,8 @@ import {
   Input,
   Table,
   Popconfirm,
-  // InputNumber,
-  // Icon,
+  InputNumber,
+  Icon,
   Spin,
 } from 'antd';
 import BraftEditor from 'braft-editor';
@@ -82,8 +82,49 @@ class AddGoods extends Component {
   }
 
   state = {
-    skuList: [],
     specImgVisible: false,
+    specPicTableData: [],
+    selctedRow: {},
+    specPicColumns: [
+      {
+        title: '规格',
+        dataIndex: 'valueName',
+        width: 130,
+      },
+      {
+        title: '规格图片',
+        render: (text, record) => {
+          return (
+            <div className={`clearfix ${styles.specPicListWrapper}`}>
+              {record.picList.map((item, index) => {
+                return (
+                  <div className={styles.specPicListItem} key={item.key}>
+                    <Icon
+                      type="delete"
+                      className={styles.delIcon}
+                      onClick={() => {
+                        this.deleteSpecPic(record, index);
+                      }}
+                    />
+                    <img
+                      src={showImg(item.path)}
+                      alt=""
+                      style={{ width: 50, height: 50, float: 'left', marginRight: 10 }}
+                    />
+                  </div>
+                );
+              })}
+              <div
+                className={styles.specPicUpload}
+                onClick={() => this.setState({ specImgVisible: true, selctedRow: record })}
+              >
+                <Icon type="camera" />
+              </div>
+            </div>
+          );
+        },
+      },
+    ],
     dataSource: [],
     contentVisible: false,
     headerDataSource: [
@@ -313,7 +354,7 @@ class AddGoods extends Component {
       },
       {
         domType: 'text',
-        id: 'ordNum',
+        id: 'controlsId6',
         title: '排序编号',
         domAttr: {},
         fieldAttr: {},
@@ -464,8 +505,10 @@ class AddGoods extends Component {
           obj.domType = 'select';
           obj.title = item.paramName;
           obj.domAttr = {};
-          obj.id = `${item.paramId}`;
+          obj.id = `params&${item.paramId}`;
           obj.fieldAttr = {};
+          obj.defaultValue = '';
+          obj.paramId = item.paramId;
           const optionsArr = [];
           item.specsAndCateOut.forEach(childerItem => {
             const childerObj = {};
@@ -506,37 +549,41 @@ class AddGoods extends Component {
         key: 'name',
         width: 130,
       },
-      // {
-      //   title: <div style={{ color: 'red' }}>*状态</div>,
-      //   dataIndex: 'status',
-      //   key: 'status',
-      //   render: (text, record) => {
-      //     const {
-      //       form: { getFieldDecorator },
-      //     } = this.props;
-      //     return (
-      //       <Form.Item>
-      //         {getFieldDecorator(`status_${record.key}`, {
-      //           initialValue: record[`status_${record.key}`],
-      //           rules:
-      //             type === 'headerColumns' ? null : [{ required: true, message: '状态不能为空' }],
-      //         })(<InputNumber />)}
-      //       </Form.Item>
-      //     );
-      //   },
-      // },
+      {
+        title: <div style={{ color: 'red' }}>*状态</div>,
+        dataIndex: 'status',
+        key: 'status',
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
+          return (
+            <Form.Item>
+              {getFieldDecorator(`status_${record.key}`, {
+                initialValue: record[`status_${record.key}`],
+                rules:
+                  type === 'headerColumns' ? null : [{ required: true, message: '状态不能为空' }],
+              })(<InputNumber />)}
+            </Form.Item>
+          );
+        },
+      },
       {
         title: <div style={{ color: 'red' }}>*库存</div>,
         dataIndex: 'stock',
         key: 'stock',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'stock');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`stock_${record.key}`, {
+                initialValue: record[`stock_${record.key}`],
+                rules:
+                  type === 'headerColumns' ? null : [{ required: true, message: '库存不能为空' }],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -544,14 +591,16 @@ class AddGoods extends Component {
         title: '货号',
         dataIndex: 'skuNo',
         key: 'skuNo',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'skuNo');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`skuNo_${record.key}`, {
+                initialValue: record[`skuNo_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -559,14 +608,16 @@ class AddGoods extends Component {
         title: '重量(kg)',
         dataIndex: 'weight',
         key: 'weight',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'weight');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`weight_${record.key}`, {
+                initialValue: record[`weight_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -574,14 +625,16 @@ class AddGoods extends Component {
         title: '体积(m³)',
         dataIndex: 'volume',
         key: 'volume',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'volume');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`volume_${record.key}`, {
+                initialValue: record[`volume_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -589,14 +642,16 @@ class AddGoods extends Component {
         title: '销售价',
         dataIndex: 'currentPrice',
         key: 'currentPrice',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'currentPrice');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`currentPrice_${record.key}`, {
+                initialValue: record[`currentPrice_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -604,14 +659,16 @@ class AddGoods extends Component {
         title: '成本价',
         dataIndex: 'costPrice',
         key: 'costPrice',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'costPrice');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`costPrice_${record.key}`, {
+                initialValue: record[`costPrice_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -619,14 +676,16 @@ class AddGoods extends Component {
         title: '原价',
         dataIndex: 'originalPrice',
         key: 'originalPrice',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'originalPrice');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`originalPrice_${record.key}`, {
+                initialValue: record[`originalPrice_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -634,14 +693,16 @@ class AddGoods extends Component {
         title: '条形码',
         dataIndex: 'barcode',
         key: 'barcode',
-        render: (text, record, index) => {
+        render: (text, record) => {
+          const {
+            form: { getFieldDecorator },
+          } = this.props;
           return (
-            <Input
-              style={{ width: 90 }}
-              onChange={e => {
-                this.changeSku(e, record, index, 'barcode');
-              }}
-            />
+            <Form.Item>
+              {getFieldDecorator(`barcode_${record.key}`, {
+                initialValue: record[`barcode_${record.key}`],
+              })(<Input style={{ width: 90 }} />)}
+            </Form.Item>
           );
         },
       },
@@ -651,7 +712,6 @@ class AddGoods extends Component {
       title: '操作',
       dataIndex: 'delete',
       key: 'delete',
-      align: 'center',
     };
 
     if (type === 'headerColumns') {
@@ -669,26 +729,16 @@ class AddGoods extends Component {
     } else {
       obj.render = (text, record) => {
         return (
-          <div>
-            <div>
-              <Popconfirm
-                title="确定要清空这条数据吗?"
-                onConfirm={e => {
-                  this.deleteTableDate(e, record);
-                }}
-                okText="确定"
-                cancelText="取消"
-              >
-                <a>清空</a>
-              </Popconfirm>
-            </div>
-            <div style={{ marginTop: 5 }}>
-              <a onClick={() => this.setState({ specImgVisible: true })}>上传图片</a>
-            </div>
-            <div style={{ marginTop: 5 }}>
-              <a>查看图片</a>
-            </div>
-          </div>
+          <Popconfirm
+            title="确定要清空这条数据吗?"
+            onConfirm={e => {
+              this.deleteTableDate(e, record);
+            }}
+            okText="确定"
+            cancelText="取消"
+          >
+            <a>清空</a>
+          </Popconfirm>
         );
       };
     }
@@ -697,52 +747,6 @@ class AddGoods extends Component {
 
     this.setState({
       [type]: columnsArr,
-    });
-  };
-
-  // 监听是否改变了sku表格里面的值
-  changeSku = (e, record, index, type) => {
-    const { dataSource } = this.state;
-    console.log(index);
-    console.log(record);
-    console.log(type);
-    if (record.key !== 'tainchong110') {
-      dataSource[index][type] = e.target.value;
-      this.setState(
-        {
-          dataSource,
-        },
-        () => {
-          console.log(record);
-          this.setSkuList(record);
-        },
-      );
-    }
-
-    console.log(dataSource);
-
-    console.log(e.target.value);
-  };
-
-  setSkuList = record => {
-    const { skuList } = this.state;
-    let flag = false;
-    let index = '';
-    skuList.forEach((item, i) => {
-      if (delStringLastOne(item.idStr) === delStringLastOne(record.idStr)) {
-        // 判断是否有重复项
-        flag = true;
-        index = i; // 记录重复项的下标
-      }
-    });
-
-    if (!flag) {
-      skuList.push(record);
-    } else {
-      skuList.splice(index, 1, record);
-    }
-    this.setState({
-      skuList,
     });
   };
 
@@ -802,8 +806,7 @@ class AddGoods extends Component {
   handleSubmit = e => {
     e.preventDefault();
     console.log(this.formItemRef);
-    const { editorState, switchCheck, dataSource, SpecificationsData } = this.state;
-    console.log(SpecificationsData);
+    const { editorState, switchCheck, dataSource, specPicTableData } = this.state;
     const validateFields1 = this.formItemRef.current.validateFields;
     const paramsvalidateFields = this.paramsFormRef.current.validateFields;
 
@@ -812,57 +815,18 @@ class AddGoods extends Component {
     let filedStatus3 = false;
 
     let obj = {};
-
-    const specArr = [];
-    SpecificationsData.forEach(item => {
-      // 组装规格参数
-      item.specsAndCateOut.forEach(specItem => {
-        const specObj = {};
-        specObj.specId = item.specId;
-        specObj.specValueId = specItem.id;
-        specArr.push(specObj);
-      });
-    });
-    obj = { goodsSpuSpecs: specArr };
-
     validateFields1((err, values) => {
-      // 组装spu参数
       if (!err) {
         console.log(values);
-        if (dataType(values.cityAddress) === 'Array') {
-          const { countryId, provinceId, cityId } = values.cityAddress;
-          values.countryId = countryId;
-          values.provinceId = provinceId;
-          values.cityId = cityId;
-        } else {
-          values.countryId = '';
-          values.provinceId = '';
-          values.cityId = '';
-        }
-        values.specsType = switchCheck ? 1 : 0;
-
-        values.classifys = values.classifys.join(',');
-        obj = {
-          ...obj,
-          goodsSpu: { ...values },
-          picture: [{ pictureUrl: '123.jpg', ordNum: '0' }],
-        };
+        obj = { ...values };
         filedStatus1 = true;
       }
     });
 
     paramsvalidateFields((err, values) => {
       if (!err) {
-        const paramsList = [];
-        Object.keys(values).forEach(item => {
-          if (isEmpty(values[item])) {
-            const paramsObj = {};
-            paramsObj.paramId = item;
-            paramsObj.paramValueId = values[item];
-            paramsList.push(paramsObj);
-          }
-        });
-        obj = { ...obj, goodsSpuParam: paramsList };
+        console.log(values);
+        obj = { ...values };
       }
     });
 
@@ -882,45 +846,66 @@ class AddGoods extends Component {
           console.log(values);
           console.log(dataSource);
           const skuArr = [];
-
-          dataSource.forEach(item => {
-            const skuObj = {};
-            skuObj.specss = delStringLastOne(item.idStr);
-            skuObj.skuNo = item.skuNo;
-            skuObj.barcode = item.barcode;
-            skuObj.weight = item.weight;
-            skuObj.volume = item.volume;
-            skuObj.stock = item.stock;
-            skuObj.currentPrice = item.currentPrice;
-            skuObj.marketPrice = item.marketPrice;
-            skuObj.costPrice = item.costPrice;
-            skuObj.goodsSkuPicture = [];
-            skuArr.push(skuObj);
+          Object.keys(values).forEach(item => {
+            const skuItem = item.split('skuNo');
+            if (skuItem.length > 1) {
+              const skuObj = {};
+              skuObj.skuNo = values[`skuNo${skuItem[1]}`];
+              skuObj.stock = values[`stock${skuItem[1]}`];
+              skuObj.status = values[`status${skuItem[1]}`];
+              skuObj.weight = values[`weight${skuItem[1]}`];
+              skuObj.volume = values[`volume${skuItem[1]}`];
+              skuObj.currentPrice = values[`currentPrice${skuItem[1]}`];
+              skuObj.costPrice = values[`costPrice${skuItem[1]}`];
+              skuObj.originalPrice = values[`originalPrice${skuItem[1]}`];
+              skuObj.barcode = values[`barcode${skuItem[1]}`];
+              skuArr.push(skuObj);
+            }
           });
 
+          if (specPicTableData.length > 0) {
+            dataSource.forEach(item => {
+              if (item.specType === 1) {
+                if (delStringLastOne(item.idStr).indexOf(',') === -1) {
+                  // 只选择了一种图片规格
+                  const itemArr = delStringLastOne(item.idStr).split(':');
+                  item.goodsSkuPicture = this.setPicList(specPicTableData, itemArr[1], 'dan');
+                  //
+                } else {
+                  // 组合规格,带有图片规格
+                  item.goodsSkuPicture = this.setPicList(
+                    specPicTableData,
+                    delStringLastOne(item.idStr),
+                  );
+                  // const itemArr = delStringLastOne(item.idStr).split(',');
+                  // itemArr.forEach(idStrItem=>{
+                  //   const {idStrItem}
+                  // })
+                }
+              }
+            });
+          }
+          console.log(dataSource);
+
+          skuArr.forEach((item, index) => {
+            const s = dataSource[index].idStr;
+            item.specss = delStringLastOne(s);
+            console.log(dataType(dataSource[index].goodsSkuPicture));
+            item.goodsSkuPicture =
+              dataType(dataSource[index].goodsSkuPicture) === 'Array'
+                ? dataSource[index].goodsSkuPicture
+                : [];
+          });
           console.log(skuArr);
 
           filedStatus3 = true;
-          obj = {
-            ...obj,
-            goodsSku: skuArr,
-            detail: editorState.toHTML(),
-          };
+          obj = { ...values };
         }
       });
 
       if (filedStatus1 && filedStatus3) {
         console.log(obj);
         console.log(editorState.toHTML());
-
-        const { dispatch } = this.props;
-        dispatch({
-          type: 'goodsModel/addGoodsSpu',
-          payload: obj,
-          callBack: res => {
-            console.log(res);
-          },
-        });
       }
     } else {
       const validateFields2 = this.formItemRef1.current.validateFields;
@@ -940,6 +925,40 @@ class AddGoods extends Component {
     }
   };
 
+  setPicList = (arr, str, type) => {
+    let picArr = [];
+    if (type === 'dan') {
+      for (let i = 0; i < arr.length; i += 1) {
+        if (arr[i].id === str) {
+          picArr = arr[i].picList;
+          break;
+        }
+      }
+    } else {
+      const idArr = str.split(',');
+      for (let i = 0; i < idArr.length; i += 1) {
+        const idStr = idArr[i].split(':')[1];
+        for (let j = 0; j < arr.length; j += 1) {
+          if (arr[j].id === idStr) {
+            picArr = arr[j].picList;
+            break;
+          }
+        }
+      }
+    }
+
+    const listArr = [];
+
+    picArr.forEach(item => {
+      const obj = {
+        skuPicture: item.path,
+      };
+      listArr.push(obj);
+    });
+
+    return listArr;
+  };
+
   // 监听富文本的变化
   handleChange = editorState => {
     console.log(editorState.toHTML());
@@ -956,7 +975,6 @@ class AddGoods extends Component {
   // 设置规格组合表格里面的数据
   setHeaderTableData = SpecificationsData => {
     console.log(SpecificationsData);
-    const { dataSource } = this.state;
     const arr = [];
     SpecificationsData.forEach(item => {
       const itemList = item.specsAndCateOut;
@@ -979,25 +997,18 @@ class AddGoods extends Component {
     });
 
     console.log(arr);
-    console.log(getArrayByArrays(arr));
 
     let checkedSpecification = [];
     if (getArrayByArrays(arr).length === 1 && getArrayByArrays(arr)[0] === '') {
       checkedSpecification = [];
     } else {
       getArrayByArrays(arr).forEach(item => {
-        let checkedObj = {};
+        const checkedObj = {};
         checkedObj.key = MathRandom();
         checkedObj.name = item.name;
         checkedObj.specInfo = item.specInfo;
         checkedObj.idStr = item.idStr;
         checkedObj.specType = item.specType;
-        dataSource.forEach(dataItem => {
-          if (item.idStr === dataItem.idStr) {
-            checkedObj = { ...dataItem };
-          }
-        });
-
         checkedSpecification.push(checkedObj);
       });
     }
@@ -1007,39 +1018,23 @@ class AddGoods extends Component {
     });
   };
 
-  // 判断之前是否存在
-  switchIsExist = arr => {
-    const { skuList, dataSource } = this.state;
-    if (skuList.length <= 0) {
-      // const checkedObj = {};
-      // checkedObj.key = MathRandom();
-      // checkedObj.name = arrItem.name;
-      // checkedObj.specInfo = arrItem.specInfo;
-      // checkedObj.idStr = arrItem.idStr;
-      // checkedObj.specType = arrItem.specType;
-      // dataSource.push(checkedObj)
-    }
-    skuList.forEach(item => {
-      arr.forEach(arrItem => {
-        if (item.idStr === arrItem.idStr) {
-          dataSource.push(item);
-        } else {
-          const checkedObj = {};
-          checkedObj.key = MathRandom();
-          checkedObj.name = arrItem.name;
-          checkedObj.specInfo = arrItem.specInfo;
-          checkedObj.idStr = arrItem.idStr;
-          checkedObj.specType = arrItem.specType;
-          dataSource.push(checkedObj);
+  // 设置规格图片里面的表格的数据
+  setSpecPicTableData = value => {
+    const obj = { ...value };
+    obj.picList = [{ key: MathRandom(), path: value.valuePicture }];
+    const { specPicTableData } = this.state;
+    if (value.checked) {
+      specPicTableData.push(obj);
+    } else {
+      specPicTableData.forEach((item, index) => {
+        if (item.id === value.id) {
+          specPicTableData.splice(index, 1);
         }
       });
+    }
+    this.setState({
+      specPicTableData,
     });
-
-    return dataSource;
-
-    // this.setState({
-    //   dataSource
-    // })
   };
 
   // 监听规格多选框的变化
@@ -1055,7 +1050,9 @@ class AddGoods extends Component {
         }
       }
     }
-
+    if (isEmpty(value.valuePicture)) {
+      this.setSpecPicTableData(value);
+    }
     this.setState(
       {
         SpecificationsData,
@@ -1091,8 +1088,39 @@ class AddGoods extends Component {
     console.log(SpecificationsData);
   };
 
-  selectSpecImages = imgArr => {
-    console.log(imgArr);
+  // 删除规格图片
+  deleteSpecPic = (record, index) => {
+    const { specPicTableData } = this.state;
+    specPicTableData.forEach(item => {
+      if (record.id === item.id) {
+        item.picList.splice(index, 1);
+      }
+    });
+    this.setState({
+      specPicTableData,
+    });
+  };
+
+  // 添加规格图片
+  selectSpecImages = arr => {
+    console.log(arr);
+    const { selctedRow, specPicTableData } = this.state;
+    if (arr.length > 0) {
+      specPicTableData.forEach(item => {
+        if (selctedRow.id === item.id) {
+          const obj = {};
+          obj.key = MathRandom();
+          obj.path = arr[0].url;
+
+          item.picList.push(obj);
+        }
+      });
+    }
+
+    this.setState({
+      specPicTableData,
+      specImgVisible: false,
+    });
   };
 
   render() {
@@ -1109,6 +1137,8 @@ class AddGoods extends Component {
       headerColumns,
       contentVisible,
       paramsForm,
+      specPicTableData,
+      specPicColumns,
       specImgVisible,
     } = this.state;
     const { categoryLoading } = this.props;
@@ -1199,6 +1229,13 @@ class AddGoods extends Component {
                       );
                     })}
 
+                    <Blockquote title="设置规格图片" />
+                    <Table
+                      dataSource={specPicTableData}
+                      columns={specPicColumns}
+                      rowKey={record => record.id}
+                      pagination={false}
+                    />
                     <Blockquote title="设置规格" />
                     <Table
                       showHeader={false}

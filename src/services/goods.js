@@ -18,6 +18,14 @@ export async function selectGoodsBrand(params) {
   });
 }
 
+// 添加商品
+export async function addGoodsSpu(params) {
+  return request(`${pathRoot}${projectName}/pc-goodsSpu/addGoodsSpu`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
 // 添加商品品牌
 export async function addGoodsBrand(params) {
   return request(`${pathRoot}${projectName}/pc-goodsBrand/addGoodsBrand`, {

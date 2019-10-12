@@ -22,8 +22,6 @@ import { isEmpty } from '@/utils/utils';
 import city from '@/utils/city.json';
 import styles from './style.less';
 
-console.log(city);
-
 const { TextArea } = Input;
 const { Option } = Select;
 const { MonthPicker, RangePicker, WeekPicker } = DatePicker;
