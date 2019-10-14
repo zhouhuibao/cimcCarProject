@@ -9,6 +9,7 @@ import {
   Input,
   Table,
   Popconfirm,
+  message,
   // InputNumber,
   // Icon,
   Spin,
@@ -20,6 +21,7 @@ import CustomSelectImage from '@/components/CustomSelectImage';
 import FormItemDom from '@/components/CreateForm';
 import CardComponent from '@/components/CardComponent';
 import Blockquote from '@/components/Blockquote';
+import ShowSpecImg from './ShowSpecImg';
 import 'braft-editor/dist/index.css';
 import styles from './styles.less';
 import { MathRandom, showImg, isEmpty, dataType, delStringLastOne } from '@/utils/utils';
@@ -83,9 +85,12 @@ class AddGoods extends Component {
 
   state = {
     skuList: [],
+    ShowSpecImgVisible: false,
     specImgVisible: false,
     dataSource: [],
+    combinationId: '',
     contentVisible: false,
+    showImgList: [],
     headerDataSource: [
       {
         key: 'tainchong110',
@@ -295,6 +300,7 @@ class AddGoods extends Component {
           rules: [
             {
               required: true,
+              message: '请选择品牌',
             },
           ],
         },
@@ -333,6 +339,7 @@ class AddGoods extends Component {
           rules: [
             {
               required: true,
+              message: '请选择商品分类',
             },
           ],
         },
@@ -366,7 +373,6 @@ class AddGoods extends Component {
         fieldAttr: {},
       },
     ],
-
     options: [],
   };
 
@@ -683,10 +689,18 @@ class AddGoods extends Component {
               </Popconfirm>
             </div>
             <div style={{ marginTop: 5 }}>
-              <a onClick={() => this.setState({ specImgVisible: true })}>上传图片</a>
+              <a onClick={() => this.setState({ specImgVisible: true, combinationId: record.key })}>
+                上传图片
+              </a>
             </div>
             <div style={{ marginTop: 5 }}>
-              <a>查看图片</a>
+              <a
+                onClick={() =>
+                  this.setState({ ShowSpecImgVisible: true, showImgList: record.goodsSkuPicture })
+                }
+              >
+                查看图片
+              </a>
             </div>
           </div>
         );
@@ -809,7 +823,6 @@ class AddGoods extends Component {
 
     let filedStatus1 = false;
     let filedStatus2 = false;
-    let filedStatus3 = false;
 
     let obj = {};
 
@@ -894,49 +907,56 @@ class AddGoods extends Component {
             skuObj.currentPrice = item.currentPrice;
             skuObj.marketPrice = item.marketPrice;
             skuObj.costPrice = item.costPrice;
-            skuObj.goodsSkuPicture = [];
+            skuObj.goodsSkuPicture = item.goodsSkuPicture;
             skuArr.push(skuObj);
           });
 
           console.log(skuArr);
 
-          filedStatus3 = true;
+          filedStatus2 = true;
           obj = {
             ...obj,
             goodsSku: skuArr,
-            detail: editorState.toHTML(),
           };
         }
       });
-
-      if (filedStatus1 && filedStatus3) {
-        console.log(obj);
-        console.log(editorState.toHTML());
-
-        const { dispatch } = this.props;
-        dispatch({
-          type: 'goodsModel/addGoodsSpu',
-          payload: obj,
-          callBack: res => {
-            console.log(res);
-          },
-        });
-      }
     } else {
       const validateFields2 = this.formItemRef1.current.validateFields;
       validateFields2((err, values) => {
         if (!err) {
           console.log(values);
           filedStatus2 = true;
-          obj = { ...values };
+
+          obj = {
+            ...obj,
+            goodsSku: [{ ...values }],
+          };
         }
       });
-      if (filedStatus1 && filedStatus2) {
-        console.log(obj);
+    }
 
-        // 获取富文本里面的内容
-        console.log(editorState.toHTML());
-      }
+    obj = {
+      ...obj,
+      detail: editorState.toHTML(),
+    };
+
+    if (filedStatus1 && filedStatus2) {
+      console.log(obj);
+
+      // const { dispatch } = this.props;
+      // dispatch({
+      //   type: 'goodsModel/addGoodsSpu',
+      //   payload: obj,
+      //   callBack: res => {
+      //     console.log(res);
+      //     if(res.success){
+      //       message.success('商品添加成功');
+      //       router.goBack()
+      //     }else{
+      //       message.success(res.message)
+      //     }
+      //   },
+      // });
     }
   };
 
@@ -991,6 +1011,7 @@ class AddGoods extends Component {
         checkedObj.name = item.name;
         checkedObj.specInfo = item.specInfo;
         checkedObj.idStr = item.idStr;
+        checkedObj.goodsSkuPicture = [];
         checkedObj.specType = item.specType;
         dataSource.forEach(dataItem => {
           if (item.idStr === dataItem.idStr) {
@@ -1092,6 +1113,27 @@ class AddGoods extends Component {
   };
 
   selectSpecImages = imgArr => {
+    const { combinationId, dataSource } = this.state;
+    console.log(combinationId);
+    if (imgArr.length > 0) {
+      // goodsSkuPicture
+      dataSource.forEach(item => {
+        if (item.key === combinationId) {
+          imgArr.forEach(imgItem => {
+            const imgObj = { skuPicture: imgItem.url };
+
+            item.goodsSkuPicture.push(imgObj);
+          });
+        }
+      });
+    }
+    console.log(dataSource);
+
+    this.setState({
+      specImgVisible: false,
+      dataSource,
+    });
+
     console.log(imgArr);
   };
 
@@ -1110,6 +1152,8 @@ class AddGoods extends Component {
       contentVisible,
       paramsForm,
       specImgVisible,
+      ShowSpecImgVisible,
+      showImgList,
     } = this.state;
     const { categoryLoading } = this.props;
     const cardDom = (
@@ -1238,10 +1282,16 @@ class AddGoods extends Component {
         </Form>
         <CustomSelectImage
           visible={specImgVisible}
+          multiple
           onOk={imgArr => {
             this.selectSpecImages(imgArr);
           }}
           onCancel={() => this.setState({ specImgVisible: false })}
+        />
+        <ShowSpecImg
+          visible={ShowSpecImgVisible}
+          imglist={showImgList}
+          handleCancel={() => this.setState({ ShowSpecImgVisible: false })}
         />
       </div>
     );
